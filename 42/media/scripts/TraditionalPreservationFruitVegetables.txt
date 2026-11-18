@@ -1,0 +1,76 @@
+module TraditionalPreservationFruitVegetables
+{
+    /* Kraut taken out of the kraut barrel, a portion a head (TraditionalPreservationFruitVegetablesBarrel.lua). The
+       numbers here are a plain head's; each portion taken out gets its batch's food (the heads, apples and carrots
+       shared over the heads) and its age from the barrel's keeping. No mood: the kraut is a way of keeping cabbage,
+       not a treat. Out of the brine it keeps 14 days fresh, 28 to rotten. */
+    item Sauerkraut
+    {
+        DisplayCategory = Food,
+        ItemType = base:food,
+        Icon = Sauerkraut,
+        Weight = 0.2,
+        HungerChange = -24.0,
+        DaysFresh = 14,
+        DaysTotallyRotten = 28,
+        EvolvedRecipe = Soup:12;Stew:12;Stir fry:12;Sandwich:6;Burger:6;Hotdog:6;Salad:12;Taco:6;Burrito:6,
+        ThirstChange = -10.0,
+        FoodType = Vegetables,
+        Carbohydrates = 41.0,
+        Proteins = 9.0,
+        Lipids = 0.7,
+        Calories = 180.0,
+        StaticModel = Cabbage_Ground,
+        WorldStaticModel = Cabbage_Ground,
+        Tooltip = Tooltip_TraditionalPreservationFruitVegetables_Kraut,
+    }
+
+    item SauerTurnip
+    {
+        DisplayCategory = Food,
+        ItemType = base:food,
+        Icon = SauerTurnip,
+        Weight = 0.2,
+        HungerChange = -18.0,
+        DaysFresh = 14,
+        DaysTotallyRotten = 28,
+        EvolvedRecipe = Soup:18;Stew:18;Pie:18;Stir fry:18;Salad:9,
+        FoodType = Vegetables,
+        Carbohydrates = 14.52,
+        Proteins = 2.88,
+        Lipids = 0.15,
+        Calories = 70.0,
+        StaticModel = Turnip,
+        WorldStaticModel = Turnip,
+        Tooltip = Tooltip_TraditionalPreservationFruitVegetables_Kraut,
+    }
+
+    /* Garlic or onions plaited by their own dry stalks (Braid, from the bulbs' right-click menu): only lighter to
+       carry. Only its own bulbs go in (acceptBraid); they keep and cure inside as loose ones do, on a Drying Pole too.
+       Unbraid gives them back. */
+    item GarlicBraid
+    {
+        DisplayCategory = Container,
+        ItemType = base:container,
+        Weight = 0.05,
+        Icon = GarlicBraid,
+        Capacity = 2,
+        WeightReduction = 30,
+        AcceptItemFunction = TraditionalPreservationFruitVegetables.acceptGarlicBraid,
+        WorldStaticModel = Garlic,
+        Tooltip = Tooltip_TraditionalPreservationFruitVegetables_Braid,
+    }
+
+    item OnionBraid
+    {
+        DisplayCategory = Container,
+        ItemType = base:container,
+        Weight = 0.05,
+        Icon = OnionBraid,
+        Capacity = 2,
+        WeightReduction = 30,
+        AcceptItemFunction = TraditionalPreservationFruitVegetables.acceptOnionBraid,
+        WorldStaticModel = Onion_Ground,
+        Tooltip = Tooltip_TraditionalPreservationFruitVegetables_Braid,
+    }
+}

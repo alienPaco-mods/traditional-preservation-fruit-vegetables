@@ -1,0 +1,16 @@
+{
+  "ContextMenu_TraditionalPreservationFruitVegetables_Info": "Barrel Info",
+  "ContextMenu_TraditionalPreservationFruitVegetables_One": "One",
+  "ContextMenu_TraditionalPreservationFruitVegetables_All": "All (%1)",
+  "ContextMenu_TraditionalPreservationFruitVegetables_Pack_cabbage": "Pack Cabbage",
+  "ContextMenu_TraditionalPreservationFruitVegetables_Pack_turnip": "Pack Turnip",
+  "ContextMenu_TraditionalPreservationFruitVegetables_Add_apple": "Add Apple",
+  "ContextMenu_TraditionalPreservationFruitVegetables_Add_carrot": "Add Carrot",
+  "ContextMenu_TraditionalPreservationFruitVegetables_Unpack": "Unpack the Barrel",
+  "ContextMenu_TraditionalPreservationFruitVegetables_Take": "Take %1 (%2 left)",
+  "ContextMenu_TraditionalPreservationFruitVegetables_Empty": "Empty the Spoiled Barrel",
+  "ContextMenu_TraditionalPreservationFruitVegetables_Compress": "Salt and Compress (%1 salt)",
+  "ContextMenu_TraditionalPreservationFruitVegetables_Braid_garlic": "Braid Garlic (%1)",
+  "ContextMenu_TraditionalPreservationFruitVegetables_Braid_onion": "Braid Onions (%1)",
+  "ContextMenu_TraditionalPreservationFruitVegetables_Unbraid": "Unbraid"
+}

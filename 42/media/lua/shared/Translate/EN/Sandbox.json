@@ -1,0 +1,13 @@
+{
+  "Sandbox_TraditionalPreservationFruitVegetables": "Traditional Preservation (Fruits and Vegetables)",
+  "Sandbox_TraditionalPreservationFruitVegetables_TemperatureSensitivity": "Temperature sensitivity",
+  "Sandbox_TraditionalPreservationFruitVegetables_TemperatureSensitivity_tooltip": "How much the cold or heat changes the kraut barrel's ferment and keeping. Off makes every barrel take the same time, whatever the weather, and never too warm.",
+  "Sandbox_TraditionalPreservationFruitVegetables_TemperatureSensitivity_option1": "Off",
+  "Sandbox_TraditionalPreservationFruitVegetables_TemperatureSensitivity_option2": "Forgiving",
+  "Sandbox_TraditionalPreservationFruitVegetables_TemperatureSensitivity_option3": "Normal",
+  "Sandbox_TraditionalPreservationFruitVegetables_TemperatureSensitivity_option4": "Harsh",
+  "Sandbox_TraditionalPreservationFruitVegetables_CellarByPlace": "Vegetables keep by place",
+  "Sandbox_TraditionalPreservationFruitVegetables_CellarByPlace_tooltip": "Potatoes, turnips, sugar beets, carrots, cabbages, leeks, garlic, onions, sweet potatoes and pumpkins keep longer somewhere cool, a basement most of all, and the ones that cure (potatoes, garlic, onions, sweet potatoes, pumpkins) longer still once cured. The Drying Pole and the Vegetable Crates (hay and sand) add to it. Never shorter than vanilla. Off, they keep as vanilla's.",
+  "Sandbox_TraditionalPreservationFruitVegetables_FermentDays": "Kraut ferment (days at 18 C)",
+  "Sandbox_TraditionalPreservationFruitVegetables_FermentDays_tooltip": "How many in-game days a kraut barrel takes to be ready at 18 C. Cooler is slower, warmer faster; at 0 C it stops."
+}

@@ -1,0 +1,31 @@
+[h1]Traditional Preservation (Fruits and Vegetables)[/h1]
+
+Keep vegetables the way farmhouses did before the fridge. A basement is a root cellar: potatoes, roots and cabbages keep for months there instead of days. Cure potatoes a week somewhere mild, hang garlic and onions somewhere dry. And at harvest, shred your cabbages and turnips into a kraut barrel with salt, press them down under a stone and let them sour.
+
+[b]Build 42 only (42.22 or newer). This is an early release, so back up your save before enabling it. Singleplayer only: multiplayer is not supported.[/b]
+
+Traditional Preservation (Fruits and Vegetables) requires [b]Traditional Preservation (Core)[/b] (TP Core for short): subscribe to it too.
+
+[h2]Features[/h2]
+[list]
+[*]Vanilla potatoes, turnips, sugar beets, carrots, cabbages, leeks, garlic, onions, sweet potatoes and pumpkins keep by where they are: months in a cool basement, never less than vanilla anywhere
+[*]Curing without a recipe: a potato kept a week at 10 to 20 C, garlic and onions two weeks somewhere dry, sweet potatoes and pumpkins somewhere warm, keep longer after
+[*]A Drying Pole for garlic and onions, a hay-lined crate for potatoes, cabbages and pumpkins, and a crate of damp sand for carrots and beets, to help them cure and keep, and garlic and onion braids that are lighter to carry
+[*]A Kraut Barrel: pack 30 to 60 cabbages and turnips in any mix, with apples and carrots if you like, then salt and compress them under a cloth, a board and a flat stone
+[*]The souring follows the temperature: about four weeks at 18 C, months when cold, stopped only at freezing; too warm and it goes soft (keeps less long) or spoils
+[*]Ready kraut stays in the barrel and keeps by place, about six months in a cellar; take it out a portion at a time
+[*]Sauerkraut and Sauer Turnip carry the food of what went in, apples and carrots included, and go in soups, stews, salads, sandwiches and hot dogs
+[*]Keeps working while you are away
+[/list]
+
+[h2]How it works[/h2]
+[olist]
+[*][b]Store vegetables in a basement[/b], or in a cold room in winter. Hang garlic and onions upstairs.
+[*][b]Build a Kraut Barrel[/b] (Build menu, Furniture; Carpentry 3).
+[*][b]Pack Cabbage[/b] and [b]Pack Turnip[/b] from its right-click menu, 30 to 60 heads in any mix.
+[*][b]Salt and Compress[/b]: a use of salt per five heads, a ripped sheet, a plank and a flat stone. From then on nothing more goes in.
+[*][b]Wait[/b] (Barrel Info shows how long), then [b]Take Sauerkraut[/b].
+[/olist]
+
+[h2]Part of Traditional Preservation[/h2]
+By alienPaco.

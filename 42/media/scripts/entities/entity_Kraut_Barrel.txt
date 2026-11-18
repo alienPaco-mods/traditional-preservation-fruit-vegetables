@@ -1,0 +1,51 @@
+module TraditionalPreservationFruitVegetables
+{
+    entity Kraut_Barrel
+    {
+        /* No window: the batch lives in the barrel's movableData; pack, weigh down and take kraut from its right-click
+           menu, and its Info window shows how it is doing. */
+        component UiConfig
+        {
+            xuiSkin = default,
+            entityStyle = ES_KrautBarrel,
+            uiEnabled = false,
+        }
+        component SpriteConfig
+        {
+            isThumpable = false,
+            face S
+            {
+                layer
+                {
+                    row = traditionalpreservationfruitvegetables_01_0,
+                }
+            }
+            face E
+            {
+                layer
+                {
+                    row = traditionalpreservationfruitvegetables_01_1,
+                }
+            }
+        }
+        /* Between the Salting Tub and the Vinegar Cask: a standing barrel of about 50 L. */
+        component CraftRecipe
+        {
+            timedAction = BuildWoodenStructureSmall,
+            time = 150,
+            SkillRequired = Woodwork:3,
+            xpAward = Woodwork:15,
+            category = Furniture,
+            Tags = Carpentry;Furniture,
+            Tooltip = Tooltip_craft_KrautBarrelDesc,
+            inputs
+            {
+                item 1 tags[base:hammer] mode:keep flags[Prop1;MayDegradeVeryLight],
+                item 1 tags[base:saw;base:smallsaw;base:crudesaw] mode:keep flags[MayDegradeLight],
+                item 6 [Base.Plank],
+                item 10 [Base.Nails],
+                item 4 [Base.Twine],
+            }
+        }
+    }
+}

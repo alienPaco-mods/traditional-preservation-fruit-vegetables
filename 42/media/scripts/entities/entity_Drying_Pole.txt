@@ -1,0 +1,44 @@
+module TraditionalPreservationFruitVegetables
+{
+    /* A storage: a container from the tile (container = see tools/build_tileset.py STORAGES), as Fish & Meat's
+       Stockfish Pallet. What lies in it cures or keeps by its STORAGE_BONUS on top of the place
+       (TraditionalPreservationFruitVegetablesCellar.lua); what it holds shows by weight. */
+    entity Drying_Pole
+    {
+        component UiConfig
+        {
+            xuiSkin = default,
+            entityStyle = ES_DryingPole,
+            uiEnabled = false,
+        }
+        component SpriteConfig
+        {
+            OnIsValid = TraditionalPreservationCore.doorFits,
+            face S
+            {
+                layer
+                {
+                    row = traditionalpreservationfruitvegetables_01_10,
+                }
+            }
+        }
+        component CraftRecipe
+        {
+            timedAction = BuildWoodenStructureSmall,
+            time = 80,
+            SkillRequired = Woodwork:2,
+            xpAward = Woodwork:10,
+            category = Furniture,
+            Tags = Carpentry;Furniture,
+            Tooltip = Tooltip_craft_DryingPoleDesc,
+            inputs
+            {
+                item 1 tags[base:hammer] mode:keep flags[Prop1;MayDegradeVeryLight],
+                item 1 tags[base:saw;base:smallsaw;base:crudesaw] mode:keep flags[MayDegradeLight],
+                item 3 [Base.Plank],
+                item 4 [Base.Nails],
+                item 2 [Base.Twine],
+            }
+        }
+    }
+}

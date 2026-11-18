@@ -1,0 +1,12 @@
+module Base
+{
+    xuiSkin default
+    {
+        entity ES_HayCrate
+        {
+            LuaWindowClass = ISEntityWindow,
+            DisplayName = Vegetable Crate (Hay),
+            Icon = Item_HayCrate,
+        }
+    }
+}

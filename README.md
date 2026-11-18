@@ -1,0 +1,125 @@
+# Traditional Preservation (Fruits and Vegetables) — Build 42 prototype (v0.0.3)
+
+Vegetables kept the old way, without electricity. Built: **the root cellar** (vanilla vegetables keep by place, and
+potatoes, garlic, onions, sweet potatoes and pumpkins cure), **three storages** (Drying Pole, Vegetable Crate (Hay), Vegetable Crate (Sand)) and garlic and onion **braids**, and **the kraut barrel** (cabbage and turnip soured in salt). Planned: the
+clamp for root crops.
+
+## The root cellar
+
+Every vanilla **Potato, Turnip, Sugar Beet, Carrot, Cabbage, Leek, Garlic, Onion, Sweet Potato and Pumpkin**, found or grown, keeps by the
+temperature of where it is (TP Core's `PlaceKeeping` and its places, as Fish & Meat's Potted Meat and Dairy's butter).
+There is no station: a basement is the cellar.
+
+Days fresh at a temperature (rotten follows at vanilla's own fresh-to-rotten ratio). The warm room is vanilla's days, except a cabbage's 7 (vanilla's 2 is too short; user, 2026-11-18):
+
+| Crop | Warm room 22 C | Cool room 15 C | Basement 8 C | Fridge 4 C | Vanilla |
+|---|---|---|---|---|---|
+| Potato | 28 | 60 | 150 (cured 210) | 140 (cured 196) | 28 |
+| Turnip | 28 | 28 | 120 | 140 | 28 |
+| Sugar Beet | 4 | 14 | 120 | 120 | 4 |
+| Carrots | 6 | 14 | 120 | 120 | 6 |
+| Cabbage | 7 | 14 | 90 | 90 | 2 |
+| Leek | 5 | 10 | 60 | 60 | 5 |
+| Garlic, Onion | 14 | 28 | 30 (too damp) | 70 | 14 |
+| Garlic, Onion cured | 90 | 180 | 60 | onion 180, garlic 70 (it sprouts); garlic 210 at 0 C (a winter attic) | |
+| Sweet Potato | 28 | 120 | 30 (chilled) | 140 | 28 |
+| Sweet Potato cured | 56 | 240 | 45 (chilled) | 140 | |
+| Pumpkin | 30 | 45 | 30 (too damp) | 70 | 14 |
+| Pumpkin cured | twice the uncured everywhere | | | | |
+
+- A day counts as vanilla's days fresh over the place's, on straight lines between the four temperatures. Warmer than
+  22 C counts as 22 C; colder than 4 C counts as 4 C (no frost damage yet). **No place keeps worse than vanilla**, and a
+  powered fridge never worse than vanilla's fridge at its default (a day counts 0.2).
+- Where it is goes by Core's places: a room is the 10-day season mean (22 C with the grid on), a loft warmer in
+  summer, a basement the ground's 30-day mean a month behind (about 5 C in late winter, 13 C in late summer), under a
+  roof the 10-day mean, a powered fridge 4 C, a freezer stops it.
+- **Curing** is the first part of keeping, not a recipe (`M.CURES`). A potato that has spent 7 days at 10 to 20 C
+  (the *warm* cure, counted on a ledger, so unloaded time counts) is cured, and every day after counts 150/210 of an
+  uncured one's. A sweet potato (7 days) or a pumpkin (10 days) at 20 to 32 C (the *hot* cure; real curing wants 27
+  to 30 C, but an unheated Kentucky room at harvest is 20 to 22) is cured and keeps twice as long. Unpowered, that
+  happens in June and July; at the September and October harvest only a room on the grid (22 C) is warm enough. Garlic and onions
+  cure in 14 days in moving air and warmth: an hour counts 1 under a roof (Covered) or in a loft, 0.75 in the open
+  (sun and rain), 0.6 in a closed room (24 days), 0 in a basement, a fridge or a freezer (`M.CURES.dry.places`),
+  times the warmth, as Fish & Meat's dry cure: full from 20 C, a straight line down to a fifth at 4 C and below
+  (`M.CURES.dry.curve`, on the cure ledger). Hung in summer they cure in 14 to 19 days; in winter it takes months; while they
+  cure somewhere dry they already keep by the cured days (curing is drying), and once cured they keep by them in a
+  damp place too.
+- Cooked or burnt vegetables go by vanilla's clock. The sandbox's *Vegetables keep by place* (on) turns it all off.
+- The item stays vanilla's: its clock is modData (`tpfvKeep`, or `tpfvKeepCured` once it keeps by the cured days),
+  the cure's progress `tpfvCuring`, cured `tpfvCured`, the storage it lay in at the last look `tpfvIn`. Ledgers:
+  `TraditionalPreservationFruitVegetablesCellar<crop>`, `...<crop>Cured`, `...Cure` (totals `warmCure<Place>`,
+  `hotCure<Place>`, `dryCure<Place>`). Never rename them once the mod is out.
+
+`luajit tools/cellar_report.lua` prints each crop's days fresh by month and place, put away on the first of each month
+(golden-checked by `tp test`). It shows the cellar lag: a basement in October is still about 13 C, so a cabbage put
+down at harvest keeps about 3 weeks there, and its long keeping starts as the ground cools; an unheated room in winter
+is as cold as a cellar.
+
+## The storages
+
+Three buildings that hold vegetables, each a container from its tile (`container` and `ContainerCapacity` in the
+`.tiles`, as Fish & Meat's Stockfish Pallet). What lies in one, loose or in a braid there, cures or keeps by a
+multiplier on top of its place (`M.STORAGE_BONUS`): each look notes the storage (`M.storageOf` walks up through braids
+and bags) and the stretch since the last look counts by it, as places do. One facing; the World shows what each holds
+in three steps by weight (`World.storageLevel`).
+
+| Storage | Build (hammer, saw kept) | Holds | Bonus |
+|---|---|---|---|
+| **Drying Pole** (a T-pole hung with bunches: airy), for garlic and onions | Woodwork 2: 3 planks, 4 nails, 2 twine | 20 | Their dry cure counts 1.5 (about 9 days under a roof, 16 in a room), and their keeping 0.75 (a third longer) |
+| **Vegetable Crate (Hay)** (an open crate lined with hay) | Woodwork 1: 3 planks, 4 nails, 4 hay or straw | 35 | Warm and hot cures count 1.5 (a potato in about 5 days, a sweet potato 5, a pumpkin 7), and the keeping of potatoes, turnips, cabbages, sweet potatoes and pumpkins 0.75; carrots, beets and leeks get nothing (they were kept in damp sand, not hay) |
+| **Vegetable Crate (Sand)** (roots packed in damp sand, tops showing) | Woodwork 1: 3 planks, 4 nails, 1 sack of sand | 35 | Carrots, sugar beets, leeks and turnips keep a third longer (0.75); nothing cures in it |
+
+The place still decides (a potato still needs 10 to 20 C, garlic still doesn't cure in a basement). User, 2026-11-18:
+the pole for garlic and onions, the hay crate for the rest, the sand crate for the roots that dry out in hay.
+
+**Braids** (`...Braid.lua`, action `TPBraid`): select 2 to 10 garlic or onions, **Braid Garlic / Braid Onions**: a
+Garlic or Onion Braid holding them (a container item: capacity 2, weight reduction 30, only its own bulbs). Only
+lighter to carry (user): the bulbs keep and cure inside as loose ones do, and a braid on a Drying Pole counts as hung.
+**Unbraid** gives them back.
+
+## Install
+
+`tp install FruitVegetables` copies the mod to `~/Zomboid/mods/TraditionalPreservationFruitVegetables` after its tests pass.
+
+## The kraut barrel
+
+A standing barrel (Build menu, Furniture: hammer and saw kept, 6 planks, 10 nails, 4 twine, Woodwork 3), between
+Fish & Meat's Salting Tub and Vinegar's cask. No crafting window: the batch is Lua state in the barrel's movableData
+(`tpfvBarrel`), worked from its right-click menu, and **Barrel Info** (TP Core's InfoWindow, also a click on the
+barrel) shows it. The Salting Tub does the same kind of job through CraftLogic; the two are kept different on purpose
+for now, to compare in play.
+
+| Stage | What you do | What happens |
+|---|---|---|
+| Empty, Packing | **Pack Cabbage / Pack Turnip** (All with the number held, then One), **Add Apple / Add Carrot** (up to one each per 5 heads). **Unpack the Barrel** gives everything back. Until it is sealed, packed pieces age as if lying out (vanilla's pace), so an unsealed barrel is no cold store | Cabbages and turnips in any mix, 30 to 60 heads, one ferment. Each piece keeps its age and food. Cooking xp 1 a head |
+| Salt and Compress | **Salt and Compress**: a use of salt per 5 heads (TP Core's `Uses`, so Salt's empty shakers come back), a cloth (Ripped Sheets, Burlap, Cheesecloth), a Plank and a Flat Stone. Cooking xp 10 | Sealed: nothing more goes in, nothing comes out until it is ready |
+| Fermenting | Wait | By the temperature where the barrel stands (Core's places, by a fire too): 28 days at 18 C (sandbox *Kraut ferment*), 120 at 4, 60 at 8, 40 at 13, 21 at 21, 16 at 24, warmer no faster, slower still towards **0 C, where it stops** (user: winter kraut sours slowly in the cold). Hours above 27 C count: 48 make it soft (it keeps 2/3 as long), 120 spoil it |
+| Ready | **Take Sauerkraut / Take Sauer Turnip** (All, One), a row for each kind left | It keeps in the barrel by place, 180 days at 8 C (4 C 240, 15 C 90, 22 C 30, frozen stops). One portion a head, as its kind (a cabbage as Sauerkraut, a turnip as Sauer Turnip): its own kind's food, plus the apples and carrots shared out over every head, no mood (the kraut is a way of keeping cabbage, not a treat); out of the barrel 14 / 28 days, starting as far into them as the barrel is into its 180. The last portion gives the Flat Stone back |
+| Spoiled | **Empty the Spoiled Barrel** | The stone back |
+
+Items: `Sauerkraut` and `SauerTurnip`, vanilla Cabbage and Turnip values in the script (each portion's are set from
+its batch), icons recoloured from vanilla's. `luajit tools/kraut_report.lua` prints, for a barrel salted and compressed on the
+first of each month, the days to ready by place and the days it keeps after (golden-checked). It shows the cold:
+sealed in a basement in October, November or December a barrel is ready in about 47, 60 or 83 days; in an unheated
+room (about 0 C in a Kentucky winter) it mostly waits for spring.
+
+## Rebuilding the tileset
+
+`python3 tools/build_tileset.py` (needs Pillow) paints the station and writes `42/media/traditionalpreservationfruitvegetables.tiles`,
+`42/media/texturepacks/traditionalpreservationfruitvegetables.pack`, the icons and the generated `42/media/lua/shared/TraditionalPreservationFruitVegetables/Tiles.lua`
+(don't edit it by hand). `luajit tests/test_tiles.lua` checks the entity scripts against it.
+
+## Debug commands
+
+In debug mode, `TPFV.help()` in the Lua console lists commands for testing this mod. See `DEVHELP.md`.
+
+## Engineering notes
+
+- The shared core (Weather, Station, UI) is the required TP Core mod (`~/MODS/TraditionalPreservationCore`), loaded as `require "TraditionalPreservationCore/Weather"`. Edit it there.
+- `tiledef` 5174 was picked by `tp new` as the next free number. Tiles: 0-1 the barrel (S, E), overlays 2-3 cabbage,
+  4-5 turnip, 6-7 salted and compressed (cloth, board, stone), 8-9 cabbage and turnip mixed; 10 Drying Pole, 11 Vegetable
+  Crate (Hay), 18 Vegetable Crate (Sand), their fill steps 12-14, 15-17 and 19-21.
+- Save keys: the barrel's ledger lives in global ModData under `TraditionalPreservationFruitVegetables` (totals
+  `ferment<Place>`, `hot<Place>`, `keep<Place>`), its batch in movableData `tpfvBarrel`; the cellar's are above. Never
+  rename them once the mod is out.
+- Singleplayer only for now.

@@ -1,0 +1,12 @@
+module Base
+{
+    xuiSkin default
+    {
+        entity ES_DryingPole
+        {
+            LuaWindowClass = ISEntityWindow,
+            DisplayName = Drying Pole,
+            Icon = Item_DryingPole,
+        }
+    }
+}

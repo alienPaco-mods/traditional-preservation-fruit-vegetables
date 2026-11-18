@@ -1,0 +1,12 @@
+module Base
+{
+    xuiSkin default
+    {
+        entity ES_SandCrate
+        {
+            LuaWindowClass = ISEntityWindow,
+            DisplayName = Vegetable Crate (Sand),
+            Icon = Item_SandCrate,
+        }
+    }
+}
