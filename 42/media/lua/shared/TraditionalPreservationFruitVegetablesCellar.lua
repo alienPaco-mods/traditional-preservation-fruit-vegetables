@@ -11,12 +11,14 @@
 -- everywhere after (its curedShare). Garlic and onion cure in 14 days in moving air from 20 C, slower when cooler,
 -- in the open or in a closed room, never in a basement, a fridge or a freezer (M.CURES.dry); they keep by their cured days while they cure
 -- somewhere dry, and once cured keep them in a damp place too. The Drying Pole and the Vegetable Crates (STORAGE_BONUS, below) speed curing or slow keeping on top
--- of the place. Required by TraditionalPreservationFruitVegetables.lua, whose M it adds to.
+-- of the place. Places by a fire count as TP Core's (by a fire 28 C, banked embers 24 C): a sweet potato or pumpkin
+-- by the stove cures in autumn, as real growers did. Required by TraditionalPreservationFruitVegetables.lua, whose M it adds to.
 TraditionalPreservationFruitVegetables = TraditionalPreservationFruitVegetables or {}
 local M = TraditionalPreservationFruitVegetables
 local PlaceKeeping = require "TraditionalPreservationCore/PlaceKeeping"
 local FluidAgeing = require "TraditionalPreservationCore/FluidAgeing"
 local Weather = require "TraditionalPreservationCore/Weather"
+local Fire = require "TraditionalPreservationCore/Fire"
 
 M.CELLAR_TEMPERATURES = { 4, 8, 15, 22 }
 -- Vanilla's fridge, at the sandbox's default Fridge Effectiveness: a day counts as 0.2.
@@ -62,9 +64,11 @@ M.CURES = {
     -- cures slowly; a basement, a fridge or a freezer, too damp or too cold, not at all.
     -- And by the warmth, as Fish & Meat's dry cure (user): full from 20 C (the real ideal is 24 to 30), a straight line
     -- down to a fifth at 4 C and below (frozen bulbs still dry, slowly). Counted on the ledger, by place, times places.
+    -- By a lit fire indoors as a porch (user, 2026-11-18: the fire draws air through the room); banked embers draw
+    -- next to none, so there, and by any fire under a roof or in the open, it is the air of the place under it.
     dry = { hours = 14 * 24, curve = { { 4, 0.2 }, { 20, 1 } },
         places = { Covered = 1, Loft = 1, Open = 0.75, Sheltered = 0.6, Basement = 0,
-        [FluidAgeing.FRIDGE] = 0, [FluidAgeing.FREEZER] = 0 } },
+        [FluidAgeing.FRIDGE] = 0, [FluidAgeing.FREEZER] = 0, [Fire.PLACE] = 1 } },
 }
 -- Item modData keys, kept: the crop's clock (one per crop and state), the cure's progress, and cured.
 M.CELLAR_KEY = "tpfvKeep"
@@ -113,9 +117,23 @@ for name, crop in pairs(M.CROPS) do
     end
 end
 
--- How much an hour of the dry cure counts at a place (unknown places as a room).
-function M.dryCurePlace(place)
-    return M.CURES.dry.places[place] or M.CURES.dry.places.Sheltered
+-- How much an hour of the dry cure counts at a place (unknown places as a room). By a fire with none of its own,
+-- the place under it: the fire place's own (Covered, Open), else placeWithoutFire (Fire.noteFire's).
+function M.dryCurePlace(place, placeWithoutFire)
+    local air = M.CURES.dry.places[place]
+    if air then return air end
+    local fire = Weather.FIRE_PLACES[place]
+    if fire then return M.dryCurePlace(fire.placeWithoutFire or placeWithoutFire or Fire.DEFAULT_PLACE_WITHOUT_FIRE) end
+    return M.CURES.dry.places.Sheltered
+end
+
+-- The dry cure's air over a stretch from hour to now at a place: by a fire, the fire's air while its noted fuel lasted
+-- (fireUntil), the place under it after, shared by time (as Fire.catchUp shares the work).
+local function dryCureAir(place, note, hour, now)
+    local air = M.dryCurePlace(place, note.placeWithoutFire)
+    if not Weather.FIRE_PLACES[place] or not note.fireUntil or not hour or now <= hour then return air end
+    local byFire = math.min(math.max(note.fireUntil - hour, 0), now - hour) / (now - hour)
+    return air * byFire + M.dryCurePlace(note.placeWithoutFire or Fire.DEFAULT_PLACE_WITHOUT_FIRE) * (1 - byFire)
 end
 
 -- The cures' hours, counted by place on a ledger of their own (process "<kind>Cure").
@@ -189,9 +207,14 @@ function M.storageCureFactor(crop, storage)
     return cure and cure[crop.cure] or 1
 end
 
--- Brings a cure up to now at the place the vegetable was seen in last, and counts from place; factor is how much the
--- stretch counts (its storage). Returns true once cured.
-local function cure(crop, item, now, place, factor)
+-- The fire a vegetable's clock noted at this look (Fire.noteFire), copied onto another of its records.
+local function copyFire(from, to)
+    to.fireUntil, to.placeWithoutFire = from.fireUntil, from.placeWithoutFire
+end
+
+-- Brings a cure up to now at the place the vegetable was seen in last, and counts from place (seen: the keeping
+-- clock's fluidAge, with the fire noted now); factor is how much the stretch counts (its storage). Returns true once cured.
+local function cure(crop, item, now, place, factor, seen)
     local itemModData = item:getModData()
     local rule = M.CURES[crop.cure]
     local curing = itemModData[M.CURING_KEY]
@@ -199,13 +222,16 @@ local function cure(crop, item, now, place, factor)
     if rule.ageing then
         local ledger = M.cureLedger()
         if not curing then
-            itemModData[M.CURING_KEY] = FluidAgeing.newFluidAge(rule.ageing, ledger, now, place)
+            curing = FluidAgeing.newFluidAge(rule.ageing, ledger, now, place)
+            copyFire(seen, curing)
+            itemModData[M.CURING_KEY] = curing
             return false
         end
         -- The stretch since the last look, at the place it was in then (and the dry cure's air there).
-        local before, was = curing.age, curing.place
+        local before, was, hour = curing.age, curing.place, curing.hour
+        local air = rule.places and dryCureAir(was, curing, hour, now) or 1
         FluidAgeing.advance(curing, rule.ageing, ledger, now, place)
-        local air = rule.places and M.dryCurePlace(was) or 1
+        copyFire(seen, curing)
         curing.age = before + (curing.age - before) * factor * air
         return curing.age >= hours
     end
@@ -213,8 +239,8 @@ end
 
 -- The keeper a vegetable ages by now: a cured one's cured keeper; garlic or onion curing in a dry place the cured
 -- one too (curing is drying, so it doesn't spend its days); otherwise its crop's.
-local function keeperFor(crop, cured, place)
-    if cured or (crop.cure == "dry" and M.dryCurePlace(place) > 0) then return crop.curedKeeper end
+local function keeperFor(crop, cured, place, placeWithoutFire)
+    if cured or (crop.cure == "dry" and M.dryCurePlace(place, placeWithoutFire) > 0) then return crop.curedKeeper end
     return crop.keeper
 end
 
@@ -247,15 +273,18 @@ function M.keepVegetable(item, now, place)
         item:setAge(clock.base + clock.fluidAge.age / 24)
     end
     if not crop.cure then return clock end
-    place = clock.fluidAge.place
-    if not itemModData[M.CURED] and cure(crop, item, now, place, M.storageCureFactor(crop, storedIn)) then
+    local seen = clock.fluidAge
+    place = seen.place
+    if not itemModData[M.CURED] and cure(crop, item, now, place, M.storageCureFactor(crop, storedIn), seen) then
         itemModData[M.CURED] = true
         itemModData[M.CURING_KEY] = nil
     end
-    local wanted = keeperFor(crop, itemModData[M.CURED], place)
+    local wanted = keeperFor(crop, itemModData[M.CURED], place, seen.placeWithoutFire)
     if wanted == keeper then return clock end
     itemModData[keeper.keepingRules.modDataKey] = nil
-    return wanted.keep(item, now, place)
+    local wantedClock = wanted.keep(item, now, place)
+    if wantedClock then copyFire(seen, wantedClock.fluidAge) end
+    return wantedClock
 end
 
 -- Days fresh a crop keeps at a temperature, cured or not (the console's and the report's).

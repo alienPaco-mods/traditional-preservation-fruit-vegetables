@@ -18,7 +18,7 @@ local Station = require "TraditionalPreservationCore/Station"
 local FluidAgeing = require "TraditionalPreservationCore/FluidAgeing"
 
 M.BARREL_KEY = "tpfvBarrel"   -- the barrel's record in its movableData; never rename once the mod is out
-M.BARREL_MIN, M.BARREL_MAX = 30, 60
+M.BARREL_MIN, M.BARREL_MAX = 20, 60   -- 20 (user, 2026-11-18: the long seal makes bigger barrels pay anyway)
 M.HEADS_PER_SALT = 5
 M.HEADS_PER_EXTRA = 5         -- one apple and one carrot at most per five heads
 M.FERMENT_HOURS = 28 * 24     -- at 18 C; the sandbox's Ferment days
@@ -29,7 +29,7 @@ M.KEEP_DAYS = 180             -- ready kraut in an 8 C cellar
 M.PORTION_DAYS = { 14, 28 }   -- a portion out of the barrel, fresh and rotten; it comes out as far into its fresh
                               -- days as the barrel is into KEEP_DAYS
 M.SOFT_KEEP = 1.5             -- a soft batch's keeping counts half again: it keeps 2/3 as long (user, 2026-11-18)
-M.PACK_XP = 1                 -- Cooking, a head packed
+M.PACK_XP = 1                 -- Cooking, a piece packed, paid when the barrel is salted and compressed
 M.COMPRESS_XP = 10            -- Cooking, salting and compressing a barrel
 
 M.KRAUT_KINDS = { "cabbage", "turnip" }

@@ -41,7 +41,7 @@ At harvest there's the **kraut barrel**: cabbages and turnips shredded with salt
 | Leave garlic and onions two weeks anywhere dry (not a basement) | | **Cured** garlic and onions |
 | Put roots and cabbages in a crate in a **basement** | | Months of keeping instead of days |
 | Build a **Kraut Barrel** | Hammer and saw (kept), 6 planks, 10 nails, 4 twine. Carpentry 3 | The barrel |
-| **Pack Cabbage** and **Pack Turnip** | 30 to 60 heads, any mix; apples and carrots if you like | A packed barrel |
+| **Pack Cabbage** and **Pack Turnip** | 20 to 60 heads, any mix; apples and carrots if you like | A packed barrel |
 | **Salt and Compress** | A use of salt per 5 heads, a ripped sheet, a plank, a flat stone | It starts to sour |
 | Wait **about 4 weeks** at 18 C | | **Sauerkraut**, a portion a head |
 
@@ -89,12 +89,12 @@ Curing isn't a recipe. It's the first part of keeping, done in the right place.
 |---|---|---|---|
 | Potato | 7 days | Somewhere between 10 and 20 C: a room, a covered porch in autumn | Every day after counts about 70 percent of an uncured one's: 210 days in a basement instead of 150 |
 | Garlic, Onion | 14 days under a roof or in the loft in summer warmth (24 in a closed room, 19 in the open); months in winter | Moving air and warmth; never a basement, a fridge or a freezer | 90 to 180 days in a dry room, 60 in a basement |
-| Sweet Potato | 7 days | Somewhere warm, 20 to 32 C | About 8 months at 15 C; still chilled in a basement |
-| Pumpkin | 10 days | Somewhere warm, 20 to 32 C | Twice as long everywhere: about 3 months at 15 C |
+| Sweet Potato | 7 days | Somewhere warm, 20 to 32 C: by a fire in autumn | About 8 months at 15 C; still chilled in a basement |
+| Pumpkin | 10 days | Somewhere warm, 20 to 32 C: by a fire in autumn | Twice as long everywhere: about 3 months at 15 C |
 
 - **A potato cures by the temperature.** A winter basement (about 5 C) is too cold; a summer room above 20 C too warm. The days add up, so a potato moved in and out still gets there.
-- **Garlic and onions cure in moving air and warmth.** A porch roof, an open shed or the attic in summer is best; a closed room works, slowly; the cold slows it right down (a fifth at 4 C and below); a basement never. Hang them at harvest, not in winter. While they cure somewhere dry they already keep by the cured days, so curing costs them nothing. Taken down to a basement before they're cured, they keep by the damp days until they come back up.
-- **Sweet potatoes and pumpkins want it warm.** In June and July a room or a loft is warm enough. At the autumn harvest an unheated room has dropped under 20 C, so without power they won't cure; with the grid on, a room's 22 C will do.
+- **Garlic and onions cure in moving air and warmth.** A porch roof, an open shed or the attic in summer is best; a closed room works, slowly, unless a fire is burning in it (a lit fire draws air through the room, so beside it they dry as on a porch; banked embers don't); the cold slows it right down (a fifth at 4 C and below); a basement never. Hang them at harvest, not in winter. While they cure somewhere dry they already keep by the cured days, so curing costs them nothing. Taken down to a basement before they're cured, they keep by the damp days until they come back up.
+- **Sweet potatoes and pumpkins want it warm.** In June and July a room or a loft is warm enough. At the autumn harvest an unheated room has dropped under 20 C, so without power they won't cure there; with the grid on, a room's 22 C will do. Without power, do what growers did: set the crate within two tiles of a lit fireplace, antique oven or campfire (28 C, banked embers 24 C). A potato doesn't belong there: too warm for its cure, though it keeps no worse than in a warm room. The fire counts while the wood it had when you last looked lasts, so keep it fed and look in on the crate now and then.
 - `TPFV.veg()` in the debug console shows whether something is cured (see the Toolkit).
 
 ### The onion and garlic pole and the crates
@@ -149,7 +149,7 @@ A standing oak barrel, narrower at the top, bound with iron: Fish & Meat's Salti
 
 | Row | Takes | Notes |
 |---|---|---|
-| **Pack Cabbage** / **Pack Turnip** | All (as many as you hold), or One | Cabbages and turnips mix. 30 heads at least, 60 at most. Rotten heads won't do |
+| **Pack Cabbage** / **Pack Turnip** | All (as many as you hold), or One | Cabbages and turnips mix. 20 heads at least, 60 at most (a bigger barrel waits the same weeks). Rotten heads won't do |
 | **Add Apple** / **Add Carrot** | All, or One | Up to one of each for every 5 heads. Their food goes into the kraut |
 | **Unpack the Barrel** | | Everything back. Only until it is salted and compressed. Packed but not sealed, they go on ageing as if left on the table: the barrel only keeps once it is sealed |
 | **Salt and Compress** | A use of salt per 5 heads, a cloth (ripped sheet, burlap or cheesecloth), a plank, a flat stone | The salt goes in and the kraut is pressed down under the cloth, the board and the stone until its own juice rises over it. **Sealed**: nothing more goes in |
@@ -211,7 +211,7 @@ A standing oak barrel, narrower at the top, bound with iron: Fish & Meat's Salti
 | Garlic in the basement goes off sooner than in a room | That's right: the basement is too damp for it. |
 | Nothing changes at all | Check the sandbox: **Vegetables keep by place** must be on. |
 | The barrel hasn't moved in weeks | At 0 C it stops, and near it it crawls. Barrel Info says so: move it somewhere warmer (the basement), or wait for spring. |
-| Salt and Compress is red | Its hover says what's missing: 30 heads, the salt, a cloth, a plank or a flat stone. |
+| Salt and Compress is red | Its hover says what's missing: 20 heads, the salt, a cloth, a plank or a flat stone. |
 | I can't add more to the barrel | Once it is salted and compressed it is sealed, as a real barrel is. |
 
 ---

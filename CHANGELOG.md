@@ -1,5 +1,11 @@
 # Changelog: Traditional Preservation (Fruits and Vegetables)
 
+## 0.0.5
+- **Vegetables by a fire** (TP Core 0.1.11): within 2 tiles of a lit fireplace, antique oven or campfire a vegetable is at 28 C (banked embers 24 C). Sweet potatoes and pumpkins cure there in autumn; a potato doesn't (too warm); keeping counts as a warm room. Garlic and onions dry by a lit fire indoors as on a porch (1), by banked embers as the place under them (user, 2026-11-18); a fire that ran out part way shares the stretch by time. README, guide 7. Needs TP Core 0.1.11.
+- **The kraut barrel takes 20 heads at least** (was 30; still 60 at most): a smaller harvest can make kraut, and the long seal still makes a full barrel worth it. README, guide 7, Workshop text, the barrel's help and tooltip.
+- **Fix: no Cooking xp from packing and unpacking** (review): packing paid 1 xp a piece as it went in, and Unpack gives every piece back, so packing again paid again. The same xp (1 a piece) now comes at Salt and Compress, with its 10.
+- **Fix: the Kraut Barrel minds doorways** (`OnIsValid = TraditionalPreservationCore.doorFits`, as every TP station; Core's test_doors caught it).
+
 ## 0.0.4
 - The kraut barrel gives the **Plank** back with the Flat Stone (the last portion, or emptying a spoiled barrel); only the cloth is used up.
 - The Drying Pole is now the **Onion and Garlic Pole** (display name only; the entity and its container keep their ids).

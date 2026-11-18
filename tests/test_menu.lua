@@ -160,7 +160,7 @@ check("All queues one action a head, oldest first", #ui.queued == 35 and ui.queu
 for i = 31, 35 do ui.queued[i] = nil end
 runQueued()
 local barrel = M.barrelOf(barrelObject)
-check("30 heads packed, 5 left carried with the apples, Cooking xp", M.headCount(barrel) == 30 and #ui.carried == 8 and xp.Cooking == 30
+check("30 heads packed, 5 left carried with the apples, no xp yet", M.headCount(barrel) == 30 and #ui.carried == 8 and xp.Cooking == nil
     and barrel.heads[1].food.calories == 180 and near(barrel.heads[1].age, 3.5))
 
 menu = menuFor()
@@ -186,7 +186,7 @@ check("with salt, a cloth, a plank and a stone it can be salted and compressed",
 compress.onSelect(compress.target, unpack(compress.args))
 check("the cloth, plank and stone are carried first", #ui.moved >= 3)
 runQueued()
-check("salted and compressed: fermenting, 6 salt and the kit taken, 10 xp", M.barrelStage(barrel) == "Fermenting" and salt.uses == 4
+check("salted and compressed: fermenting, 6 salt and the kit taken, 10 xp and 1 a piece packed", M.barrelStage(barrel) == "Fermenting" and salt.uses == 4
     and not inventory:containsRecursive(sheet) and not inventory:containsRecursive(plank) and not inventory:containsRecursive(stone)
     and xp.Cooking == 30 + 1 + 10)
 menu = menuFor()

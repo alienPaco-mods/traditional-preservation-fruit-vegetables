@@ -13,6 +13,7 @@ module TraditionalPreservationFruitVegetables
         component SpriteConfig
         {
             isThumpable = false,
+            OnIsValid = TraditionalPreservationCore.doorFits,
             face S
             {
                 layer

@@ -29,15 +29,15 @@ M.SENSITIVITY = 1
 local barrel = {}
 check("an empty barrel", M.barrelStage(barrel) == "Empty" and M.packRefusal(barrel, "cabbage") == nil)
 check("no apple before a head", M.extraRefusal(barrel, "apple") == "NoHeads")
-for i = 1, 29 do M.pack(barrel, "cabbage", i / 10, CABBAGE) end
-check("packing", M.barrelStage(barrel) == "Packing" and M.headCount(barrel) == 29)
+for i = 1, 19 do M.pack(barrel, "cabbage", i / 10, CABBAGE) end
+check("packing", M.barrelStage(barrel) == "Packing" and M.headCount(barrel) == 19)
 check("cabbages and turnips mix in one barrel", M.packRefusal(barrel) == nil)
-check("apples up to one per five heads: 5 for 29", M.extraRoom(29) == 5)
-for _ = 1, 5 do M.packExtra(barrel, "apple", 1, APPLE) end
-check("a sixth apple refused", M.extraRefusal(barrel, "apple") == "TooMany" and M.extraRefusal(barrel, "carrot") == nil)
+check("apples up to one per five heads: 3 for 19", M.extraRoom(19) == 3)
+for _ = 1, 3 do M.packExtra(barrel, "apple", 1, APPLE) end
+check("a fourth apple refused", M.extraRefusal(barrel, "apple") == "TooMany" and M.extraRefusal(barrel, "carrot") == nil)
 local have = { salt = 100, cloth = true, board = true, stone = true }
-check("29 heads are too few to salt and compress", M.compressRefusal(barrel, have) == "TooFew")
-M.pack(barrel, "cabbage", 3, CABBAGE)
+check("19 heads are too few to salt and compress", M.compressRefusal(barrel, have) == "TooFew")
+for _ = 1, 11 do M.pack(barrel, "cabbage", 3, CABBAGE) end
 for _ = 1, 6 do M.packExtra(barrel, "carrot", 2, CARROT) end
 check("salt: a use per five heads, 6 for 30", M.saltNeeded(30) == 6 and M.compressRefusal(barrel, { salt = 5, cloth = true, board = true, stone = true }) == "NoSalt")
 check("a cloth, a board, a stone", M.compressRefusal(barrel, { salt = 6, board = true, stone = true }) == "NoCloth"
@@ -65,7 +65,7 @@ check("ten days packed but not sealed: ten days older on unpacking", near(later[
 -- Salting and compressing
 local portion = M.portionOf(barrel, "cabbage")
 check("a portion: a head's food plus the apples and carrots shared over the heads",
-    near(portion.calories, 180 + (5 * 95 + 6 * 25) / 60) and near(portion.hunger, -0.24 + (5 * -0.16 + 6 * -0.08) / 60))
+    near(portion.calories, 180 + (3 * 95 + 6 * 25) / 60) and near(portion.hunger, -0.24 + (3 * -0.16 + 6 * -0.08) / 60))
 check("no mood on the kraut (user, 2026-11-18)", portion.unhappy == nil and portion.boredom == nil)
 local ledger = M.getLedger()
 ledger.seasonTemperature, ledger.groundTemperature = 18, 18

@@ -32,14 +32,19 @@ Days fresh at a temperature (rotten follows at vanilla's own fresh-to-rotten rat
   powered fridge never worse than vanilla's fridge at its default (a day counts 0.2).
 - Where it is goes by Core's places: a room is the 10-day season mean (22 C with the grid on), a loft warmer in
   summer, a basement the ground's 30-day mean a month behind (about 5 C in late winter, 13 C in late summer), under a
-  roof the 10-day mean, a powered fridge 4 C, a freezer stops it.
+  roof the 10-day mean, a powered fridge 4 C, a freezer stops it. **By a fire** (within 2 tiles of a lit fireplace,
+  antique oven, brazier, burn barrel or campfire; not an electric or gas stove) it is 28 C, by banked embers 24 C, less under a
+  roof or in the open (Core's fire places): for keeping that is a warm room; a sweet potato or a pumpkin cures there
+  in autumn, as real growers cured them by the stove; a potato doesn't (too warm). The fire counts while the fuel it
+  had at the last look lasts.
 - **Curing** is the first part of keeping, not a recipe (`M.CURES`). A potato that has spent 7 days at 10 to 20 C
   (the *warm* cure, counted on a ledger, so unloaded time counts) is cured, and every day after counts 150/210 of an
   uncured one's. A sweet potato (7 days) or a pumpkin (10 days) at 20 to 32 C (the *hot* cure; real curing wants 27
   to 30 C, but an unheated Kentucky room at harvest is 20 to 22) is cured and keeps twice as long. Unpowered, that
-  happens in June and July; at the September and October harvest only a room on the grid (22 C) is warm enough. Garlic and onions
+  happens in June and July; at the September and October harvest only a room on the grid (22 C) or a place by a fire is warm enough. Garlic and onions
   cure in 14 days in moving air and warmth: an hour counts 1 under a roof (Covered) or in a loft, 0.75 in the open
-  (sun and rain), 0.6 in a closed room (24 days), 0 in a basement, a fridge or a freezer (`M.CURES.dry.places`),
+  (sun and rain), 0.6 in a closed room (24 days), 0 in a basement, a fridge or a freezer, 1 by a lit fire indoors (it
+  draws air through the room), by banked embers the air of the place under them (`M.CURES.dry.places`),
   times the warmth, as Fish & Meat's dry cure: full from 20 C, a straight line down to a fifth at 4 C and below
   (`M.CURES.dry.curve`, on the cure ledger). Hung in summer they cure in 14 to 19 days; in winter it takes months; while they
   cure somewhere dry they already keep by the cured days (curing is drying), and once cured they keep by them in a
@@ -91,7 +96,7 @@ for now, to compare in play.
 
 | Stage | What you do | What happens |
 |---|---|---|
-| Empty, Packing | **Pack Cabbage / Pack Turnip** (All with the number held, then One), **Add Apple / Add Carrot** (up to one each per 5 heads). **Unpack the Barrel** gives everything back. Until it is sealed, packed pieces age as if lying out (vanilla's pace), so an unsealed barrel is no cold store | Cabbages and turnips in any mix, 30 to 60 heads, one ferment. Each piece keeps its age and food. Cooking xp 1 a head |
+| Empty, Packing | **Pack Cabbage / Pack Turnip** (All with the number held, then One), **Add Apple / Add Carrot** (up to one each per 5 heads). **Unpack the Barrel** gives everything back. Until it is sealed, packed pieces age as if lying out (vanilla's pace), so an unsealed barrel is no cold store | Cabbages and turnips in any mix, 20 to 60 heads, one ferment. Each piece keeps its age and food. Cooking xp 1 a piece, paid at Salt and Compress |
 | Salt and Compress | **Salt and Compress**: a use of salt per 5 heads (TP Core's `Uses`, so Salt's empty shakers come back), a cloth (Ripped Sheets, Burlap, Cheesecloth), a Plank and a Flat Stone. Cooking xp 10 | Sealed: nothing more goes in, nothing comes out until it is ready |
 | Fermenting | Wait | By the temperature where the barrel stands (Core's places, by a fire too): 28 days at 18 C (sandbox *Kraut ferment*), 120 at 4, 60 at 8, 40 at 13, 21 at 21, 16 at 24, warmer no faster, slower still towards **0 C, where it stops** (user: winter kraut sours slowly in the cold). Hours above 27 C count: 48 make it soft (it keeps 2/3 as long), 120 spoil it |
 | Ready | **Take Sauerkraut / Take Sauer Turnip** (All, One), a row for each kind left | It keeps in the barrel by place, 180 days at 8 C (4 C 240, 15 C 90, 22 C 30, frozen stops). One portion a head, as its kind (a cabbage as Sauerkraut, a turnip as Sauer Turnip): its own kind's food, plus the apples and carrots shared out over every head, no mood (the kraut is a way of keeping cabbage, not a treat); out of the barrel 14 / 28 days, starting as far into them as the barrel is into its 180. The last portion gives the Plank and Flat Stone back (the cloth is used up) |

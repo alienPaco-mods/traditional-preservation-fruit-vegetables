@@ -252,4 +252,56 @@ M.keepVegetable(spread, hour, "Sheltered")
 M.keepVegetable(cratePotato, hour, "Sheltered")
 check("five days at 15 C in the crate cure a potato, not on a shelf", cratePotato.modData[M.CURED] == true and not spread.modData[M.CURED])
 
+-- By a fire (user, 2026-11-18: kept food reads the fire places): TP Core's Fire.placeOf says where the holder stands,
+-- each look notes the fire's fuel. By a lit fire the dry cure's air is a porch's; banked embers keep the room's.
+local Fire = require "TraditionalPreservationCore/Fire"
+local Weather = require "TraditionalPreservationCore/Weather"
+check("the dry cure's air by a fire: lit 1, embers the room's, under a roof or in the open that place's",
+    M.dryCurePlace(Fire.PLACE) == 1 and M.dryCurePlace(Fire.EMBERS, "Sheltered") == 0.6
+    and M.dryCurePlace(Fire.EMBERS, "Basement") == 0 and M.dryCurePlace(Fire.EMBERS .. "Covered") == 1
+    and M.dryCurePlace(Fire.PLACE .. "Open") == 0.75)
+local placeOf, fuelHours, weatherPlaceOf = Fire.placeOf, Fire.fuelHours, Weather.placeOf
+local firePlace, fuel = Fire.PLACE, 1e9
+Fire.placeOf = function() return firePlace, {} end
+Fire.fuelHours = function() return fuel end
+Weather.placeOf = function() return "Sheltered" end
+local function byTheFire(fullType, offAge, offAgeMax)
+    local item = vegetable(fullType, offAge, offAgeMax, 0)
+    local holder = { getSquare = function() return {} end }
+    function item:getWorldItem() return holder end
+    return item
+end
+M.cureLedger().groundTemperature, M.cureLedger().seasonTemperature = 15, 15   -- an October room, under the hot cure's 20 C
+local stoveSweet, roomSweet = byTheFire("Base.SweetPotato", 28, 280), vegetable("Base.SweetPotato", 28, 280, 0)
+local stovePotato = byTheFire("Base.Potato", 28, 280)
+for _, item in ipairs({ stoveSweet, stovePotato }) do M.keepVegetable(item, hour) end
+M.keepVegetable(roomSweet, hour, "Sheltered")
+check("a vegetable by a fire takes the fire's place and its fuel", stoveSweet.modData[M.CELLAR_KEY].fluidAge.place == Fire.PLACE
+    and stoveSweet.modData[M.CURING_KEY].fireUntil == hour + fuel)
+weather(7 * 24 + 1, 15)   -- an hour over: the test's ten-minute steps fall a hair short of 168
+for _, item in ipairs({ stoveSweet, stovePotato }) do M.keepVegetable(item, hour) end
+M.keepVegetable(roomSweet, hour, "Sheltered")
+check("an October sweet potato by the stove cures in its 7 days; in the room it doesn't",
+    stoveSweet.modData[M.CURED] == true and not roomSweet.modData[M.CURED])
+check("a potato by the stove doesn't: 28 C is over its cool cure", not stovePotato.modData[M.CURED])
+check("by the fire it keeps as in a warm room (the curves stop at 22 C)",
+    near(CROPS.potato.keeper.rate(Fire.PLACE, CROPS.potato.keeper.ledger()), CROPS.potato.keeper.ageRate(22)))
+
+season(25)
+local stoveOnion, embersOnion, outOnion = byTheFire("Base.Onion", 14, 28), byTheFire("Base.Onion", 14, 28), byTheFire("Base.Onion", 14, 28)
+M.keepVegetable(stoveOnion, hour)
+firePlace = Fire.EMBERS
+M.keepVegetable(embersOnion, hour)
+fuel = 3.5 * 24
+firePlace = Fire.PLACE
+M.keepVegetable(outOnion, hour)
+weather(7 * 24, 25)
+firePlace = "Sheltered"
+for _, item in ipairs({ stoveOnion, embersOnion, outOnion }) do M.keepVegetable(item, hour) end
+check("a week by a lit fire dries an onion as a porch; by embers as the room",
+    near(stoveOnion.modData[M.CURING_KEY].age, 7 * 24, 0.5) and near(embersOnion.modData[M.CURING_KEY].age, 0.6 * 7 * 24, 0.5))
+check("a fire out half way: the porch's air half the week, the room's the other half",
+    near(outOnion.modData[M.CURING_KEY].age, 0.8 * 7 * 24, 0.5))
+Fire.placeOf, Fire.fuelHours, Weather.placeOf = placeOf, fuelHours, weatherPlaceOf
+
 H.done()
