@@ -163,7 +163,7 @@ for key, storage in pairs(Tiles.STORAGES) do M.STORAGE_OF_CONTAINER[storage.cont
 -- Item modData: the storage a vegetable lay in when last looked at (nil: none); it counts for the time since.
 -- STORAGE_WORDS: how the console names each.
 M.STORED_KEY = "tpfvIn"
-M.STORAGE_WORDS = { pole = "drying pole", hayCrate = "hay crate", sandCrate = "sand crate" }
+M.STORAGE_WORDS = { pole = "onion and garlic pole", hayCrate = "hay crate", sandCrate = "sand crate" }
 
 -- The storage an item lies in, loose or inside a braid or a bag there: "pole", "hayCrate", "sandCrate", or nil.
 function M.storageOf(item)

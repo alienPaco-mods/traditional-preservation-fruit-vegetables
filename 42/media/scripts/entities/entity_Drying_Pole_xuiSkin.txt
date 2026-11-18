@@ -5,7 +5,7 @@ module Base
         entity ES_DryingPole
         {
             LuaWindowClass = ISEntityWindow,
-            DisplayName = Drying Pole,
+            DisplayName = Onion and Garlic Pole,
             Icon = Item_DryingPole,
         }
     }

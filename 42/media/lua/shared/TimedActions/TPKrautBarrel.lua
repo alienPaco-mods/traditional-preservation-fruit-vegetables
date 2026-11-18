@@ -1,7 +1,7 @@
 -- Traditional Preservation (Fruits and Vegetables): the hand jobs at a Kraut Barrel. "pack" shreds and packs one head
 -- (a cabbage or a turnip; they mix) or one apple or carrot, "unpack" takes everything packed back out before it is salted and compressed,
 -- "compress" lays the cloth, the board and the stone on it with the salt (sealing it), "take" takes one portion out of a
--- ready barrel, and "empty" empties a spoiled one. The last portion and emptying give the stone back.
+-- ready barrel, and "empty" empties a spoiled one. The last portion and emptying give the board and stone back.
 require "TimedActions/ISBaseTimedAction"
 require "TraditionalPreservationFruitVegetables"
 
@@ -75,7 +75,9 @@ function TPKrautBarrel:start()
     self:setActionAnim("Loot")
 end
 
-local function giveStone(character)
+-- The board and stone, back once the barrel is empty (user, 2026-11-18: a new plank every batch would be a chore).
+local function givePress(character)
+    Actions.addOrDropItem(character, instanceItem(M.BOARD))
     Actions.addOrDropItem(character, instanceItem(M.STONE))
 end
 
@@ -116,10 +118,10 @@ function TPKrautBarrel:complete()
             local item = instanceItem(M.KRAUTS[taken.kind].product)
             M.applyPortion(item, taken)
             Actions.addOrDropItem(character, item)
-            if taken.last then giveStone(character) end
+            if taken.last then givePress(character) end
         end
     elseif M.emptySpoiled(barrel) then
-        giveStone(character)
+        givePress(character)
     end
     TraditionalPreservationFruitVegetablesWorld.refresh(self.station)
     return true

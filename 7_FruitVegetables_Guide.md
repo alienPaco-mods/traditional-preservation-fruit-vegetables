@@ -97,19 +97,19 @@ Curing isn't a recipe. It's the first part of keeping, done in the right place.
 - **Sweet potatoes and pumpkins want it warm.** In June and July a room or a loft is warm enough. At the autumn harvest an unheated room has dropped under 20 C, so without power they won't cure; with the grid on, a room's 22 C will do.
 - `TPFV.veg()` in the debug console shows whether something is cured (see the Toolkit).
 
-### The drying pole and the crates
+### The onion and garlic pole and the crates
 
 Three things to build that help, each a container you put vegetables in. The place still decides; these only add to it.
 
 | Build | You need (hammer and saw kept) | Holds | What it does |
 |---|---|---|---|
-| **Drying Pole**: a T-pole hung with bunches, for garlic and onions | Carpentry 2: 3 planks, 4 nails, 2 twine | 20 | Garlic and onions cure **half again as fast** (about 9 days under a roof, 16 in a room) and **keep a third longer** while they hang |
-| **Vegetable Crate (Hay)**: an open crate lined with hay | Carpentry 1: 3 planks, 4 nails, 4 hay or straw | 35 | Potatoes, sweet potatoes and pumpkins cure **half again as fast** (a potato in about 5 days); potatoes, turnips, cabbages, sweet potatoes and pumpkins **keep a third longer**. Carrots, beets and leeks gain nothing here |
+| **Onion and Garlic Pole**: a T-pole hung with bunches, for garlic and onions | Carpentry 2: 3 planks, 4 nails, 2 twine | 20 | Garlic and onions cure **half again as fast** (about 9 days under a roof, 16 in a room) and **keep a third longer** while they hang |
+| **Vegetable Crate (Hay)**: an open crate lined with hay | Carpentry 1: 3 planks, 4 nails, 4 hay (from a farm's hay bales) | 35 | Potatoes, sweet potatoes and pumpkins cure **half again as fast** (a potato in about 5 days); potatoes, turnips, cabbages, sweet potatoes and pumpkins **keep a third longer**. Carrots, beets and leeks gain nothing here |
 | **Vegetable Crate (Sand)**: roots packed in damp sand, their tops showing | Carpentry 1: 3 planks, 4 nails, 1 sack of sand | 35 | Carrots, sugar beets, leeks and turnips **keep a third longer**: the sand stops them drying out |
 
 Each shows what it holds: bunches on the pole, roots and heads in the hay, rows of tops in the sand.
 
-**Braids.** Select 2 to 10 garlic or onions and right-click: **Braid Garlic** or **Braid Onions**. A braid is only lighter to carry; the bulbs keep and cure inside it as loose ones do, and a braid hung on the Drying Pole counts as hung there. **Unbraid** gives them back.
+**Braids.** Select 2 to 10 garlic or onions and right-click: **Braid Garlic** or **Braid Onions**. A braid is only lighter to carry; the bulbs keep and cure inside it as loose ones do, and a braid hung on the Onion and Garlic Pole counts as hung there. **Unbraid** gives them back.
 
 > *Margin note:* potatoes were cured in shallow bins or under sacking on a barn floor, in the dark, because light turns them green. Garlic and onions went the other way, up into the rafters in bunches or plaits where the air could move through them. A softneck garlic plait hung by the kitchen door all winter, and you cut a bulb off when you needed one.
 
@@ -166,10 +166,10 @@ A standing oak barrel, narrower at the top, bound with iron: Fish & Meat's Salti
 | 21 C | 21 days |
 | 24 C and up | 16 days |
 
-- **Too warm spoils it.** Two days above 27 C before it's ready and it comes out **soft**: it keeps only two thirds as long. Five days and it **spoils**: empty it to get the stone back. A barrel by a fire is too warm.
+- **Too warm spoils it.** Two days above 27 C before it's ready and it comes out **soft**: it keeps only two thirds as long. Five days and it **spoils**: empty it to get the plank and stone back. A barrel by a fire is too warm.
 - **Barrel Info** (in its menu, or click the barrel) shows the stage, what's in it, the place and its heat, how far it has soured, when it will be ready and the hours it has been too warm.
 
-**Ready.** The kraut stays in the barrel under its stone and keeps by place: about six months in an 8 C cellar, three in a cool room, one in a warm one. **Take Sauerkraut** and **Take Sauer Turnip** (All or One): one portion a head, as its kind, each with its own food and the apples and carrots shared out. Out of the barrel a portion keeps two weeks, less if the barrel has stood long. The last portion gives the stone back.
+**Ready.** The kraut stays in the barrel under its stone and keeps by place: about six months in an 8 C cellar, three in a cool room, one in a warm one. **Take Sauerkraut** and **Take Sauer Turnip** (All or One): one portion a head, as its kind, each with its own food and the apples and carrots shared out. Out of the barrel a portion keeps two weeks, less if the barrel has stood long. The last portion gives the plank and stone back (the cloth is used up).
 
 | Salted and compressed on the 1st | Room | Basement | Open air |
 |---|---|---|---|

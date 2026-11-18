@@ -9,7 +9,7 @@
 -- Ready kraut stays in the barrel and keeps by place (KEEP_DAYS in an 8 C cellar) and is taken out a portion at a
 -- time, one a head (a cabbage's as Sauerkraut, a turnip's as Sauer Turnip), each with its own kind's food and the
 -- apples and carrots shared out over all the heads. The last
--- portion, or emptying a spoiled barrel, gives the stone back. Required by TraditionalPreservationFruitVegetables.lua.
+-- portion, or emptying a spoiled barrel, gives the board and stone back (the cloth is used up). Required by TraditionalPreservationFruitVegetables.lua.
 TraditionalPreservationFruitVegetables = TraditionalPreservationFruitVegetables or {}
 local M = TraditionalPreservationFruitVegetables
 local Weather = require "TraditionalPreservationCore/Weather"
@@ -43,7 +43,7 @@ for kind, kraut in pairs(M.KRAUTS) do M.KRAUT_OF_HEAD[kraut.head] = kind end
 M.EXTRA_OF_TYPE = {}
 for extra, fullType in pairs(M.EXTRAS) do M.EXTRA_OF_TYPE[fullType] = extra end
 M.CLOTHS = { ["Base.RippedSheets"] = true, ["Base.BurlapPiece"] = true, ["Base.CheeseCloth"] = true }
-M.BOARD = "Base.Plank"
+M.BOARD = "Base.Plank"      -- back with the stone once the barrel is empty
 M.STONE = "Base.FlatStone"
 
 -- Rates. The ferment: days at 4, 8, 13, 18, 21 and 24 C are 120, 60, 40, 28, 21 and 16; slower still towards 0 C,

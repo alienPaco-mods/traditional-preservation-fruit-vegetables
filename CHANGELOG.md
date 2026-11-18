@@ -1,5 +1,10 @@
 # Changelog: Traditional Preservation (Fruits and Vegetables)
 
+## 0.0.4
+- The kraut barrel gives the **Plank** back with the Flat Stone (the last portion, or emptying a spoiled barrel); only the cloth is used up.
+- The Drying Pole is now the **Onion and Garlic Pole** (display name only; the entity and its container keep their ids).
+- The Vegetable Crate (Hay) takes hay only: `Base.Straw2` was vanilla's drinking straw. Hay comes from a farm's hay bales.
+
 ## 0.0.3
 - Sweet potatoes and pumpkins join the cellar, with a hot cure (20 to 32 C: 7 and 10 days; cured, twice as long).
 - Two storages, containers from their tiles as Fish & Meat's Stockfish Pallet: the Drying Pole (garlic and onions

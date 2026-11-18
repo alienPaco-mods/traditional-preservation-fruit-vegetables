@@ -37,7 +37,7 @@ module TraditionalPreservationFruitVegetables
                 item 1 tags[base:saw;base:smallsaw;base:crudesaw] mode:keep flags[MayDegradeLight],
                 item 3 [Base.Plank],
                 item 4 [Base.Nails],
-                item 4 [Base.HayTuft;Base.Straw2],
+                item 4 [Base.HayTuft],
             }
         }
     }

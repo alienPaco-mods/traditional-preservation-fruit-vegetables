@@ -207,7 +207,8 @@ check("one portion out, with the batch's food and no mood", #given == 1
 take = named(menuFor(), "Take Sauerkraut")
 take.subOption.options[1].onSelect(take.subOption.options[1].target, unpack(take.subOption.options[1].args))
 runQueued()
-check("All takes the other 29 and the stone comes back", #given == 31 and given[31].fullType == "Base.FlatStone"
+check("All takes the other 29 and the plank and stone come back", #given == 32 and given[31].fullType == "Base.Plank"
+    and given[32].fullType == "Base.FlatStone"
     and M.barrelStage(barrel) == "Empty")
 
 -- Braid Garlic on 12 selected bulbs (vanilla's stacked entry), Unbraid on a braid
