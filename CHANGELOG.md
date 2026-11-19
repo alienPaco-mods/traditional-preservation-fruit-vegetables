@@ -1,5 +1,11 @@
 # Changelog: Traditional Preservation (Fruits and Vegetables)
 
+## 0.0.6
+- **Aired rooms** (2026-11-19, TP Core 0.1.15): onions and garlic dry cure by moving air: an aired room as under a roof
+  (1), **a shut room not at all** (was 0.6); a lit fire still draws air through a room (1), banked embers don't. Crates,
+  the root cellar and the kraut barrel read TP Core's new place temperatures. Tools: shut room and aired room columns.
+  Needs TP Core 0.1.15.
+
 ## 0.0.5
 - **Vegetables by a fire** (TP Core 0.1.11): within 2 tiles of a lit fireplace, antique oven or campfire a vegetable is at 28 C (banked embers 24 C). Sweet potatoes and pumpkins cure there in autumn; a potato doesn't (too warm); keeping counts as a warm room. Garlic and onions dry by a lit fire indoors as on a porch (1), by banked embers as the place under them (user, 2026-11-18); a fire that ran out part way shares the stretch by time. README, guide 7. Needs TP Core 0.1.11.
 - **The kraut barrel takes 20 heads at least** (was 30; still 60 at most): a smaller harvest can make kraut, and the long seal still makes a full barrel worth it. README, guide 7, Workshop text, the barrel's help and tooltip.

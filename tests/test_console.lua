@@ -90,7 +90,7 @@ end
 check("cellar lists every crop by place", run("cellar"):find("cabbage", 1, true) ~= nil and run("cellar"):find("Basement", 1, true) ~= nil)
 check("veg describes each vegetable carried", select(2, run("veg"):gsub("Base%.", "")) == 2)
 carried[2].getContainer = function() return { getType = function() return "haycrate" end, getContainingItem = function() return nil end } end
-check("veg shows a storage's keeping on top of the place", run("veg"):find("in the hay crate (keeping x0.75): 11 days fresh with it", 1, true) ~= nil)
+check("veg shows a storage's keeping on top of the place", run("veg"):find("in the hay crate (keeping x0.75): 10 days fresh with it", 1, true) ~= nil)
 carried[2].getContainer = function() return nil end
 run("keep", 3)
 check("keep ages them by their place, the cabbage further into its days", carried[1].age > 0

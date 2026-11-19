@@ -21,7 +21,7 @@ Days fresh at a temperature (rotten follows at vanilla's own fresh-to-rotten rat
 | Cabbage | 7 | 14 | 90 | 90 | 2 |
 | Leek | 5 | 10 | 60 | 60 | 5 |
 | Garlic, Onion | 14 | 28 | 30 (too damp) | 70 | 14 |
-| Garlic, Onion cured | 90 | 180 | 60 | onion 180, garlic 70 (it sprouts); garlic 210 at 0 C (a winter attic) | |
+| Garlic, Onion cured | 90 | 180 | 60 | onion 180, garlic 70 (it sprouts); garlic 210 at 0 C (an unheated room in winter) | |
 | Sweet Potato | 28 | 120 | 30 (chilled) | 140 | 28 |
 | Sweet Potato cured | 56 | 240 | 45 (chilled) | 140 | |
 | Pumpkin | 30 | 45 | 30 (too damp) | 70 | 14 |
@@ -30,9 +30,10 @@ Days fresh at a temperature (rotten follows at vanilla's own fresh-to-rotten rat
 - A day counts as vanilla's days fresh over the place's, on straight lines between the four temperatures. Warmer than
   22 C counts as 22 C; colder than 4 C counts as 4 C (no frost damage yet). **No place keeps worse than vanilla**, and a
   powered fridge never worse than vanilla's fridge at its default (a day counts 0.2).
-- Where it is goes by Core's places: a room is the 10-day season mean (22 C with the grid on), a loft warmer in
-  summer, a basement the ground's 30-day mean a month behind (about 5 C in late winter, 13 C in late summer), under a
-  roof the 10-day mean, a powered fridge 4 C, a freezer stops it. **By a fire** (within 2 tiles of a lit fireplace,
+- Where it is goes by Core's places: a shut room is the 3-day mean, warmer in winter and stuffy in summer, an aired
+  room (a window open) the day's mean (both 22 C with the grid on), a basement the ground's 30-day mean a month behind
+  (about 5 C in late winter, 13 C in late summer), under a roof the hour's air, a powered fridge 4 C, a freezer stops
+  it. **By a fire** (within 2 tiles of a lit fireplace,
   antique oven, brazier, burn barrel or campfire; not an electric or gas stove) it is 28 C, by banked embers 24 C, less under a
   roof or in the open (Core's fire places): for keeping that is a warm room; a sweet potato or a pumpkin cures there
   in autumn, as real growers cured them by the stove; a potato doesn't (too warm). The fire counts while the fuel it
@@ -42,9 +43,10 @@ Days fresh at a temperature (rotten follows at vanilla's own fresh-to-rotten rat
   uncured one's. A sweet potato (7 days) or a pumpkin (10 days) at 20 to 32 C (the *hot* cure; real curing wants 27
   to 30 C, but an unheated Kentucky room at harvest is 20 to 22) is cured and keeps twice as long. Unpowered, that
   happens in June and July; at the September and October harvest only a room on the grid (22 C) or a place by a fire is warm enough. Garlic and onions
-  cure in 14 days in moving air and warmth: an hour counts 1 under a roof (Covered) or in a loft, 0.75 in the open
-  (sun and rain), 0.6 in a closed room (24 days), 0 in a basement, a fridge or a freezer, 1 by a lit fire indoors (it
-  draws air through the room), by banked embers the air of the place under them (`M.CURES.dry.places`),
+  cure in 14 days in moving air and warmth: an hour counts 1 under a roof (Covered) or in an aired room (a window
+  open), 0.75 in the open (sun and rain), 0 in a shut room (still air: it waits for a window), a basement, a fridge or a
+  freezer, 1 by a lit fire in a room (it draws air through), by banked embers the air of the place under them
+  (`M.CURES.dry.places`),
   times the warmth, as Fish & Meat's dry cure: full from 20 C, a straight line down to a fifth at 4 C and below
   (`M.CURES.dry.curve`, on the cure ledger). Hung in summer they cure in 14 to 19 days; in winter it takes months; while they
   cure somewhere dry they already keep by the cured days (curing is drying), and once cured they keep by them in a

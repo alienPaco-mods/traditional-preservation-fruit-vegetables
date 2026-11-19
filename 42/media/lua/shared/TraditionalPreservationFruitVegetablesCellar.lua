@@ -59,15 +59,15 @@ M.CURES = {
     warm = { hours = 7 * 24, curve = { { 9, 0 }, { 10, 1 }, { 20, 1 }, { 21, 0 } } },
     -- Warm and close: the real ideal is 27 to 30 C, but a Kentucky room at harvest is 20 to 22 (my pick).
     hot = { hours = 10 * 24, curve = { { 19, 0 }, { 20, 1 }, { 32, 1 }, { 33, 0 } } },
-    -- Dried by moving air (user, 2026-11-18: a room has none): how much an hour counts by place. A porch or open shed
-    -- (Covered) and the attic (Loft) are the classic spots; the open air sets it back with sun and rain; a closed room
-    -- cures slowly; a basement, a fridge or a freezer, too damp or too cold, not at all.
+    -- Dried by moving air (user, 2026-11-18: a shut room has none): how much an hour counts by place. A porch or open
+    -- shed (Covered) and a room with a window open (AiredRoom, often upstairs) are the classic spots; the open air sets
+    -- it back with sun and rain; a shut room, a basement, a fridge or a freezer, too still, damp or cold, not at all.
     -- And by the warmth, as Fish & Meat's dry cure (user): full from 20 C (the real ideal is 24 to 30), a straight line
     -- down to a fifth at 4 C and below (frozen bulbs still dry, slowly). Counted on the ledger, by place, times places.
     -- By a lit fire indoors as a porch (user, 2026-11-18: the fire draws air through the room); banked embers draw
     -- next to none, so there, and by any fire under a roof or in the open, it is the air of the place under it.
     dry = { hours = 14 * 24, curve = { { 4, 0.2 }, { 20, 1 } },
-        places = { Covered = 1, Loft = 1, Open = 0.75, Sheltered = 0.6, Basement = 0,
+        places = { Covered = 1, AiredRoom = 1, Open = 0.75, Sheltered = 0, Basement = 0,
         [FluidAgeing.FRIDGE] = 0, [FluidAgeing.FREEZER] = 0, [Fire.PLACE] = 1 } },
 }
 -- Item modData keys, kept: the crop's clock (one per crop and state), the cure's progress, and cured.

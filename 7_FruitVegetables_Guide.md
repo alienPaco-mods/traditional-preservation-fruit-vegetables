@@ -72,7 +72,7 @@ Every vegetable below keeps by the temperature of where it is. These are its **d
 - **Never worse than vanilla.** A vegetable in a warm room keeps vanilla's days (a cabbage a week: vanilla's two days are no real cabbage's); anywhere cooler keeps longer.
 - **Colder than a fridge counts as a fridge.** Frost doesn't harm them here (yet).
 - **A powered freezer stops the clock**, as in vanilla.
-- **Garlic and onions hate the damp.** A basement is the wrong place for them: hang them in a dry room or the loft. Garlic sprouts in a fridge, too, but keeps best of all in a freezing-cold, dry attic.
+- **Garlic and onions hate the damp.** A basement is the wrong place for them: hang them in a dry room. Garlic sprouts in a fridge, too, but keeps best of all in a freezing-cold, dry room upstairs.
 - **Sweet potatoes and pumpkins hate the cold.** Below about 10 C a sweet potato is chilled and a pumpkin rots in the damp: a cool room suits them better than the basement.
 - **Cooked or burnt vegetables** go by the game's own clock.
 - It keeps counting while you're away, by the place the vegetables were left in.
@@ -88,13 +88,13 @@ Curing isn't a recipe. It's the first part of keeping, done in the right place.
 | Vegetable | Cures in | Where | What it gains |
 |---|---|---|---|
 | Potato | 7 days | Somewhere between 10 and 20 C: a room, a covered porch in autumn | Every day after counts about 70 percent of an uncured one's: 210 days in a basement instead of 150 |
-| Garlic, Onion | 14 days under a roof or in the loft in summer warmth (24 in a closed room, 19 in the open); months in winter | Moving air and warmth; never a basement, a fridge or a freezer | 90 to 180 days in a dry room, 60 in a basement |
+| Garlic, Onion | 14 days under a roof or in a room with a window open in summer warmth (19 in the open; a shut room never); months in winter | Moving air and warmth; never a basement, a fridge or a freezer | 90 to 180 days in a dry room, 60 in a basement |
 | Sweet Potato | 7 days | Somewhere warm, 20 to 32 C: by a fire in autumn | About 8 months at 15 C; still chilled in a basement |
 | Pumpkin | 10 days | Somewhere warm, 20 to 32 C: by a fire in autumn | Twice as long everywhere: about 3 months at 15 C |
 
 - **A potato cures by the temperature.** A winter basement (about 5 C) is too cold; a summer room above 20 C too warm. The days add up, so a potato moved in and out still gets there.
-- **Garlic and onions cure in moving air and warmth.** A porch roof, an open shed or the attic in summer is best; a closed room works, slowly, unless a fire is burning in it (a lit fire draws air through the room, so beside it they dry as on a porch; banked embers don't); the cold slows it right down (a fifth at 4 C and below); a basement never. Hang them at harvest, not in winter. While they cure somewhere dry they already keep by the cured days, so curing costs them nothing. Taken down to a basement before they're cured, they keep by the damp days until they come back up.
-- **Sweet potatoes and pumpkins want it warm.** In June and July a room or a loft is warm enough. At the autumn harvest an unheated room has dropped under 20 C, so without power they won't cure there; with the grid on, a room's 22 C will do. Without power, do what growers did: set the crate within two tiles of a lit fireplace, antique oven or campfire (28 C, banked embers 24 C). A potato doesn't belong there: too warm for its cure, though it keeps no worse than in a warm room. The fire counts while the wood it had when you last looked lasts, so keep it fed and look in on the crate now and then.
+- **Garlic and onions cure in moving air and warmth.** A porch roof, an open shed or a room with its window open (usually upstairs: the ground floor is boarded up) in summer is best; a shut room doesn't cure them at all unless a fire is burning in it (a lit fire draws air through the room, so beside it they dry as on a porch; banked embers don't); the cold slows it right down (a fifth at 4 C and below); a basement never. Hang them at harvest, not in winter. While they cure somewhere dry they already keep by the cured days, so curing costs them nothing. Taken down to a basement before they're cured, they keep by the damp days until they come back up.
+- **Sweet potatoes and pumpkins want it warm.** In June and July a room is warm enough. At the autumn harvest an unheated room has dropped under 20 C, so without power they won't cure there; with the grid on, a room's 22 C will do. Without power, do what growers did: set the crate within two tiles of a lit fireplace, antique oven or campfire (28 C, banked embers 24 C). A potato doesn't belong there: too warm for its cure, though it keeps no worse than in a warm room. The fire counts while the wood it had when you last looked lasts, so keep it fed and look in on the crate now and then.
 - `TPFV.veg()` in the debug console shows whether something is cured (see the Toolkit).
 
 ### The onion and garlic pole and the crates
@@ -190,7 +190,7 @@ A standing oak barrel, narrower at the top, bound with iron: Fish & Meat's Salti
 ## 7. Secrets & Hidden Features
 
 - **Loot counts too.** A sack of potatoes from a store keeps by place like your own harvest.
-- **A loft is a fine place for garlic.** It cures in summer as well as anywhere, but it keeps a little shorter there than in a room.
+- **Open the window for garlic.** It cures by the window as well as on a porch, and a shut room won't cure it at all; once it's cured, shut the window again if you like.
 - **A full barrel can be carried.** Its batch goes with it: start it upstairs in late summer, carry it down when it's ready.
 
 ---

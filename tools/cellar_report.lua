@@ -12,7 +12,7 @@ local M = TraditionalPreservationFruitVegetables
 local Weather = require "TraditionalPreservationCore/Weather"
 
 local MONTHS = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" }
-local PLACES = { "Sheltered", "Loft", "Basement", "Covered" }
+local PLACES = { "Sheltered", "AiredRoom", "Basement", "Covered" }
 local STEPS_PER_HOUR = 6
 
 local function readDays(path)
@@ -107,7 +107,7 @@ print("Days fresh for a vegetable put away on the first of the month (c: cured o
 for _, name in ipairs(M.CROP_NAMES) do
     print("")
     print(string.format("%s (vanilla %d days)", name, M.CROPS[name].vanilla))
-    print("| Month | Room | Loft | Basement | Under a roof |")
+    print("| Month | Shut room | Aired room | Basement | Under a roof |")
     print("|---|---|---|---|---|")
     for month = 1, 12 do
         local row = { MONTHS[month] }

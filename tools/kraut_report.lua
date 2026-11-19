@@ -13,7 +13,7 @@ local M = TraditionalPreservationFruitVegetables
 local Weather = require "TraditionalPreservationCore/Weather"
 
 local MONTHS = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" }
-local PLACES = { "Sheltered", "Loft", "Basement", "Covered", "Open" }
+local PLACES = { "Sheltered", "AiredRoom", "Basement", "Covered", "Open" }
 local STEPS_PER_HOUR = 6
 
 local function readDays(path)
@@ -96,7 +96,7 @@ local function cell(key)
 end
 
 print(string.format("A kraut barrel salted and compressed on the first of the month: days to ready (%d at 18 C), then days it keeps", M.FERMENT_HOURS / 24))
-print("| Month | Room | Loft | Basement | Under a roof | Open air |")
+print("| Month | Shut room | Aired room | Basement | Under a roof | Open air |")
 print("|---|---|---|---|---|---|")
 for month = 1, 12 do
     local row = { MONTHS[month] }

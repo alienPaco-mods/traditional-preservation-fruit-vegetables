@@ -126,36 +126,37 @@ weather(14 * 24, 5)
 M.keepVegetable(coldPotato, hour, "Basement")
 check("a cold basement doesn't cure a potato", not coldPotato.modData[M.CURED])
 
--- Garlic cures in 14 days in moving air (a loft or under a roof), slower in the open or a room, never somewhere damp
-check("the dry cure by place: covered and loft 1, open 0.75, a room 0.6, basement and fridge 0",
-    M.dryCurePlace("Covered") == 1 and M.dryCurePlace("Loft") == 1 and M.dryCurePlace("Open") == 0.75
-    and M.dryCurePlace("Sheltered") == 0.6 and M.dryCurePlace("Basement") == 0 and M.dryCurePlace("Fridge") == 0)
+-- Garlic cures in 14 days in moving air (an aired room or under a roof), slower in the open, never in still air
+check("the dry cure by place: covered and an aired room 1, open 0.75, a shut room, basement and fridge 0",
+    M.dryCurePlace("Covered") == 1 and M.dryCurePlace("AiredRoom") == 1 and M.dryCurePlace("Open") == 0.75
+    and M.dryCurePlace("Sheltered") == 0 and M.dryCurePlace("Basement") == 0 and M.dryCurePlace("Fridge") == 0)
 -- A summer spell: every place but the basement above 20 C, where the dry cure runs at full speed.
 local function season(celsius)
     local ledger = M.cureLedger()
     ledger.seasonTemperature, ledger.groundTemperature = celsius, celsius
+    ledger.threeDayTemperature, ledger.dayTemperature = celsius, celsius
 end
 season(25)
 local garlic = vegetable("Base.Garlic", 14, 28, 0)
-M.keepVegetable(garlic, hour, "Loft")
+M.keepVegetable(garlic, hour, "AiredRoom")
 weather(13 * 24, 25)
 M.keepVegetable(garlic, hour, "Basement")
-check("13 warm days in a loft: still curing", not garlic.modData[M.CURED] and near(garlic.modData[M.CURING_KEY].age, 13 * 24, 0.5))
+check("13 warm days in an aired room: still curing", not garlic.modData[M.CURED] and near(garlic.modData[M.CURING_KEY].age, 13 * 24, 0.5))
 weather(17 * 24, 25)
 M.keepVegetable(garlic, hour, "Sheltered")
 check("17 days in a basement don't count", not garlic.modData[M.CURED])
 weather(24, 25)
 M.keepVegetable(garlic, hour, "Covered")
-check("a day in a room counts 0.6: still curing", not garlic.modData[M.CURED] and near(garlic.modData[M.CURING_KEY].age, 13 * 24 + 0.6 * 24, 0.5))
-weather(12, 25)
+check("a day in a shut room counts nothing: still curing", not garlic.modData[M.CURED] and near(garlic.modData[M.CURING_KEY].age, 13 * 24, 0.5))
+weather(36, 25)
 M.keepVegetable(garlic, hour, "Covered")
-check("half a day under a roof cures it", garlic.modData[M.CURED] == true)
+check("a day and a half under a roof cures it", garlic.modData[M.CURED] == true)
 season(0)
 local frozen = vegetable("Base.Garlic", 14, 28, 0)
-M.keepVegetable(frozen, hour, "Loft")
+M.keepVegetable(frozen, hour, "AiredRoom")
 weather(14 * 24, 0)
-M.keepVegetable(frozen, hour, "Loft")
-check("the cold slows it: 14 days in a freezing loft count a fifth, as Fish & Meat's dry cure",
+M.keepVegetable(frozen, hour, "AiredRoom")
+check("the cold slows it: 14 days in a freezing aired room count a fifth, as Fish & Meat's dry cure",
     not frozen.modData[M.CURED] and frozen.modData[M.CURING_KEY].age < 14 * 24 * 0.3 and frozen.modData[M.CURING_KEY].age > 14 * 24 * 0.15)
 check("the dry cure's warmth: a fifth at 4 C and below, full from 20 C", M.CURES.dry.ageing.rate(-5) == 0.2
     and M.CURES.dry.ageing.rate(4) == 0.2 and near(M.CURES.dry.ageing.rate(12), 0.6) and M.CURES.dry.ageing.rate(25) == 1)
@@ -165,9 +166,12 @@ M.keepVegetable(onion, 0, "Fridge")
 M.keepVegetable(onion, 20 * 24, "Sheltered")
 check("a fridge doesn't cure an onion", not onion.modData[M.CURED])
 local drying = vegetable("Base.Onion", 14, 28, 0)
-M.keepVegetable(drying, 2000, "Sheltered")
-check("an onion curing in a room keeps by the cured days (curing is drying)", M.keeperOf(drying) == CROPS.onion.curedKeeper
+M.keepVegetable(drying, 2000, "AiredRoom")
+check("an onion curing in an aired room keeps by the cured days (curing is drying)", M.keeperOf(drying) == CROPS.onion.curedKeeper
     and drying.modData[M.CELLAR_KEY] == nil and not drying.modData[M.CURED])
+local shut = vegetable("Base.Onion", 14, 28, 0)
+M.keepVegetable(shut, 2000, "Sheltered")
+check("one in a shut room doesn't cure: the damp keeper", M.keeperOf(shut) == CROPS.onion.keeper)
 M.keepVegetable(drying, 2001, "Basement")
 check("taken down to a basement before it is cured: the damp keeper", M.keeperOf(drying) == CROPS.onion.keeper
     and drying.modData[M.CURED_KEY] == nil)
@@ -238,13 +242,12 @@ M.keepVegetable(hung, hour, "Covered")
 check("on the pole under a roof it is cured in 10 days, loose it isn't", poled.modData[M.CURED] == true and not hung.modData[M.CURED])
 weather(5 * 24, 25)
 M.keepVegetable(roomPoled, hour, "Sheltered")
-check("on the pole in a still room: 15 days aren't enough (about 16)", not roomPoled.modData[M.CURED])
-weather(24, 25)
-M.keepVegetable(roomPoled, hour, "Sheltered")
-check("16 days are", roomPoled.modData[M.CURED] == true)
+check("on the pole in a shut room: 15 days do nothing (still air)", not roomPoled.modData[M.CURED]
+    and near(roomPoled.modData[M.CURING_KEY].age, 0, 1e-6))
 
 local spread, cratePotato = storedPair("Base.Potato", 28, 280, "haycrate")
 M.cureLedger().groundTemperature, M.cureLedger().seasonTemperature = 15, 15   -- a mild autumn room, after the cold crate test
+M.cureLedger().threeDayTemperature, M.cureLedger().dayTemperature = 15, 15
 M.keepVegetable(spread, hour, "Sheltered")
 M.keepVegetable(cratePotato, hour, "Sheltered")
 weather(5 * 24, 15)
@@ -257,7 +260,8 @@ check("five days at 15 C in the crate cure a potato, not on a shelf", cratePotat
 local Fire = require "TraditionalPreservationCore/Fire"
 local Weather = require "TraditionalPreservationCore/Weather"
 check("the dry cure's air by a fire: lit 1, embers the room's, under a roof or in the open that place's",
-    M.dryCurePlace(Fire.PLACE) == 1 and M.dryCurePlace(Fire.EMBERS, "Sheltered") == 0.6
+    M.dryCurePlace(Fire.PLACE) == 1 and M.dryCurePlace(Fire.EMBERS, "Sheltered") == 0
+    and M.dryCurePlace(Fire.EMBERS .. "AiredRoom") == 1
     and M.dryCurePlace(Fire.EMBERS, "Basement") == 0 and M.dryCurePlace(Fire.EMBERS .. "Covered") == 1
     and M.dryCurePlace(Fire.PLACE .. "Open") == 0.75)
 local placeOf, fuelHours, weatherPlaceOf = Fire.placeOf, Fire.fuelHours, Weather.placeOf
@@ -272,6 +276,7 @@ local function byTheFire(fullType, offAge, offAgeMax)
     return item
 end
 M.cureLedger().groundTemperature, M.cureLedger().seasonTemperature = 15, 15   -- an October room, under the hot cure's 20 C
+M.cureLedger().threeDayTemperature, M.cureLedger().dayTemperature = 15, 15
 local stoveSweet, roomSweet = byTheFire("Base.SweetPotato", 28, 280), vegetable("Base.SweetPotato", 28, 280, 0)
 local stovePotato = byTheFire("Base.Potato", 28, 280)
 for _, item in ipairs({ stoveSweet, stovePotato }) do M.keepVegetable(item, hour) end
@@ -298,10 +303,10 @@ M.keepVegetable(outOnion, hour)
 weather(7 * 24, 25)
 firePlace = "Sheltered"
 for _, item in ipairs({ stoveOnion, embersOnion, outOnion }) do M.keepVegetable(item, hour) end
-check("a week by a lit fire dries an onion as a porch; by embers as the room",
-    near(stoveOnion.modData[M.CURING_KEY].age, 7 * 24, 0.5) and near(embersOnion.modData[M.CURING_KEY].age, 0.6 * 7 * 24, 0.5))
-check("a fire out half way: the porch's air half the week, the room's the other half",
-    near(outOnion.modData[M.CURING_KEY].age, 0.8 * 7 * 24, 0.5))
+check("a week by a lit fire dries an onion as a porch (the fire draws air); by embers as the shut room, not at all",
+    near(stoveOnion.modData[M.CURING_KEY].age, 7 * 24, 0.5) and near(embersOnion.modData[M.CURING_KEY].age, 0, 0.5))
+check("a fire out half way: the porch's air half the week, the shut room's still air the other half",
+    near(outOnion.modData[M.CURING_KEY].age, 0.5 * 7 * 24, 0.5))
 Fire.placeOf, Fire.fuelHours, Weather.placeOf = placeOf, fuelHours, weatherPlaceOf
 
 H.done()
