@@ -167,7 +167,7 @@ A standing oak barrel, narrower at the top, bound with iron: Fish & Meat's Salti
 | 24 C and up | 16 days |
 
 - **Too warm spoils it.** Two days above 27 C before it's ready and it comes out **soft**: it keeps only two thirds as long. Five days and it **spoils**: empty it to get the plank and stone back. A barrel by a fire is too warm.
-- **Barrel Info** (in its menu) shows the stage, what's in it, the place and its heat, how far it has soured, when it will be ready and the hours it has been too warm.
+- **Kraut Barrel Info** (in its menu) shows the stage, what's in it, the place and its heat, how far it has soured, when it will be ready and the hours it has been too warm.
 
 **Ready.** The kraut stays in the barrel under its stone and keeps by place: about six months in an 8 C cellar, three in a cool room, one in a warm one. **Take Sauerkraut** and **Take Sauer Turnip** (All or One): one portion a head, as its kind, each with its own food and the apples and carrots shared out. Out of the barrel a portion keeps two weeks, less if the barrel has stood long. The last portion gives the plank and stone back (the cloth is used up).
 
@@ -210,7 +210,7 @@ A standing oak barrel, narrower at the top, bound with iron: Fish & Meat's Salti
 | Vegetables still go off fast in a basement | Look at the month: the ground is still warm in late summer and early autumn (chapter 5). |
 | Garlic in the basement goes off sooner than in a room | That's right: the basement is too damp for it. |
 | Nothing changes at all | Check the sandbox: **Vegetables keep by place** must be on. |
-| The barrel hasn't moved in weeks | At 0 C it stops, and near it it crawls. Barrel Info says so: move it somewhere warmer (the basement), or wait for spring. |
+| The barrel hasn't moved in weeks | At 0 C it stops, and near it it crawls. The Kraut Barrel window says so: move it somewhere warmer (the basement), or wait for spring. |
 | Salt and Compress is red | Its hover says what's missing: 20 heads, the salt, a cloth, a plank or a flat stone. |
 | I can't add more to the barrel | Once it is salted and compressed it is sealed, as a real barrel is. |
 

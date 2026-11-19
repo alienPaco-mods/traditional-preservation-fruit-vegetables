@@ -1,4 +1,4 @@
-# Traditional Preservation (Fruits and Vegetables) — Build 42 prototype (v0.0.3)
+# Traditional Preservation (Fruits and Vegetables) — Build 42 prototype (v0.0.10)
 
 Vegetables kept the old way, without electricity. Built: **the root cellar** (vanilla vegetables keep by place, and
 potatoes, garlic, onions, sweet potatoes and pumpkins cure), **three storages** (Onion and Garlic Pole, Vegetable Crate (Hay), Vegetable Crate (Sand)) and garlic and onion **braids**, and **the kraut barrel** (cabbage and turnip soured in salt). Planned: the
@@ -92,7 +92,7 @@ lighter to carry (user): the bulbs keep and cure inside as loose ones do, and a 
 
 A standing barrel (Build menu, Furniture: hammer and saw kept, 6 planks, 10 nails, 4 twine, Woodwork 3), between
 Fish & Meat's Salting Tub and Vinegar's cask. No crafting window: the batch is Lua state in the barrel's movableData
-(`tpfvBarrel`), worked from its right-click menu, and **Barrel Info** (TP Core's InfoWindow, from the menu) shows
+(`tpfvBarrel`), worked from its right-click menu, and the **Kraut Barrel Info** window (TP Core's InfoWindow, from the menu) shows
 it, as Fish & Meat's Salting Tub. A barrel with anything in it can't be picked up: build or put it
 down where it will sour and keep.
 

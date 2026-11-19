@@ -1,5 +1,9 @@
 # Changelog: Traditional Preservation (Fruits and Vegetables)
 
+## 0.0.10
+- The window rows read the station's full name and Info (Kraut Barrel Info), as vanilla's Fireplace Info and
+  Generator Info; the window's title is the bare name. The short "Vessel Info", "Tub Info" and the like are gone.
+
 ## 0.0.9
 - **Info in the main menu too** (user, session 53): every station's Info row is also at the bottom of the main right-click menu, besides its submenu (TP Core's `UI.topInfo`). Barrel Info.
 
