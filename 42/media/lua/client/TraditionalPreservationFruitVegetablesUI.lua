@@ -191,6 +191,7 @@ local function addBarrelMenu(context, playerObj, station)
     tooltipFor(statusOption, UI.placeText(status.place, status.temperature) .. " <LINE> " .. nextText(status))
     local info = menu:addOption(getText("ContextMenu_TraditionalPreservationFruitVegetables_Info"), playerObj, KrautWindow.open, station)
     info.iconTexture = getTexture(BARREL_ICON)
+    UI.topInfo(context, getText("ContextMenu_TraditionalPreservationFruitVegetables_Info"), getTexture(BARREL_ICON), playerObj, KrautWindow.open, station)
 
     if stage == "Empty" or stage == "Packing" then
         addPackMenu(menu, playerObj, station, barrel)
