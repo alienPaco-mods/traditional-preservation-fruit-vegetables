@@ -1,5 +1,9 @@
 # Changelog: Traditional Preservation (Fruits and Vegetables)
 
+## 0.0.7
+- **A kraut barrel with anything in it can't be picked up** (2026-11-19): packing, fermenting or holding kraut, it
+  stays where it is and its time goes by its place; empty, it picks up as before. No process needs it moved.
+
 ## 0.0.6
 - **Aired rooms** (2026-11-19, TP Core 0.1.15): onions and garlic dry cure by moving air: an aired room as under a roof
   (1), **a shut room not at all** (was 0.6); a lit fire still draws air through a room (1), banked embers don't. Crates,

@@ -256,6 +256,17 @@ InfoWindow.clickOpens(isBarrel, function(playerObj, station)
     KrautWindow.open(playerObj, station)
 end)
 
+-- A barrel with anything in it stays where it is: packing, fermenting or kraut waiting, its time goes by its place
+-- (user, 2026-11-19: no station is moved mid-process). Empty, it picks up as any moveable.
+local barrelTiles = {}
+for _, sprite in ipairs(Tiles.STATIONS) do barrelTiles[sprite] = true end
+UI.keepInPlace(function(isoObject)
+    local sprite = isoObject:getSprite()
+    if not (sprite and barrelTiles[sprite:getName()]) or not isoObject:hasModData() then return nil end
+    local movableData = isoObject:getModData().movableData
+    local barrel = movableData and movableData[M.BARREL_KEY]
+    return (barrel ~= nil and M.barrelStage(barrel) ~= "Empty") or nil
+end)
 -- No barrel or storage is put down in front of a door (TP Core's Doors).
 UI.keepDoorsFree(Tiles.STATIONS)
 local storageTiles = {}

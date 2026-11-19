@@ -107,6 +107,7 @@ local modData = {}
 local barrelObject = {
     getSprite = function() return { getName = function() return Tiles.STATIONS[1] end } end,
     getModData = function() return modData end,
+    hasModData = function() return true end,
     getSquare = function() return square end,
     isOutside = function() return false end,
     clearAttachedAnimSprite = function() end,
@@ -190,6 +191,8 @@ check("salted and compressed: fermenting, 6 salt and the kit taken, 10 xp and 1 
     and not inventory:containsRecursive(sheet) and not inventory:containsRecursive(plank) and not inventory:containsRecursive(stone)
     and xp.Cooking == 30 + 1 + 10)
 menu = menuFor()
+local function canPickUp() return ISMoveableSpriteProps.canPickUpMoveable({}, playerObj, square, barrelObject) end
+check("a fermenting barrel can't be picked up (user, 2026-11-19: no station is moved mid-process)", canPickUp() == false)
 check("sealed: no packing rows, no unpack", named(menu, "Pack Cabbage") == nil and named(menu, "Unpack the Barrel") == nil
     and named(menu, "Add Apple") == nil)
 
@@ -210,6 +213,7 @@ runQueued()
 check("All takes the other 29 and the plank and stone come back", #given == 32 and given[31].fullType == "Base.Plank"
     and given[32].fullType == "Base.FlatStone"
     and M.barrelStage(barrel) == "Empty")
+check("emptied, it picks up again", canPickUp() == true)
 
 -- Braid Garlic on 12 selected bulbs (vanilla's stacked entry), Unbraid on a braid
 local inventoryHandlers = H.handlers.OnFillInventoryObjectContextMenu

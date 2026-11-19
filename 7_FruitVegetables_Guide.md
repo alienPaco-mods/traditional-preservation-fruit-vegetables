@@ -181,7 +181,7 @@ A standing oak barrel, narrower at the top, bound with iron: Fish & Meat's Salti
 | July | 22, keeps 46 | 40, keeps 123 | 21, soft: keeps 29 |
 
 - **At harvest, sour it in the basement.** The basement is still about 13 C in October and sours it in seven weeks; a barrel put down there in midwinter takes two to three months. An unheated room in a Kentucky winter sits around 0 C, where the souring all but stops, so a barrel there waits for spring.
-- **Or start it in late summer** in a room, and carry it down once it's ready. (A barrel can be picked up full: its batch goes with it.)
+- **Pick its place before you pack it.** A barrel with anything in it can't be picked up, so build or put it down where it will sour and keep: a late-summer room for quick kraut, the basement for kraut that keeps.
 
 > *Margin note:* on the Volga and all over Russia, *kvashenaya kapusta* was made in October in oak *kadki*, shredded cabbage trodden down with salt, carrot and sometimes whole apples, under a wooden circle and a river stone. The cabbage's own juice is the brine: the salt draws it out, and the lactic bacteria on every leaf do the rest. The stone keeps the kraut under the brine, away from the air and the moulds.
 
