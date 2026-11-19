@@ -167,7 +167,7 @@ A standing oak barrel, narrower at the top, bound with iron: Fish & Meat's Salti
 | 24 C and up | 16 days |
 
 - **Too warm spoils it.** Two days above 27 C before it's ready and it comes out **soft**: it keeps only two thirds as long. Five days and it **spoils**: empty it to get the plank and stone back. A barrel by a fire is too warm.
-- **Barrel Info** (in its menu, or click the barrel) shows the stage, what's in it, the place and its heat, how far it has soured, when it will be ready and the hours it has been too warm.
+- **Barrel Info** (in its menu) shows the stage, what's in it, the place and its heat, how far it has soured, when it will be ready and the hours it has been too warm.
 
 **Ready.** The kraut stays in the barrel under its stone and keeps by place: about six months in an 8 C cellar, three in a cool room, one in a warm one. **Take Sauerkraut** and **Take Sauer Turnip** (All or One): one portion a head, as its kind, each with its own food and the apples and carrots shared out. Out of the barrel a portion keeps two weeks, less if the barrel has stood long. The last portion gives the plank and stone back (the cloth is used up).
 

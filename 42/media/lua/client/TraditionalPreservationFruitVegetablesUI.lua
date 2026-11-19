@@ -251,11 +251,6 @@ function KrautWindow:render()
 end
 
 -- Clicking a barrel opens Barrel Info, as clicking a door opens it.
-InfoWindow.clickOpens(isBarrel, function(playerObj, station)
-    if TraditionalPreservationFruitVegetablesWorld then TraditionalPreservationFruitVegetablesWorld.track(station) end
-    KrautWindow.open(playerObj, station)
-end)
-
 -- A barrel with anything in it stays where it is: packing, fermenting or kraut waiting, its time goes by its place
 -- (user, 2026-11-19: no station is moved mid-process). Empty, it picks up as any moveable.
 local barrelTiles = {}

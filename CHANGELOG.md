@@ -1,5 +1,8 @@
 # Changelog: Traditional Preservation (Fruits and Vegetables)
 
+## 0.0.8
+- **Info windows open from the right-click menu only** (user, session 53): a left click on a station is vanilla's again, as for every vanilla workstation (a container opens its loot window). Barrel Info is in the barrel's menu.
+
 ## 0.0.7
 - **A kraut barrel with anything in it can't be picked up** (2026-11-19): packing, fermenting or holding kraut, it
   stays where it is and its time goes by its place; empty, it picks up as before. No process needs it moved.
