@@ -543,3 +543,5 @@ Events.OnFillWorldObjectContextMenu.Add(onFillContextMenu)
 
 -- Vegetables catch up on their keeping whenever they are looked at or moved (TP Core's PlaceKeepingUI).
 PlaceKeepingUI.watch({ keep = M.keepVegetable }, M.CROP_OF_TYPE)
+-- Kraut out of the barrel catches up on its frost the same way.
+PlaceKeepingUI.watch({ keep = M.keepKraut }, M.KRAUT_OF_PRODUCT)

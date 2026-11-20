@@ -261,21 +261,11 @@ local function cure(crop, item, now, place, factor, seen)
     end
 end
 
--- Brings a vegetable's frost up to now at the place it was seen in last (seen: the keeping clock's fluidAge, with the
--- fire noted now), and moves it that much nearer rotten: clock.base, so the keeping goes on from there. Returns the
--- hours it was frozen since the last look (after its storage's factor).
+-- Brings a vegetable's frost up to now at the place it was seen in last (TP Core's Frost.see; clock: its keeping
+-- clock, just brought up to now), and moves it that much nearer rotten. Returns the hours it was frozen since the last
+-- look (after its storage's factor).
 local function frost(crop, item, now, clock, factor)
-    local itemModData = item:getModData()
-    local seen = clock.fluidAge
-    local record = itemModData[M.FROST_KEY]
-    if not record then
-        record = Frost.newRecord(crop.frost, now, seen.place)
-        copyFire(seen, record)
-        itemModData[M.FROST_KEY] = record
-        return 0
-    end
-    local hours = Frost.catchUp(record, crop.frost, now, seen.place, record) * factor
-    copyFire(seen, record)
+    local hours = Frost.see(item:getModData(), M.FROST_KEY, crop.frost, now, clock.fluidAge) * factor
     if hours <= 0 or not M.frostDamage() then return 0 end
     M.frostBite(item, clock, hours)
     return hours
@@ -284,11 +274,7 @@ end
 -- Moves a kept vegetable hours of frost nearer rotten (never past it): its clock's base, so the keeping goes on from
 -- there. Also the console's TPFV.frost.
 function M.frostBite(item, clock, hours)
-    local age = item:getAge()
-    local rotten = item:getOffAgeMax()
-    local frosted = math.min(age + hours / M.FROST_RUIN_HOURS * rotten, math.max(age, rotten))
-    clock.base = clock.base + frosted - age
-    item:setAge(frosted)
+    Frost.bite(item, hours, M.FROST_RUIN_HOURS, clock)
 end
 
 -- The keeper a vegetable ages by now: a cured one's cured keeper; garlic or onion curing in a dry place the cured

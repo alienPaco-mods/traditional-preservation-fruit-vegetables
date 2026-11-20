@@ -9,13 +9,16 @@
 -- Ready kraut stays in the barrel and keeps by place (KEEP_DAYS in an 8 C cellar) and is taken out a portion at a
 -- time, one a head (a cabbage's as Sauerkraut, a turnip's as Sauer Turnip), each with its own kind's food and the
 -- apples and carrots shared out over all the heads. The last
--- portion, or emptying a spoiled barrel, gives the board and stone back (the cloth is used up). Required by TraditionalPreservationFruitVegetables.lua.
+-- portion, or emptying a spoiled barrel, gives the board and stone back (the cloth is used up). Out of the barrel a
+-- portion keeps by vanilla's clock; frozen through (TP Core's Frost, KRAUT_FREEZE_C) it goes soft: the days it has
+-- left count 2/3 (user, session 76). Required by TraditionalPreservationFruitVegetables.lua.
 TraditionalPreservationFruitVegetables = TraditionalPreservationFruitVegetables or {}
 local M = TraditionalPreservationFruitVegetables
 local Weather = require "TraditionalPreservationCore/Weather"
 local Fire = require "TraditionalPreservationCore/Fire"
 local Station = require "TraditionalPreservationCore/Station"
 local FluidAgeing = require "TraditionalPreservationCore/FluidAgeing"
+local Frost = require "TraditionalPreservationCore/Frost"
 
 M.BARREL_KEY = "tpfvBarrel"   -- the barrel's record in its movableData; never rename once the mod is out
 M.BARREL_MIN, M.BARREL_MAX = 20, 60   -- 20 (user, 2026-11-18: the long seal makes bigger barrels pay anyway)
@@ -29,6 +32,10 @@ M.KEEP_DAYS = 180             -- ready kraut in an 8 C cellar
 M.PORTION_DAYS = { 14, 28 }   -- a portion out of the barrel, fresh and rotten; it comes out as far into its fresh
                               -- days as the barrel is into KEEP_DAYS
 M.SOFT_KEEP = 1.5             -- a soft batch's keeping counts half again: it keeps 2/3 as long (user, 2026-11-18)
+-- A portion out of the barrel: salt and acid keep it liquid below water's 0 C. Item modData: its frost record, and soft.
+M.KRAUT_FREEZE_C = -3
+M.KRAUT_FROST_KEY = "tpfvKrautFrost"
+M.KRAUT_SOFT_KEY = "tpfvKrautSoft"
 M.PACK_XP = 1                 -- Cooking, a piece packed, paid when the barrel is salted and compressed
 M.COMPRESS_XP = 10            -- Cooking, salting and compressing a barrel
 
@@ -40,6 +47,9 @@ M.KRAUTS = {
 M.EXTRAS = { apple = "Base.Apple", carrot = "Base.Carrots" }
 M.KRAUT_OF_HEAD = {}
 for kind, kraut in pairs(M.KRAUTS) do M.KRAUT_OF_HEAD[kraut.head] = kind end
+M.KRAUT_OF_PRODUCT = {}
+for kind, kraut in pairs(M.KRAUTS) do M.KRAUT_OF_PRODUCT[kraut.product] = kind end
+M.KRAUT_FROST = Frost.point(M.KRAUT_FREEZE_C)
 M.EXTRA_OF_TYPE = {}
 for extra, fullType in pairs(M.EXTRAS) do M.EXTRA_OF_TYPE[fullType] = extra end
 M.CLOTHS = { ["Base.RippedSheets"] = true, ["Base.BurlapPiece"] = true, ["Base.CheeseCloth"] = true }
@@ -331,4 +341,37 @@ function M.applyPortion(item, taken)
     item:setOffAge(M.PORTION_DAYS[1])
     item:setOffAgeMax(M.PORTION_DAYS[2])
     item:setAge(taken.ageShare * M.PORTION_DAYS[1])
+end
+
+-- Turns a portion soft: the days it has left to stale and to rotten count 2/3 (the barrel's SOFT_KEEP), once.
+function M.softenKraut(item)
+    local itemModData = item:getModData()
+    if itemModData[M.KRAUT_SOFT_KEY] then return false end
+    itemModData[M.KRAUT_SOFT_KEY] = true
+    local age = item:getAge()
+    item:setOffAge(age + math.max(item:getOffAge() - age, 0) / M.SOFT_KEEP)
+    item:setOffAgeMax(age + math.max(item:getOffAgeMax() - age, 0) / M.SOFT_KEEP)
+    return true
+end
+
+-- Brings a portion's frost up to now at the place it was seen in last, and counts from where it is now (place, or
+-- where the item is); frozen through, it goes soft. Its keeping stays vanilla's. Returns its frost record, or nil for
+-- anything else and for cooked or burnt kraut (vanilla's clock, as cooked vegetables).
+function M.keepKraut(item, now, place)
+    if not M.KRAUT_OF_PRODUCT[item:getFullType()] or item:isCooked() or item:isBurnt() then return nil end
+    now = now or getGameTime():getWorldAgeHours()
+    local fire, holder
+    if not place then place, fire, holder = FluidAgeing.placeOfItem(item) end
+    local itemModData = item:getModData()
+    local record = itemModData[M.KRAUT_FROST_KEY]
+    place = place or (record and record.place) or Weather.DEFAULT_PLACE
+    if not record then
+        record = Frost.newRecord(M.KRAUT_FROST, now, place)
+        itemModData[M.KRAUT_FROST_KEY] = record
+    else
+        local hours = Frost.catchUp(record, M.KRAUT_FROST, now, place, record)
+        if Frost.frozenThrough(record, hours) and M.frostDamage() then M.softenKraut(item) end
+    end
+    if holder then FluidAgeing.noteFire(record, fire, holder, now) end
+    return record
 end

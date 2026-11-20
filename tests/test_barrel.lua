@@ -168,4 +168,57 @@ check("the last of all empties it", M.takePortion(mixed, "cabbage").last == true
 -- A barrel by a fire is 28 C: too warm
 check("by a fire is too warm for kraut", M.hotRate(M.placeTemperatureAt(ledger, "Fireside")) == 1)
 
+-- Frost on a portion out of the barrel (user, session 76): it freezes at -3 C, and frozen through (6 h) it goes soft,
+-- the days it has left counting 2/3, once; the sandbox off, no harm.
+local Frost = require "TraditionalPreservationCore/Frost"
+local function portion()
+    local self = { fullType = M.KRAUTS.cabbage.product, offAge = 14, offAgeMax = 28, age = 2, modData = {} }
+    function self:getFullType() return self.fullType end
+    function self:getOffAge() return self.offAge end
+    function self:getOffAgeMax() return self.offAgeMax end
+    function self:setOffAge(x) self.offAge = x end
+    function self:setOffAgeMax(x) self.offAgeMax = x end
+    function self:getAge() return self.age end
+    function self:getModData() return self.modData end
+    function self:isCooked() return self.cooked == true end
+    function self:isBurnt() return false end
+    return self
+end
+local frostHour = Frost.ledger().lastHour
+local function frostWeather(hours, celsius)
+    for _ = 1, hours * 6 do
+        frostHour = frostHour + 1 / 6
+        Frost.recordWeather(frostHour, celsius)
+    end
+end
+frostWeather(1, 5)
+local out, cold, cellar, off = portion(), portion(), portion(), portion()
+M.keepKraut(out, frostHour, "Open")
+M.keepKraut(cold, frostHour, "Open")
+M.keepKraut(cellar, frostHour, "Basement")
+M.keepKraut(off, frostHour, "Open")
+check("a portion's first look starts its frost record", out.modData[M.KRAUT_FROST_KEY] ~= nil)
+check("vegetables' own point doesn't matter: kraut freezes at -3 C", M.KRAUT_FREEZE_C == -3)
+frostWeather(5, -2)
+M.keepKraut(cold, frostHour, "Open")
+check("-2 C doesn't freeze kraut", cold.modData[M.KRAUT_FROST_KEY].age == 0 and cold.offAge == 14)
+frostWeather(5, -5)
+M.keepKraut(out, frostHour, "Open")
+check("five hours at -5 C: not yet frozen through", not out.modData[M.KRAUT_SOFT_KEY] and out.offAge == 14)
+frostWeather(1.5, -5)
+M.keepKraut(out, frostHour, "Open")
+M.keepKraut(cellar, frostHour, "Basement")
+SandboxVars = { TraditionalPreservationFruitVegetables = { FrostDamage = false } }
+M.keepKraut(off, frostHour, "Open")
+SandboxVars = nil
+check("frozen through it goes soft: 12 days left to stale count 8, 26 to rotten 17.3",
+    out.modData[M.KRAUT_SOFT_KEY] == true and near(out.offAge, 10) and near(out.offAgeMax, 2 + 26 / 1.5))
+check("soft only once", M.softenKraut(out) == false and near(out.offAge, 10))
+check("a basement never freezes it", cellar.modData[M.KRAUT_FROST_KEY].age == 0 and cellar.offAge == 14)
+check("the sandbox off: no harm", not off.modData[M.KRAUT_SOFT_KEY] and off.offAge == 14)
+check("anything else is left alone", M.keepKraut({ getFullType = function() return "Base.Cabbage" end }) == nil)
+local cooked = portion()
+cooked.cooked = true
+check("cooked kraut keeps vanilla's clock: no frost record", M.keepKraut(cooked, frostHour, "Open") == nil and cooked.modData[M.KRAUT_FROST_KEY] == nil)
+
 H.done()

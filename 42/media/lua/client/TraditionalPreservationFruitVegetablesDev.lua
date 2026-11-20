@@ -19,7 +19,7 @@ function TPFV.help()
     say("TPFV.veg()            the kept vegetables on you and within reach: place, rate, age, cured, the storage they lie in (pole, hay or sand crate)")
     say("TPFV.keep(days)       age the vegetables on you and within reach by this many days at their place and storage")
     say("TPFV.cure()           cure the vegetables that cure, on you and within reach, now")
-    say("TPFV.frost(hours)     freeze every kept vegetable near you for hours (default 3): 12 h ruins one")
+    say("TPFV.frost(hours)     freeze every kept vegetable near you for hours (default 3): 12 h ruins one; 6 h makes kraut soft")
     say("TPFV.give(name, n)    spawn n of a vegetable (potato, cabbage...), sauerkraut, sauerTurnip, garlicBraid or onionBraid. TPFV.give() lists them")
     say("TPFV.kit(kind)        the things a test of kind needs; TPFV.kit(\"?\") lists the kinds")
     say("Weather, game speed and the Stone Hearth's commands are TP Core's: TPC.help()")
@@ -168,7 +168,13 @@ function TPFV.frost(hours)
         local clock = M.keepVegetable(item)
         if clock then M.frostBite(item, clock, hours) end
     end
-    say(string.format("Froze %d vegetables for %s hours.", #found, tostring(hours)))
+    -- Kraut out of the barrel: frozen through, it goes soft.
+    local krauts = PlaceKeepingUI.near(M.KRAUT_OF_PRODUCT)
+    local softened = 0
+    for _, item in ipairs(krauts) do
+        if hours >= Frost.THROUGH_HOURS and M.softenKraut(item) then softened = softened + 1 end
+    end
+    say(string.format("Froze %d vegetables for %s hours; %d portions of kraut went soft.", #found, tostring(hours), softened))
 end
 
 function TPFV.cure()

@@ -1,5 +1,13 @@
 # Changelog: Traditional Preservation (Fruits and Vegetables)
 
+## 0.0.14
+- **Kraut freezes** (ROADMAP NEXT 1, step 3; user, session 76): a portion of Sauerkraut or Sauer Turnip out of the
+  barrel freezes at -3 C (salt and acid), on TP Core's Frost ledger by place, and frozen through (6 h in all) goes
+  soft: the days it has left to stale and to rotten count 2/3, as the barrel's soft kraut. Once. Looked at as the
+  vegetables are (carried, in containers as they are shown). Sandbox *Vegetables freeze* covers it. Item modData
+  `tpfvKrautFrost`, `tpfvKrautSoft`. `TPFV.frost(hours)` softens kraut near you from 6 hours.
+- Vegetables' frost now goes through TP Core's `Frost.see` and `Frost.bite` (no change in game). Needs TP Core 0.1.52.
+
 ## 0.0.13
 - **Frost** (ROADMAP NEXT 1, step 2; user, session 76): every crop the cellar keeps freezes at its own point, on TP
   Core's Frost ledger by place: potato, sweet potato, pumpkin -1 C; carrots, sugar beet, turnip -1.5 C; cabbage -3 C;

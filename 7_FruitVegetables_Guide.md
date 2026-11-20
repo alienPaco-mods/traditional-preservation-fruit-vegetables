@@ -95,6 +95,7 @@ Each crop freezes at its own point, and **half a day of frost ruins it**. A shor
 - **An unheated house freezes.** From November a shut room, a room with a window open and a porch all drop below freezing, so carry the crops down before the first hard frost.
 - **A powered freezer** freezes them as the game's own freezer does.
 - Vegetables you find in houses freeze too, from the moment you first come near them.
+- **Sauerkraut and Sauer Turnip** out of the barrel freeze only at -3 C (the salt and the sourness). Frozen through, they thaw soft and keep two thirds as long. In the barrel they just wait.
 
 > *Margin note:* frost bursts a vegetable's cells. A frozen potato thaws soft and wet and turns black within days, which is why the old rule was to have the potatoes down in the cellar before the first hard frost. Leeks, kale and parsnips were the exceptions: they stood in the garden all winter and were dug as needed.
 
@@ -244,7 +245,7 @@ A standing oak barrel, narrower at the top, bound with iron: Fish & Meat's Salti
 | Setting | Default | What it does |
 |---|---|---|
 | Vegetables keep by place | On | Off, vegetables keep as vanilla's everywhere, and never freeze. |
-| Vegetables freeze | On | Off, frost does them no harm. Needs *Vegetables keep by place*. |
+| Vegetables freeze | On | Off, frost does them no harm, nor the kraut out of the barrel. Vegetables need *Vegetables keep by place*. |
 | Kraut ferment (days at 18 C) | 28 | Days a kraut barrel takes at 18 C; the rest scale with it. |
 | Temperature sensitivity | Normal | Off, Forgiving, Normal, Harsh. Off: every barrel takes the same time anywhere, and is never too warm. |
 
