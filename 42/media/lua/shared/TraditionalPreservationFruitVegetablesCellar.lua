@@ -4,8 +4,12 @@
 -- room 15 C, a basement about 8 C, a fridge's 4 C); vanilla's own days are the warm room's (a cabbage's 7, not
 -- vanilla's 2), and no place keeps worse than vanilla does (a powered fridge never worse than vanilla's fridge at its
 -- default 0.2). A day counts as vanilla's days fresh over the place's days fresh, joined by straight lines between the
--- four; colder than 4 C counts as 4 C (frost damage is the clamp's, later), warmer than 22 C as 22 C. Rotten follows at
--- vanilla's own ratio. Cooked or burnt vegetables go by vanilla's clock.
+-- four; colder than 4 C counts as 4 C, warmer than 22 C as 22 C. Rotten follows at vanilla's own ratio. Cooked or
+-- burnt vegetables go by vanilla's clock.
+-- Frost (M.FROST): each crop freezes at its own point (TP Core's Frost, by place); every hour at or below it costs
+-- 1/FROST_RUIN_HOURS of its life up to rotten, so half a day of frost ruins it. A basement never freezes, nor a place
+-- by a lit fire or banked embers; a powered fridge or freezer keeps vanilla's rules; a Vegetable Crate (Hay) halves
+-- the hours.
 -- Curing is the first part of keeping, not a recipe (M.CURES): a potato cures in 7 days at 10 to 20 C, a sweet potato
 -- in 7 and a pumpkin in 10 at 20 to 32 C (counted on a ledger, so unloaded time counts); a cured one keeps longer
 -- everywhere after (its curedShare). Garlic and onion cure in 14 days in moving air from 20 C, slower when cooler,
@@ -19,6 +23,7 @@ local PlaceKeeping = require "TraditionalPreservationCore/PlaceKeeping"
 local FluidAgeing = require "TraditionalPreservationCore/FluidAgeing"
 local Weather = require "TraditionalPreservationCore/Weather"
 local Fire = require "TraditionalPreservationCore/Fire"
+local Frost = require "TraditionalPreservationCore/Frost"
 
 M.CELLAR_TEMPERATURES = { 4, 8, 15, 22 }
 -- Vanilla's fridge, at the sandbox's default Fridge Effectiveness: a day counts as 0.2.
@@ -28,26 +33,27 @@ M.VANILLA_FRIDGE_RATE = 0.2
 -- Never rename a crop's key once the mod is out: its ledger and the item's clock are named after it.
 M.CROPS = {
     potato = { fullType = "Base.Potato", vanilla = 28, days = { 140, 150, 60, 28 }, cure = "warm",
-        curedShare = 150 / 210 },
-    turnip = { fullType = "Base.Turnip", vanilla = 28, days = { 140, 120, 28, 28 } },
-    sugarBeet = { fullType = "Base.SugarBeet", vanilla = 4, days = { 120, 120, 14, 4 } },
-    carrots = { fullType = "Base.Carrots", vanilla = 6, days = { 120, 120, 14, 6 } },
-    cabbage = { fullType = "Base.Cabbage", vanilla = 2, days = { 90, 90, 14, 7 } },
-    leek = { fullType = "Base.Leek", vanilla = 5, days = { 60, 60, 10, 5 } },
+        curedShare = 150 / 210, freezeC = -1 },
+    turnip = { fullType = "Base.Turnip", vanilla = 28, days = { 140, 120, 28, 28 }, freezeC = -1.5 },
+    sugarBeet = { fullType = "Base.SugarBeet", vanilla = 4, days = { 120, 120, 14, 4 }, freezeC = -1.5 },
+    carrots = { fullType = "Base.Carrots", vanilla = 6, days = { 120, 120, 14, 6 }, freezeC = -1.5 },
+    cabbage = { fullType = "Base.Cabbage", vanilla = 2, days = { 90, 90, 14, 7 }, freezeC = -3 },
+    -- A leek stands in the field all winter.
+    leek = { fullType = "Base.Leek", vanilla = 5, days = { 60, 60, 10, 5 }, freezeC = -10 },
     -- Cured garlic sprouts at 4 to 10 C and moulds in a fridge's damp (vanilla's fridge floor, 70), but near 0 C and
     -- dry, a winter attic, it keeps longest (curedAtZero: days at 0 C, a point below the 4 C one).
     garlic = { fullType = "Base.Garlic", vanilla = 14, days = { 70, 30, 28, 14 }, cure = "dry",
-        cured = { 70, 60, 180, 90 }, curedAtZero = 210 },
+        cured = { 70, 60, 180, 90 }, curedAtZero = 210, freezeC = -3.5 },
     onion = { fullType = "Base.Onion", vanilla = 14, days = { 70, 30, 28, 14 }, cure = "dry",
-        cured = { 180, 60, 180, 90 } },
+        cured = { 180, 60, 180, 90 }, freezeC = -3.5 },
     -- Hot cured (user, 2026-11-18: "pumpkins and sweet potatoes too"); my picks: chilled below 10 C, a sweet potato
     -- keeps best at 13 to 15 C, a pumpkin rots in a damp cellar; cured, both keep twice as long.
     -- A sweet potato is chilled below 10 C (a hard, rotting core within weeks): a cold basement is the wrong place
     -- even cured. A cured pumpkin keeps 2 months in a warm room (user, 2026-11-18).
     sweetPotato = { fullType = "Base.SweetPotato", vanilla = 28, days = { 140, 30, 120, 28 }, cure = "hot",
-        cureHours = 7 * 24, cured = { 140, 45, 240, 56 } },
+        cureHours = 7 * 24, cured = { 140, 45, 240, 56 }, freezeC = -1 },
     pumpkin = { fullType = "Base.Pumpkin", vanilla = 14, days = { 70, 30, 45, 30 }, cure = "hot",
-        cureHours = 10 * 24, curedShare = 0.5 },
+        cureHours = 10 * 24, curedShare = 0.5, freezeC = -1 },
 }
 M.CROP_NAMES = {}
 for name in pairs(M.CROPS) do table.insert(M.CROP_NAMES, name) end
@@ -76,11 +82,21 @@ M.CURED_KEY = "tpfvKeepCured"
 M.CURING_KEY = "tpfvCuring"
 M.CURED = "tpfvCured"
 M.CELLAR_LEDGER_KEY = "TraditionalPreservationFruitVegetablesCellar"
+-- Item modData: the crop's frost record (TP Core's Frost), kept.
+M.FROST_KEY = "tpfvFrost"
+-- Hours at or below its freezing point that take a crop from where it is to rotten (user, session 76).
+M.FROST_RUIN_HOURS = 12
 
 -- The sandbox's "Vegetables keep by place"; off, vegetables keep as vanilla's.
 function M.cellarByPlace()
     local options = SandboxVars and SandboxVars.TraditionalPreservationFruitVegetables
     return not options or options.CellarByPlace ~= false
+end
+
+-- The sandbox's "Vegetables freeze"; off, frost does them no harm. It works through the keeping by place.
+function M.frostDamage()
+    local options = SandboxVars and SandboxVars.TraditionalPreservationFruitVegetables
+    return not options or options.FrostDamage ~= false
 end
 
 -- A curve of days of vanilla age a day counts as, from days fresh at M.CELLAR_TEMPERATURES. Never faster than
@@ -105,6 +121,7 @@ end
 -- Each crop's keepers: keeper, and curedKeeper for a crop that cures.
 for name, crop in pairs(M.CROPS) do
     crop.name = name
+    crop.frost = Frost.point(crop.freezeC)
     crop.keeper = newKeeper(name, "", M.cellarCurve(crop.vanilla, crop.days), M.CELLAR_KEY)
     if crop.curedShare then
         local curve = {}
@@ -173,7 +190,9 @@ M.STORAGE_BONUS = {
     pole = { cure = { dry = 1.5 }, keep = { garlic = 0.75, onion = 0.75 } },
     -- Carrots, beets and leeks were kept in damp sand, not dry hay: no bonus for them in hay; the sand crate is theirs,
     -- and turnips' too (they were kept either way) (user, 2026-11-18).
-    hayCrate = { cure = { warm = 1.5, hot = 1.5 }, keep = { all = 0.75, garlic = 1, onion = 1, carrots = 1, sugarBeet = 1, leek = 1 } },
+    -- Packed in hay, a short frost doesn't get through: half its hours count (user, session 76).
+    hayCrate = { cure = { warm = 1.5, hot = 1.5 }, keep = { all = 0.75, garlic = 1, onion = 1, carrots = 1, sugarBeet = 1, leek = 1 },
+        frost = 0.5 },
     sandCrate = { keep = { carrots = 0.75, sugarBeet = 0.75, leek = 0.75, turnip = 0.75 } },
 }
 M.STORAGE_OF_CONTAINER = {}
@@ -207,6 +226,11 @@ function M.storageCureFactor(crop, storage)
     return cure and cure[crop.cure] or 1
 end
 
+-- How much a stretch of frost counts for a vegetable in a storage (1: as its place alone).
+function M.storageFrostFactor(storage)
+    return storage and M.STORAGE_BONUS[storage].frost or 1
+end
+
 -- The fire a vegetable's clock noted at this look (Fire.noteFire), copied onto another of its records.
 local function copyFire(from, to)
     to.fireUntil, to.placeWithoutFire = from.fireUntil, from.placeWithoutFire
@@ -235,6 +259,36 @@ local function cure(crop, item, now, place, factor, seen)
         curing.age = before + (curing.age - before) * factor * air
         return curing.age >= hours
     end
+end
+
+-- Brings a vegetable's frost up to now at the place it was seen in last (seen: the keeping clock's fluidAge, with the
+-- fire noted now), and moves it that much nearer rotten: clock.base, so the keeping goes on from there. Returns the
+-- hours it was frozen since the last look (after its storage's factor).
+local function frost(crop, item, now, clock, factor)
+    local itemModData = item:getModData()
+    local seen = clock.fluidAge
+    local record = itemModData[M.FROST_KEY]
+    if not record then
+        record = Frost.newRecord(crop.frost, now, seen.place)
+        copyFire(seen, record)
+        itemModData[M.FROST_KEY] = record
+        return 0
+    end
+    local hours = Frost.catchUp(record, crop.frost, now, seen.place, record) * factor
+    copyFire(seen, record)
+    if hours <= 0 or not M.frostDamage() then return 0 end
+    M.frostBite(item, clock, hours)
+    return hours
+end
+
+-- Moves a kept vegetable hours of frost nearer rotten (never past it): its clock's base, so the keeping goes on from
+-- there. Also the console's TPFV.frost.
+function M.frostBite(item, clock, hours)
+    local age = item:getAge()
+    local rotten = item:getOffAgeMax()
+    local frosted = math.min(age + hours / M.FROST_RUIN_HOURS * rotten, math.max(age, rotten))
+    clock.base = clock.base + frosted - age
+    item:setAge(frosted)
 end
 
 -- The keeper a vegetable ages by now: a cured one's cured keeper; garlic or onion curing in a dry place the cured
@@ -272,6 +326,7 @@ function M.keepVegetable(item, now, place)
         clock.fluidAge.age = ageBefore + (clock.fluidAge.age - ageBefore) * keepFactor
         item:setAge(clock.base + clock.fluidAge.age / 24)
     end
+    frost(crop, item, now, clock, M.storageFrostFactor(storedIn))
     if not crop.cure then return clock end
     local seen = clock.fluidAge
     place = seen.place

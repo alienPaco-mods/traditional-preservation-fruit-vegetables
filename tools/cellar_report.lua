@@ -10,6 +10,10 @@ Events = { OnInitGlobalModData = { Add = function() end } }
 dofile("42/media/lua/shared/TraditionalPreservationFruitVegetables.lua")
 local M = TraditionalPreservationFruitVegetables
 local Weather = require "TraditionalPreservationCore/Weather"
+local Frost = require "TraditionalPreservationCore/Frost"
+-- Vanilla's DaysTotallyRotten (42.22), which frost moves a crop towards.
+local ROTTEN = { potato = 280, turnip = 280, sugarBeet = 6, carrots = 8, cabbage = 4, leek = 8, garlic = 28, onion = 28,
+    sweetPotato = 280, pumpkin = 28 }
 
 local MONTHS = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" }
 local PLACES = { "Sheltered", "AiredRoom", "Basement", "Covered" }
@@ -54,11 +58,13 @@ for _, name in ipairs(M.CROP_NAMES) do
     if crop.curedKeeper then settleLedger(crop.curedKeeper.ledger()) end
 end
 settleLedger(M.cureLedger())
+settleLedger(Frost.ledger())
 
 local function vegetable(crop)
-    local self = { fullType = crop.fullType, offAge = crop.vanilla, age = 0, modData = {} }
+    local self = { fullType = crop.fullType, offAge = crop.vanilla, offAgeMax = ROTTEN[crop.name], age = 0, modData = {} }
     function self:getFullType() return self.fullType end
     function self:getOffAge() return self.offAge end
+    function self:getOffAgeMax() return self.offAgeMax end
     function self:getAge() return self.age end
     function self:setAge(x) self.age = x end
     function self:getModData() return self.modData end
@@ -85,7 +91,9 @@ for index, day in ipairs(days) do
     for hour = 0, 23 do
         for step = 1, STEPS_PER_HOUR do
             H.setHours(H.hours + 1 / STEPS_PER_HOUR)
-            M.recordCellarWeather(H.hours, temperatureAt(day, hour + step / STEPS_PER_HOUR))
+            local celsius = temperatureAt(day, hour + step / STEPS_PER_HOUR)
+            M.recordCellarWeather(H.hours, celsius)
+            Frost.recordWeather(H.hours, celsius)
         end
     end
     for _, kept in ipairs(stored) do
@@ -103,7 +111,7 @@ local function cell(key)
     return text
 end
 
-print("Days fresh for a vegetable put away on the first of the month (c: cured on that day)")
+print("Days fresh for a vegetable put away on the first of the month (c: cured on that day), frost counted")
 for _, name in ipairs(M.CROP_NAMES) do
     print("")
     print(string.format("%s (vanilla %d days)", name, M.CROPS[name].vanilla))

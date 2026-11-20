@@ -1,5 +1,17 @@
 # Changelog: Traditional Preservation (Fruits and Vegetables)
 
+## 0.0.13
+- **Frost** (ROADMAP NEXT 1, step 2; user, session 76): every crop the cellar keeps freezes at its own point, on TP
+  Core's Frost ledger by place: potato, sweet potato, pumpkin -1 C; carrots, sugar beet, turnip -1.5 C; cabbage -3 C;
+  garlic and onion -3.5 C (braids too); leek -10 C. Every hour at or below it moves the vegetable 1/12 of the way to
+  rotten (`M.FROST_RUIN_HOURS` 12), never past it. A basement never freezes, nor a place by a lit fire or banked
+  embers; a powered fridge never, a powered freezer keeps vanilla's rules; a Vegetable Crate (Hay) counts half the
+  hours. Loot too, from its first look. Sandbox *Vegetables freeze* (on). Item modData `tpfvFrost`.
+- Console: `TPFV.frost(hours)` freezes the kept vegetables near you; `TPFV.veg()` shows each one's frozen hours, its
+  freezing point and whether it freezes there now. `tools/cellar_report.lua` counts frost (golden re-recorded: from
+  November every unheated room, aired room and porch ruins nearly every crop within days; basements unchanged).
+- Needs TP Core 0.1.51.
+
 ## 0.0.12
 - **Kraut Barrel Info on the settled window language** (`art/kraut_info_mock.png`), as the Salting Tub's: a state band
   (Empty, Packing with the salt it seals with, Fermenting with when it is ready, Too warm in red with the hours above

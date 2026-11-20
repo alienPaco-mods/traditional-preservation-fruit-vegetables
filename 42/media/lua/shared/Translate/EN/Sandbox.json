@@ -9,5 +9,7 @@
   "Sandbox_TraditionalPreservationFruitVegetables_CellarByPlace": "Vegetables keep by place",
   "Sandbox_TraditionalPreservationFruitVegetables_CellarByPlace_tooltip": "Potatoes, turnips, sugar beets, carrots, cabbages, leeks, garlic, onions, sweet potatoes and pumpkins keep longer somewhere cool, a basement most of all, and the ones that cure (potatoes, garlic, onions, sweet potatoes, pumpkins) longer still once cured. The Drying Pole and the Vegetable Crates (hay and sand) add to it. Never shorter than vanilla. Off, they keep as vanilla's.",
   "Sandbox_TraditionalPreservationFruitVegetables_FermentDays": "Kraut ferment (days at 18°C)",
-  "Sandbox_TraditionalPreservationFruitVegetables_FermentDays_tooltip": "How many in-game days a kraut barrel takes to be ready at 18°C. Cooler is slower, warmer faster; at 0°C it stops."
+  "Sandbox_TraditionalPreservationFruitVegetables_FermentDays_tooltip": "How many in-game days a kraut barrel takes to be ready at 18°C. Cooler is slower, warmer faster; at 0°C it stops.",
+  "Sandbox_TraditionalPreservationFruitVegetables_FrostDamage": "Vegetables freeze",
+  "Sandbox_TraditionalPreservationFruitVegetables_FrostDamage_tooltip": "Each crop freezes at its own point (potatoes, sweet potatoes and pumpkins at -1°C, leeks only at -10°C), and half a day of frost ruins it; shorter frosts take a share of its days. A basement never freezes, nor a place by a lit fire or banked embers; a Vegetable Crate (Hay) keeps out half the frost. Needs Vegetables keep by place. Off, the cold does them no harm."
 }

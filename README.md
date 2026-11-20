@@ -28,8 +28,8 @@ Days fresh at a temperature (rotten follows at vanilla's own fresh-to-rotten rat
 | Pumpkin cured | twice the uncured everywhere | | | | |
 
 - A day counts as vanilla's days fresh over the place's, on straight lines between the four temperatures. Warmer than
-  22 C counts as 22 C; colder than 4 C counts as 4 C (no frost damage yet). **No place keeps worse than vanilla**, and a
-  powered fridge never worse than vanilla's fridge at its default (a day counts 0.2).
+  22 C counts as 22 C; colder than 4 C counts as 4 C. **No place keeps worse than vanilla**, and a
+  powered fridge never worse than vanilla's fridge at its default (a day counts 0.2). Frost is apart from that (below).
 - Where it is goes by Core's places: a shut room is the 3-day mean, warmer in winter and stuffy in summer, an aired
   room (a window open) the day's mean (both 22 C with the grid on), a basement the ground's 30-day mean a month behind
   (about 5 C in late winter, 13 C in late summer), under a roof the hour's air, a powered fridge 4 C, a freezer stops
@@ -51,16 +51,28 @@ Days fresh at a temperature (rotten follows at vanilla's own fresh-to-rotten rat
   (`M.CURES.dry.curve`, on the cure ledger). Hung in summer they cure in 14 to 19 days; in winter it takes months; while they
   cure somewhere dry they already keep by the cured days (curing is drying), and once cured they keep by them in a
   damp place too.
-- Cooked or burnt vegetables go by vanilla's clock. The sandbox's *Vegetables keep by place* (on) turns it all off.
+- **Frost** (`M.FROST_RUIN_HOURS`, TP Core's Frost): each crop freezes at its own point, and every hour at or below it,
+  by Core's place temperature, moves it 1/12 of the way to rotten (vanilla's DaysTotallyRotten), so 12 hours ruin it;
+  never past rotten. Potato, sweet potato, pumpkin -1 C; carrots, sugar beet, turnip -1.5 C; cabbage -3 C; garlic and
+  onion -3.5 C (braids too: the bulbs inside freeze); leek -10 C. A basement never freezes, nor a place by a lit fire
+  or banked embers while the noted fuel lasts; a powered fridge never, a powered freezer keeps vanilla's rules; a
+  Vegetable Crate (Hay) counts half the hours. Loot too, from its first look (vanilla has already aged it from the
+  apocalypse). Since a potato's rotten is 280 days, one or two hours of frost already make it stale.
+  In an unheated house that means November for potatoes and December for most crops; a leek lasts the winter
+  everywhere but the open.
+- Cooked or burnt vegetables go by vanilla's clock. The sandbox's *Vegetables keep by place* (on) turns it all off,
+  frost too; *Vegetables freeze* (on) turns off only the frost.
 - The item stays vanilla's: its clock is modData (`tpfvKeep`, or `tpfvKeepCured` once it keeps by the cured days),
-  the cure's progress `tpfvCuring`, cured `tpfvCured`, the storage it lay in at the last look `tpfvIn`. Ledgers:
+  the cure's progress `tpfvCuring`, cured `tpfvCured`, the storage it lay in at the last look `tpfvIn`, its frost record `tpfvFrost` (on Core's
+  `TraditionalPreservationCoreFrost` ledger, totals `frostAt<celsius><Place>`). Ledgers:
   `TraditionalPreservationFruitVegetablesCellar<crop>`, `...<crop>Cured`, `...Cure` (totals `warmCure<Place>`,
   `hotCure<Place>`, `dryCure<Place>`). Never rename them once the mod is out.
 
-`luajit tools/cellar_report.lua` prints each crop's days fresh by month and place, put away on the first of each month
-(golden-checked by `tp test`). It shows the cellar lag: a basement in October is still about 13 C, so a cabbage put
-down at harvest keeps about 3 weeks there, and its long keeping starts as the ground cools; an unheated room in winter
-is as cold as a cellar.
+`luajit tools/cellar_report.lua` prints each crop's days fresh by month and place, put away on the first of each month,
+frost counted (golden-checked by `tp test`). It shows the cellar lag: a basement in October is still about 13 C, so a
+cabbage put down at harvest keeps about 3 weeks there, and its long keeping starts as the ground cools. It shows the
+frost: from November an unheated room, an aired one or a porch ruins nearly every crop within days; the basement
+keeps them all winter.
 
 ## The storages
 

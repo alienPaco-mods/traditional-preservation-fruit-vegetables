@@ -24,9 +24,9 @@
 
 In vanilla, a vegetable keeps the same number of days wherever you put it, except in a fridge. A cabbage is stale in two days whether it sits on a sunny windowsill or in a cold cellar, and once the power is gone the fridge is just a cupboard.
 
-This mod makes **where you keep vegetables matter**. A basement is a root cellar, an unheated room in winter is nearly as good, and potatoes, garlic and onions keep longer once they're cured. They're still the game's own vegetables, so every vanilla recipe takes them.
+This mod makes **where you keep vegetables matter**. A basement is a root cellar, frost ruins what's left in the cold, and potatoes, garlic and onions keep longer once they're cured. They're still the game's own vegetables, so every vanilla recipe takes them.
 
-At harvest there's the **kraut barrel**: cabbages and turnips shredded with salt, pressed down under a stone and left to sour into Sauerkraut or Sauer Turnip that keeps the winter. Still to come: the **clamp**, a straw-and-earth mound for root crops in the field.
+At harvest there's the **kraut barrel**: cabbages and turnips shredded with salt, pressed down under a stone and left to sour into Sauerkraut or Sauer Turnip that keeps the winter. Still to come: the **clamp**, a straw-and-earth mound that keeps root crops through the frost in the field.
 
 ---
 
@@ -70,12 +70,33 @@ Every vegetable below keeps by the temperature of where it is. These are its **d
 | Pumpkin, cured | 60 | **90** | 60 | 140 | |
 
 - **Never worse than vanilla.** A vegetable in a warm room keeps vanilla's days (a cabbage a week: vanilla's two days are no real cabbage's); anywhere cooler keeps longer.
-- **Colder than a fridge counts as a fridge.** Frost doesn't harm them here (yet).
+- **Colder than a fridge counts as a fridge**, until it freezes (below).
 - **A powered freezer stops the clock**, as in vanilla.
-- **Garlic and onions hate the damp.** A basement is the wrong place for them: hang them in a dry room. Garlic sprouts in a fridge, too, but keeps best of all in a freezing-cold, dry room upstairs.
+- **Garlic and onions hate the damp.** A basement is the wrong place for them: hang them in a dry room. Garlic sprouts in a fridge, too, but keeps best of all in a cold, dry room upstairs, as long as it doesn't freeze hard.
 - **Sweet potatoes and pumpkins hate the cold.** Below about 10 C a sweet potato is chilled and a pumpkin rots in the damp: a cool room suits them better than the basement.
 - **Cooked or burnt vegetables** go by the game's own clock.
 - It keeps counting while you're away, by the place the vegetables were left in.
+
+### Frost
+
+Each crop freezes at its own point, and **half a day of frost ruins it**. A shorter frost takes a share of its days: every hour below freezing is a twelfth of the way to rotten. Potatoes go stale after an hour or two.
+
+| Crop | Freezes at |
+|---|---|
+| Potato, Sweet Potato, Pumpkin | -1 C |
+| Carrots, Sugar Beet, Turnip | -1.5 C |
+| Cabbage | -3 C |
+| Garlic, Onion (braids too) | -3.5 C |
+| Leek | -10 C |
+
+- **A basement never freezes.** The ground round it keeps it above 5 C all winter.
+- **Nor does a place by a fire**, lit or banked, while the wood it had when you last looked lasts.
+- **A Vegetable Crate (Hay) keeps out half the frost.** It buys you a cold night, not a winter.
+- **An unheated house freezes.** From November a shut room, a room with a window open and a porch all drop below freezing, so carry the crops down before the first hard frost.
+- **A powered freezer** freezes them as the game's own freezer does.
+- Vegetables you find in houses freeze too, from the moment you first come near them.
+
+> *Margin note:* frost bursts a vegetable's cells. A frozen potato thaws soft and wet and turns black within days, which is why the old rule was to have the potatoes down in the cellar before the first hard frost. Leeks, kale and parsnips were the exceptions: they stood in the garden all winter and were dug as needed.
 
 > *Margin note:* a root cellar works because the ground keeps its own season. A few feet down the soil barely feels a cold snap or a heat wave; it follows the average of the past month or so. Old farmhouses dug them under the kitchen, into a hillside, or as a lone mound with a door in the yard.
 
@@ -125,16 +146,16 @@ Days fresh for a vegetable put away on the first of the month, with no power, fr
 
 | Put away | Cabbage, room | Cabbage, basement | Potato, room | Potato, basement |
 |---|---|---|---|---|
-| January | 90 | 90 | 134 | 143 |
-| April | 42 | 65 | 84 | 123 |
-| July | 9 | 20 | 43 | 99 |
-| September | 12 | 19 | 123 | 140 |
-| October | 25 | 24 | 174 | 169 |
-| November | 88 | 57 | 140 | 191 |
+| January | 1 (frost) | 90 | 1 (frost) | 143 |
+| April | 37 | 65 | 77 | 123 |
+| July | 8 | 20 | 30 | 99 |
+| September | 13 | 19 | 88 (frost in December) | 140 |
+| October | 46 | 24 | 58 | 169 |
+| November | 38 | 57 | 28 | 191 |
 
 - **At harvest the basement is still warm.** In October the ground hasn't cooled yet, so a cabbage keeps about three weeks either way. The long keeping starts as the ground cools in winter.
 - **Potatoes picked in September cure on their own** in a mild room, then keep five or six months.
-- **In midwinter a cold room is as good as a cellar**, and on a mild November day a room can be better than the still-warm basement.
+- **In midwinter only the basement or a fire will do.** An unheated room freezes, and a frozen crop is ruined in half a day. On a mild October day a room can still be better than the still-warm basement.
 - **Summer is the hungry gap.** Nothing keeps long in July: eat fresh, or ferment.
 
 ---
@@ -199,7 +220,8 @@ A standing oak barrel, narrower at the top, bound with iron: Fish & Meat's Salti
 
 - Cure potatoes in a mild room first, then carry them down to the basement.
 - Hang garlic and onions upstairs, never in the basement.
-- Cabbages and carrots want the coldest place you have: the basement in winter, a cold room in a cold snap.
+- Cabbages and carrots want the coldest place that doesn't freeze: the basement in winter.
+- Before the first hard frost, carry everything down to the basement or set it by the fire. Leeks can stay out.
 
 ---
 
@@ -210,6 +232,7 @@ A standing oak barrel, narrower at the top, bound with iron: Fish & Meat's Salti
 | Vegetables still go off fast in a basement | Look at the month: the ground is still warm in late summer and early autumn (chapter 5). |
 | Garlic in the basement goes off sooner than in a room | That's right: the basement is too damp for it. |
 | Nothing changes at all | Check the sandbox: **Vegetables keep by place** must be on. |
+| My potatoes went stale overnight | They froze. Anywhere above ground freezes in winter: keep them in the basement or by a fire. |
 | The barrel hasn't moved in weeks | At 0 C it stops, and near it it crawls. The Kraut Barrel window says so: move it somewhere warmer (the basement), or wait for spring. |
 | Salt and Compress is red | Its hover says what's missing: 20 heads, the salt, a cloth, a plank or a flat stone. |
 | I can't add more to the barrel | Once it is salted and compressed it is sealed, as a real barrel is. |
@@ -220,7 +243,8 @@ A standing oak barrel, narrower at the top, bound with iron: Fish & Meat's Salti
 
 | Setting | Default | What it does |
 |---|---|---|
-| Vegetables keep by place | On | Off, vegetables keep as vanilla's everywhere. |
+| Vegetables keep by place | On | Off, vegetables keep as vanilla's everywhere, and never freeze. |
+| Vegetables freeze | On | Off, frost does them no harm. Needs *Vegetables keep by place*. |
 | Kraut ferment (days at 18 C) | 28 | Days a kraut barrel takes at 18 C; the rest scale with it. |
 | Temperature sensitivity | Normal | Off, Forgiving, Normal, Harsh. Off: every barrel takes the same time anywhere, and is never too warm. |
 
@@ -238,6 +262,7 @@ Copied from `DEVHELP.md`; change both together. Debug mode only.
 | `TPFV.veg()` | The vegetables on you and within 4 tiles: place, rate, age, and whether cured. |
 | `TPFV.keep(days)` | Ages them by this many days at their place. |
 | `TPFV.cure()` | Cures the potatoes, garlic and onions on you and within 4 tiles now. |
+| `TPFV.frost(hours)` | Freezes the vegetables on you and within 4 tiles for this many hours. `TPFV.frost(12)` ruins them. |
 | `TPFV.give(name, n)` | Spawns vegetables by name (`potato`, `cabbage`, ...). `TPFV.give()` lists them. |
 | `TPFV.kit("cellar")` | Three of each vegetable the cellar keeps. |
 | `TPFV.barrel()` | The nearest kraut barrel: stage, contents, place, progress, hours too warm. |

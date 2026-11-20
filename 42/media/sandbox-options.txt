@@ -24,3 +24,10 @@ option TraditionalPreservationFruitVegetables.CellarByPlace {
     page = TraditionalPreservationFruitVegetables,
     translation = TraditionalPreservationFruitVegetables_CellarByPlace,
 }
+
+option TraditionalPreservationFruitVegetables.FrostDamage {
+    type = boolean,
+    default = true,
+    page = TraditionalPreservationFruitVegetables,
+    translation = TraditionalPreservationFruitVegetables_FrostDamage,
+}

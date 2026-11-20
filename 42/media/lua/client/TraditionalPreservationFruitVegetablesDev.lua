@@ -4,6 +4,7 @@ if not isDebugEnabled() then return end
 
 local M = TraditionalPreservationFruitVegetables
 local PlaceKeepingUI = require "TraditionalPreservationCore/PlaceKeepingUI"
+local Frost = require "TraditionalPreservationCore/Frost"
 TPFV = {}
 
 local function say(text) print("[TPFV] " .. text) end
@@ -18,6 +19,7 @@ function TPFV.help()
     say("TPFV.veg()            the kept vegetables on you and within reach: place, rate, age, cured, the storage they lie in (pole, hay or sand crate)")
     say("TPFV.keep(days)       age the vegetables on you and within reach by this many days at their place and storage")
     say("TPFV.cure()           cure the vegetables that cure, on you and within reach, now")
+    say("TPFV.frost(hours)     freeze every kept vegetable near you for hours (default 3): 12 h ruins one")
     say("TPFV.give(name, n)    spawn n of a vegetable (potato, cabbage...), sauerkraut, sauerTurnip, garlicBraid or onionBraid. TPFV.give() lists them")
     say("TPFV.kit(kind)        the things a test of kind needs; TPFV.kit(\"?\") lists the kinds")
     say("Weather, game speed and the Stone Hearth's commands are TP Core's: TPC.help()")
@@ -127,6 +129,12 @@ function TPFV.veg()
         local state = item:getModData()[M.CURED] and "cured" or curing and string.format("curing %.0f h", curing.age) or "not curing"
         local storage = M.storageOf(item)
         local line = keeper.describe(item) .. ", " .. state
+        local frost = item:getModData()[M.FROST_KEY]
+        local crop = M.CROP_OF_TYPE[item:getFullType()]
+        if frost then
+            line = line .. string.format(", frozen %.1f h in all (freezes at %g C%s)", frost.age, crop.freezeC,
+                Frost.freezingAt(crop.frost, frost.place) and ", freezing here now" or "")
+        end
         if storage then
             -- describe is the place's alone: the storage's keeping counts on top of it.
             local crop = M.CROP_OF_TYPE[item:getFullType()]
@@ -149,6 +157,18 @@ function TPFV.keep(days)
         M.keeperOf(item).age(item, days * M.storageKeepFactor(M.CROP_OF_TYPE[item:getFullType()], M.storageOf(item)))
     end
     say(string.format("Aged %d vegetables by %s days at their place.", #found, tostring(days)))
+end
+
+-- Hours of frost on every kept vegetable near you, as if they had frozen that long (the sandbox's Vegetables freeze
+-- aside).
+function TPFV.frost(hours)
+    hours = hours or 3
+    local found = vegetablesNear()
+    for _, item in ipairs(found) do
+        local clock = M.keepVegetable(item)
+        if clock then M.frostBite(item, clock, hours) end
+    end
+    say(string.format("Froze %d vegetables for %s hours.", #found, tostring(hours)))
 end
 
 function TPFV.cure()

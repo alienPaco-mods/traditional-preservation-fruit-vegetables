@@ -309,4 +309,49 @@ check("a fire out half way: the porch's air half the week, the shut room's still
     near(outOnion.modData[M.CURING_KEY].age, 0.5 * 7 * 24, 0.5))
 Fire.placeOf, Fire.fuelHours, Weather.placeOf = placeOf, fuelHours, weatherPlaceOf
 
+-- Frost (user, session 76): each crop freezes at its own point; an hour at or below it costs 1/12 of its life up to
+-- rotten, a hay crate halves the hours, a basement never freezes, the sandbox can turn it off.
+local Frost = require "TraditionalPreservationCore/Frost"
+check("the freezing points: potatoes, sweet potatoes, pumpkins -1 C; carrots, beets, turnips -1.5; cabbage -3; garlic, onion -3.5; leek -10",
+    CROPS.potato.freezeC == -1 and CROPS.sweetPotato.freezeC == -1 and CROPS.pumpkin.freezeC == -1
+    and CROPS.carrots.freezeC == -1.5 and CROPS.sugarBeet.freezeC == -1.5 and CROPS.turnip.freezeC == -1.5
+    and CROPS.cabbage.freezeC == -3 and CROPS.garlic.freezeC == -3.5 and CROPS.onion.freezeC == -3.5 and CROPS.leek.freezeC == -10)
+local function frostWeather(hours, celsius)
+    for _ = 1, hours * 6 do
+        hour = hour + 1 / 6
+        M.recordCellarWeather(hour, celsius)
+        Frost.recordWeather(hour, celsius)
+    end
+end
+frostWeather(1, 5)
+local openPotato, cellarPotato, leekOut = vegetable("Base.Potato", 28, 42, 1), vegetable("Base.Potato", 28, 42, 1), vegetable("Base.Leek", 5, 8, 1)
+local hayPotato, offPotato = vegetable("Base.Potato", 28, 42, 1), vegetable("Base.Potato", 28, 42, 1)
+hayPotato.container = crate
+for _, item in ipairs({ openPotato, leekOut, hayPotato, offPotato }) do M.keepVegetable(item, hour, "Open") end
+M.keepVegetable(cellarPotato, hour, "Basement")
+check("the first look starts a frost record", openPotato.modData[M.FROST_KEY] ~= nil and openPotato.modData[M.FROST_KEY].age == 0)
+local function keptAge(item)
+    local clock = item.modData[M.keeperOf(item).keepingRules.modDataKey]
+    return clock.base + clock.fluidAge.age / 24
+end
+local before = {}
+for _, item in ipairs({ openPotato, cellarPotato, leekOut, hayPotato, offPotato }) do before[item] = item.age end
+frostWeather(3, -5)
+SandboxVars = { TraditionalPreservationFruitVegetables = { FrostDamage = false } }
+M.keepVegetable(offPotato, hour, "Open")
+SandboxVars = nil
+local keepingOnly = offPotato.age - before[offPotato]
+for _, item in ipairs({ openPotato, leekOut, hayPotato }) do M.keepVegetable(item, hour, "Open") end
+M.keepVegetable(cellarPotato, hour, "Basement")
+check("three hours at -5 C in the open cost a potato a quarter of its life to rotten (42 days: 10.5)",
+    near(openPotato.age - before[openPotato], keepingOnly + 3 / 12 * 42, 0.05))
+check("in a hay crate half of that", near(hayPotato.age - before[hayPotato], keepingOnly * 0.75 + 1.5 / 12 * 42, 0.05))
+check("a leek takes no harm at -5 C", leekOut.age - before[leekOut] < 0.5)
+check("a basement never freezes", cellarPotato.age - before[cellarPotato] < 0.5)
+check("the sandbox off: frost does no harm, but the record goes on", keepingOnly < 0.5 and offPotato.modData[M.FROST_KEY].age > 2.9)
+check("the keeping clock carries the frost, so the next look keeps it", near(keptAge(openPotato), openPotato.age, 1e-6))
+frostWeather(24, -5)
+M.keepVegetable(openPotato, hour, "Open")
+check("a day of frost: rotten, and no older than that", near(openPotato.age, 42, 1e-6))
+
 H.done()
