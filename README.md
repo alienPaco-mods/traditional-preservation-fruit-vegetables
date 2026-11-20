@@ -93,7 +93,9 @@ lighter to carry (user): the bulbs keep and cure inside as loose ones do, and a 
 A standing barrel (Build menu, Furniture: hammer and saw kept, 6 planks, 10 nails, 4 twine, Woodwork 3), between
 Fish & Meat's Salting Tub and Vinegar's cask. No crafting window: the batch is Lua state in the barrel's movableData
 (`tpfvBarrel`), worked from its right-click menu, and the **Kraut Barrel Info** window (TP Core's InfoWindow, from the menu) shows
-it, as Fish & Meat's Salting Tub. A barrel with anything in it can't be picked up: build or put it
+it, as Fish & Meat's Salting Tub: a state band, the place (with the speed and the hours too warm while it sours), the
+heads as cells in the cabbage and turnip patterns (`TPCell_Cabbage.png`, `TPCell_Turnip.png`), what is dragged onto
+them packs, and the buttons by stage (Salt and Compress, Unpack; a Take button a kraut opening One / All; Empty). A barrel with anything in it can't be picked up: build or put it
 down where it will sour and keep.
 
 | Stage | What you do | What happens |

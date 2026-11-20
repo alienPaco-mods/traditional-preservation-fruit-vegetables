@@ -239,4 +239,95 @@ context = H.menu()
 onInventoryMenu(0, context, { braidItem })
 check("a braid offers Unbraid", context:getOptionFromName("Unbraid") ~= nil)
 
+-- Kraut Barrel Info's pieces (art/kraut_info_mock.png): the band, the Station rows, the drag onto the cells, the cells
+-- and the buttons by stage.
+local KrautUI = TraditionalPreservationFruitVegetablesKrautUI
+local InfoWindow = require "TraditionalPreservationCore/InfoWindow"
+local function heads(n, kind, extras)
+    local b = { stage = n > 0 and "Packing" or nil, heads = {} }
+    for _ = 1, n do table.insert(b.heads, { kind = kind or "cabbage", age = 0, food = {} }) end
+    for extra, count in pairs(extras or {}) do
+        for _ = 1, count do M.packExtra(b, extra, 0, {}, nil) end
+    end
+    return b
+end
+local word, text, look = KrautUI.band({}, { stage = "Empty" })
+check("empty: a grey band asking for 20 to 60 heads", word == "Empty" and text == "pack 20 to 60 heads" and look == InfoWindow.BAND_IDLE)
+word, text, look = KrautUI.band(heads(12), { stage = "Packing" })
+check("packing under 20: amber, how many it needs", text == "12 heads, 20 to seal" and look == InfoWindow.BAND_WAITING)
+word, text = KrautUI.band(heads(40), { stage = "Packing" })
+check("packing 40: the salt it seals with", text == "40 heads, seals with 8 salt")
+local sealed = { stage = "Fermenting", hotHours = 30, portions = { cabbage = 30, turnip = 10 }, headCounts = { cabbage = 30, turnip = 10 },
+    apples = 2, carrots = 1 }
+word, text, look = KrautUI.band(sealed, { stage = "Fermenting", temperature = 12, hoursLeft = 34 * 24, hotHours = 30, rate = 0.65, progress = 0.2 })
+check("fermenting: green, ready in about 34 days", word == "Fermenting" and text == "ready in about 34 days" and look == InfoWindow.BAND_WORKING)
+word, text, look = KrautUI.band(sealed, { stage = "Fermenting", temperature = 28, hoursLeft = 100, hotHours = 30 })
+check("too warm now: red, the hours and when it goes soft", word == "Too warm" and text == "30 h above 27°C, soft at 48"
+    and look == InfoWindow.BAND_AT_RISK)
+sealed.hotHours = 60
+word, text = KrautUI.band(sealed, { stage = "Fermenting", temperature = 28, hoursLeft = 100, hotHours = 60 })
+check("already soft: when it spoils", text == "60 h above 27°C, spoils at 120")
+word, text, look = KrautUI.band(sealed, { stage = "Fermenting", temperature = 0, hotHours = 0 })
+check("stalled in the cold: amber", text == "stopped: too cold to sour" and look == InfoWindow.BAND_WAITING)
+word, text, look = KrautUI.band({ soft = true }, { stage = "Ready", daysLeft = 170.4 })
+check("ready but soft: amber, how long it keeps", word == "Soft" and text == "keeps about 170 d here" and look == InfoWindow.BAND_WAITING)
+check("Speed and Too warm rows only while it ferments", #KrautUI.rows({ stage = "Fermenting", rate = 0.65, hotHours = 0 }) == 2
+    and #KrautUI.rows({ stage = "Ready" }) == 0)
+
+local function piece(fullType, rotten)
+    return { getFullType = function() return fullType end, isRotten = function() return rotten == true end }
+end
+local judged = KrautUI.judgeDrop(heads(4), { piece("Base.Apple"), piece("Base.Turnip"), piece("Base.Cabbage"), piece("Base.Steak") })
+check("a drag packs heads first, so their room lets an apple in; a steak is refused", #judged.take == 3
+    and judged.take[3]:getFullType() == "Base.Apple" and judged.lines[1] == "Pack 3 in the barrel"
+    and judged.refused == "Only cabbages, turnips, apples and carrots go in.")
+judged = KrautUI.judgeDrop(heads(4), { piece("Base.Turnip"), piece("Base.Turnip") })
+check("turnips dragged show in the turnip pattern", judged.pattern:find("TPCell_Turnip", 1, true) ~= nil)
+judged = KrautUI.judgeDrop(heads(60), { piece("Base.Cabbage") })
+check("a full barrel refuses, nothing taken", #judged.take == 0 and judged.refused ~= nil and judged.lines[1] == judged.refused)
+judged = KrautUI.judgeDrop(sealed, { piece("Base.Cabbage") })
+check("a sealed barrel takes no drag", #judged.take == 0 and judged.refused ~= nil)
+judged = KrautUI.judgeDrop({}, { piece("Base.Carrots") })
+check("a carrot alone in an empty barrel needs heads", #judged.take == 0 and judged.refused ~= nil)
+judged = KrautUI.judgeDrop(heads(4), { piece("Base.Cabbage", true) })
+check("a rotten head is refused", #judged.take == 0 and judged.refused == "Rotten: it won't keep.")
+
+local packing = heads(30, "cabbage", { apple = 2, carrot = 1 })
+for _ = 1, 10 do table.insert(packing.heads, { kind = "turnip", age = 0, food = {} }) end
+local held = KrautUI.holding(packing, {})
+check("packing: 40 of 60, the mix, the extras under it, a drag target", held.amount == "40 / 60 heads"
+    and held.state == "30 cabbages, 10 turnips" and held.under == nil and #held.counts == 2 and held.counts[1][1] == "Item_Apple" and held.counts[1][2] == 2
+    and held.counts[2][1] == "Item_Carrots" and held.counts[2][2] == 1 and near(held.share, 40 / 60)
+    and held.drop ~= nil and held.parts[1].weight == 30 and held.parts[2].weight == 10)
+held = KrautUI.holding(sealed, {})
+check("sealed: no drag, the heads", held.drop == nil and held.amount == "40 heads")
+check("a kind at none is left out", KrautUI.holding(heads(20, "turnip"), {}).state == "20 turnips"
+    and #KrautUI.holding(heads(20, "turnip"), {}).counts == 0)
+local ready = { stage = "Ready", portions = { cabbage = 22, turnip = 10 }, headCounts = { cabbage = 30, turnip = 10 } }
+held = KrautUI.holding(ready, {})
+check("ready: the portions left", held.amount == "32 portions" and held.state == "22 Sauerkraut, 10 Sauer Turnip" and held.under == nil)
+ready.apples, ready.carrots = 2, 0
+check("ready: still shows what it was spiked with, a kind at none left out", #KrautUI.holding(ready, {}).counts == 1
+    and KrautUI.holding(ready, {}).counts[1][2] == 2)
+
+local asked
+local buttons = KrautUI.buttons(packing, { salt = 0 }, function(mode) asked = mode end)
+check("packing: Salt and Compress greyed with the reason, then Unpack (43)", #buttons == 2
+    and buttons[1].title == "Salt and Compress (8 salt)" and buttons[1].enabled == false and buttons[1].tooltip ~= nil
+    and buttons[2].title == "Unpack (43)")
+buttons[2].onClick()
+check("Unpack asks to unpack", asked == "unpack")
+buttons = KrautUI.buttons(ready, {}, function(mode, pieces, kind) asked = { mode = mode, pieces = pieces, kind = kind } end)
+check("ready: one menu button a kraut, One and All (n)", #buttons == 2 and buttons[1].title == "Take Sauerkraut (22)"
+    and buttons[2].title == "Take SauerTurnip (10)" and #buttons[1].menu == 2 and buttons[1].menu[1].title == "One"
+    and buttons[1].menu[2].title == "All (22)")
+buttons[2].menu[2].onClick()
+check("All takes every portion of its kind", asked.mode == "take" and #asked.pieces == 10 and asked.kind == "turnip")
+buttons = KrautUI.buttons({ stage = "Ready", portions = { cabbage = 1, turnip = 0 } }, {}, function() end)
+check("one portion left: one button, One alone", #buttons == 1 and #buttons[1].menu == 1)
+buttons = KrautUI.buttons({ stage = "Spoiled" }, {}, function(mode) asked = mode end)
+buttons[1].onClick()
+check("spoiled: Empty", #buttons == 1 and asked == "empty")
+check("no buttons while it ferments", #KrautUI.buttons(sealed, {}, function() end) == 0)
+
 H.done()

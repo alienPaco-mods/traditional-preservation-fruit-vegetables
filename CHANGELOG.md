@@ -1,5 +1,22 @@
 # Changelog: Traditional Preservation (Fruits and Vegetables)
 
+## 0.0.12
+- **Kraut Barrel Info on the settled window language** (`art/kraut_info_mock.png`), as the Salting Tub's: a state band
+  (Empty, Packing with the salt it seals with, Fermenting with when it is ready, Too warm in red with the hours above
+  27°C, stopped in the cold, Ready or Soft with how long it keeps, Spoiled); the Station block with its outline icon,
+  the speed and the hours too warm while it sours; the heads as cells, cabbage and turnip patterns split by share, the
+  mix under them, a line of history beside them; the Souring bar; notes.
+- **What it was spiked with** (user, session 72, `art/kraut_spiked_mock.png` B): the apples and carrots show under the
+  cells as their icons with counts (TP Core's counts line) while packing, fermenting and once ready, until the last
+  portion: every portion carries its share of them.
+- **Drag onto the barrel to pack**: cabbages, turnips, apples and carrots dragged onto its cells pack as the menu's
+  Pack (the heads first, so they make room for the apples and carrots); a full or sealed barrel, a rotten piece or
+  anything else is refused with the reason.
+- **Buttons**: Salt and Compress (greyed with the reason) and Unpack (n) while packing; once ready one button a kraut,
+  Take Sauerkraut (n) and Take Sauer Turnip (n), each opening One and All (n) (TP Core's menu button); Empty the
+  Spoiled Barrel. The right-click menu keeps everything.
+- The old window's rows (Stage, Place, Portions, Kept, Next) and their strings are gone. Needs TP Core 0.1.48.
+
 ## 0.0.11
 - Temperatures in the game's text read with the degree sign ("12°C", was "12 C"), as TP Core 0.1.37's.
 
