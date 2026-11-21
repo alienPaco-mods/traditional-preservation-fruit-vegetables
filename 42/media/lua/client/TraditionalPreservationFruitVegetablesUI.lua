@@ -3,6 +3,7 @@
 -- look at vegetables (TP Core's PlaceKeepingUI).
 local UI = require "TraditionalPreservationCore/UI"
 local InfoWindow = require "TraditionalPreservationCore/InfoWindow"
+local StationReport = require "TraditionalPreservationCore/StationReport"
 local PlaceKeepingUI = require "TraditionalPreservationCore/PlaceKeepingUI"
 local Tiles = require "TraditionalPreservationFruitVegetables/Tiles"
 
@@ -418,6 +419,7 @@ end
 function KrautWindow.open(playerObj, station)
     InfoWindow.open(KrautWindow, playerObj, station)
 end
+StationReport.add(KrautWindow, function(isoObject) return isBarrel(isoObject) and isoObject or nil end)
 
 local function barrelDrop(window)
     local function judge(items) return KrautUI.judgeDrop(barrelNow(window.station), items) end

@@ -1,5 +1,9 @@
 # Changelog: Traditional Preservation (Fruits and Vegetables)
 
+## 0.0.18
+- **In TP Core's station report** (written on each save, for the long-save log): the Kraut Barrel window take part
+  (`StationReport.add`). Needs TP Core 0.1.56.
+
 ## 0.0.17
 - **No grass between clamps in a row** (user, session 77): the worked ground and trenches run a little past the
   clamp's west end, into the square before. The game draws a square's grass over anything of the tile before it that
