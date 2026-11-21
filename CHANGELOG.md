@@ -1,5 +1,14 @@
 # Changelog: Traditional Preservation (Fruits and Vegetables)
 
+## 0.0.17
+- **No grass between clamps in a row** (user, session 77): the worked ground and trenches run a little past the
+  clamp's west end, into the square before. The game draws a square's grass over anything of the tile before it that
+  reaches in to the south or east, so a strip of it showed between two clamps; the next clamp's ground, reaching
+  back, now fills it.
+- The worked ground's speckle repeats with each tile (by position, not at random) and the grime goes on the heap
+  only, so where one clamp's ground overlaps the next no lighter band shows; it has a solid base, so no grass shows
+  through at its edges, and no dark edge from the resize.
+
 ## 0.0.16
 - **Clamps in a row join up in game** (user, session 77): the clamp has its own depth texture for B42
   (`common/media/depthmaps/DEPTH_traditionalpreservationfruitvegetables_01.png`, computed by `tools/build_tileset.py`

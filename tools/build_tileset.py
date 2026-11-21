@@ -429,8 +429,12 @@ CLAMP_SHAPES = {"straw": (0.235, 28, 0.36), "soil": (0.31, 42, CLAMP_LENGTH)}
 TRENCH_IN, TRENCH_OUT = 0.34, 0.44  # the drainage trenches along both long sides, from the middle line (tiles)
 TRENCH_DEPTH = 4
 # The trenches and the worked ground run the tile's whole length on each side, so clamps in a row share one trench
-# line each side (user, session 77).
+# line each side (user, session 77). To the east they stop at the tile's end; to the west they run TRENCH_WEST past it,
+# into the square before: B42 draws a square's floor over anything of the tile before it reaching in to the S or E, so
+# the end of one clamp's ground was covered by the next one's grass, a strip of it showing between them. The next
+# clamp's own ground, reaching back west (never drawn over), fills it.
 TRENCH_END = 0.5
+TRENCH_WEST = 0.56
 STRAW = (196, 168, 104)
 SOIL = (104, 80, 56)
 TRENCH = (62, 46, 32)
@@ -462,16 +466,32 @@ def splat(draw, x, y, z, colour):
     draw.ellipse([px * SS - 2, py * SS - 1, px * SS + 2, py * SS + 1], fill=colour)
 
 
-def paint_trenches(layer, seed, wet):
+GROUND_EDGE = TRENCH_OUT + 0.03  # the worked ground's half width (tiles)
+
+
+def ground_noise(x, y, salt=0):
+    """0 to 1, the same at x and x + 1: the worked ground's speckle repeats every tile along the ridge, so where the
+    next clamp's ground reaches back over this one's (TRENCH_WEST) the two match and no band shows."""
+    qx = round(((x + 0.5) % 1.0) * 333) % 333
+    qy = round((y + 1.0) * 333)
+    h = (qx * 73856093) ^ (qy * 19349663) ^ (salt * 83492791)
+    h = (h ^ (h >> 13)) * 1274126177 & 0xFFFFFFFF
+    return (h % 10007) / 10007
+
+
+def paint_trenches(layer, wet):
     """The ground worked round the heap, and the drainage trenches dug along both long sides, end to end of the tile:
-    sunk below it, so the far bank shows lit; with rain, water standing level in their floor."""
+    sunk below it, so the far bank shows lit; with rain, water standing level in their floor. A solid base first, so
+    no grass shows through the speckle at the edges; the speckle by position (ground_noise), never at random."""
     draw = ImageDraw.Draw(layer)
-    rng = random.Random(seed)
+    base = [pzart.project(-TRENCH_WEST, -GROUND_EDGE), pzart.project(TRENCH_END, -GROUND_EDGE),
+            pzart.project(TRENCH_END, GROUND_EDGE), pzart.project(-TRENCH_WEST, GROUND_EDGE)]
+    draw.polygon([(px * SS, py * SS) for px, py in base], fill=pzart.tint(SOIL, 1.07))
     step = 0.003
     points = []
-    y = -TRENCH_OUT - 0.03
-    while y <= TRENCH_OUT + 0.03:
-        x = -TRENCH_END
+    y = -GROUND_EDGE
+    while y <= GROUND_EDGE:
+        x = -TRENCH_WEST
         while x <= TRENCH_END:
             points.append((x + y, x, y))
             x += step
@@ -479,18 +499,19 @@ def paint_trenches(layer, seed, wet):
     points.sort()
     middle, half = (TRENCH_IN + TRENCH_OUT) / 2, (TRENCH_OUT - TRENCH_IN) / 2
     for _, x, y in points:
+        noise = ground_noise(x, y)
         if TRENCH_IN <= abs(y) <= TRENCH_OUT:
             across = (abs(y) - middle) / half
             far_bank = across * (1 if y > 0 else -1) < -0.4
             colour = pzart.tint(SOIL, 0.85) if far_bank else pzart.tint(TRENCH, 0.8)
             z = -TRENCH_DEPTH * (1 - across * across)
-            shade = rng.uniform(0.85, 1.12)
-            glint = rng.random() < 0.06
+            shade = 0.85 + 0.27 * noise
             if wet and abs(across) < 0.7:
+                glint = ground_noise(x, y, 1) < 0.06
                 colour, z, shade = pzart.tint(WATER, 1.25 if glint else 1.0), -TRENCH_DEPTH * 0.51, 1.0
             splat(draw, x, y, z, pzart.tint(colour, shade))
         else:
-            splat(draw, x, y, 0, pzart.tint(SOIL, rng.uniform(0.95, 1.2)))
+            splat(draw, x, y, 0, pzart.tint(SOIL, 0.95 + 0.25 * noise))
 
 
 def paint_heap(layer, cover, seed):
@@ -546,10 +567,17 @@ def paint_heap(layer, cover, seed):
 
 
 def paint_clamp(cover, wet=False):
-    layer = pzart.new_layer(SS)
-    paint_trenches(layer, 210, wet)
-    paint_heap(layer, cover, 200 if cover == "straw" else 220)
-    return pzart.hard_edges(pzart.weather(pzart.shrink(layer), random.Random(230), 0.15))
+    """The worked ground and trenches, then the heap over them. Only the heap is weathered: the grime's noise is the
+    image's, not the ground's position, so on the ground it would differ where two clamps overlap."""
+    # Empty but soil-coloured, so shrinking it doesn't darken the ground's edges with the empty canvas's black (a dark
+    # line showed where one clamp's ground ends on the next one's).
+    ground = Image.new("RGBA", (pzart.TILE_W * SS, pzart.TILE_H * SS), pzart.tint(SOIL, 1.07)[:3] + (0,))
+    paint_trenches(ground, wet)
+    heap = pzart.new_layer(SS)
+    paint_heap(heap, cover, 200 if cover == "straw" else 220)
+    tile = pzart.shrink(ground)
+    tile.alpha_composite(pzart.weather(pzart.shrink(heap), random.Random(230), 0.15))
+    return pzart.hard_edges(tile)
 
 
 # B42 draws a tile by a depth texture: a mod's from common/media/depthmaps/DEPTH_<tileset>.png, laid out as the sheet.
@@ -577,7 +605,7 @@ def clamp_depth(alpha):
     step = 0.003
     y = -TRENCH_OUT - 0.03
     while y <= TRENCH_OUT + 0.03:
-        x = -TRENCH_END
+        x = -TRENCH_WEST
         while x <= TRENCH_END:
             across = (abs(y) - (TRENCH_IN + TRENCH_OUT) / 2) / ((TRENCH_OUT - TRENCH_IN) / 2)
             h = -TRENCH_DEPTH * (1 - across * across) if TRENCH_IN <= abs(y) <= TRENCH_OUT else 0
