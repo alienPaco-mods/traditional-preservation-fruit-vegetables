@@ -43,6 +43,14 @@ STORAGES = {
     "sandCrate": {"tile": 18, "overlay": 19, "group": "Sand", "custom": "Crate", "container": "sandcrate", "capacity": 35},
 }
 LEVELS = 3
+# The clamp (ROADMAP section 8 phase 3, art/clamp_mock.png): a storage dug into bare ground, its container a place of
+# its own (TP Core's Clamp / EarthedClamp). Its tile is the heap under straw with the drainage trenches dug; earthing
+# it up lays the soil dome over it as an overlay; rainwater stands in the trenches while vanilla's puddles are up, one
+# overlay a cover (only the trench the heap leaves in sight). No fill levels: the crops are under the cover.
+# Earthing up switches its container's type (saved with the object) to earthedContainer: the place, the loot window's
+# title and icon follow it.
+CLAMP = {"tile": 22, "earthed": 23, "wet": 24, "wetEarthed": 25, "group": "Root", "custom": "Clamp", "container": "clamp",
+         "earthedContainer": "earthedclamp", "capacity": 75}
 
 FOOT_X, FOOT_Y = pzart.FOOT
 HEIGHT, BASE_RX, RIM_RX = 46, 29.0, 25.0
@@ -77,6 +85,10 @@ for storage in STORAGES.values():
                                    ("ContainerCapacity", str(storage["capacity"])), ("CustomName", storage["custom"]),
                                    ("GroupName", storage["group"]), ("IsLow", ""), ("IsMoveAble", ""), ("Material", "Wood"),
                                    ("Material2", "Nails"), ("PickUpWeight", "50"), ("ScrapSize", "Small")]
+# Not moveable: a heap of earth, levelled once empty (the mod's Level the Clamp).
+TILE_PROPS[CLAMP["tile"]] = [("BlocksPlacement", ""), ("container", CLAMP["container"]),
+                             ("ContainerCapacity", str(CLAMP["capacity"])), ("CustomName", CLAMP["custom"]),
+                             ("GroupName", CLAMP["group"])]
 for index, facing in enumerate(FACES):
     # The engine only links the facings of tiles with a GroupName, and that link lets a moved station rotate.
     TILE_PROPS[index] = [("BlocksPlacement", ""), ("CustomName", CUSTOM), ("Facing", facing), ("GroupName", GROUP),
@@ -407,6 +419,146 @@ def paint_sand_produce(level):
     return finish(layer, 150 + level, OVERLAY_WEATHER)
 
 
+# The clamp, after the old guides' section: roots heaped in a triangle, straw over them, soil over the straw,
+# drainage trenches either side. A height field splatted back to front, lit from the left.
+CLAMP_LENGTH = 0.44  # half the ridge's length, in tiles
+# Each cover: half width (tiles), top (pixels), half length. About 70 px to a metre; one tile can't hold a real
+# clamp's 2 m, so the dome keeps its shape lower. Under straw the heap is smaller and pointed, so earthing up grows it.
+CLAMP_SHAPES = {"straw": (0.235, 28, 0.36), "soil": (0.31, 42, CLAMP_LENGTH)}
+TRENCH_IN, TRENCH_OUT = 0.34, 0.44  # the drainage trenches along both long sides, from the middle line (tiles)
+TRENCH_DEPTH = 4
+# The trenches and the worked ground run the tile's whole length on each side, so clamps in a row share one trench
+# line each side (user, session 77).
+TRENCH_END = 0.5
+STRAW = (196, 168, 104)
+SOIL = (104, 80, 56)
+TRENCH = (62, 46, 32)
+WATER = (84, 98, 104)  # muddy rainwater, the sky in it
+CLAMP_LIGHT = (-0.55, 0.45, 0.70)
+
+
+def clamp_height(x, y, cover):
+    """The heap: under straw a pointed ridge with straight sides and hipped ends, under soil a rounded dome. 0 off it."""
+    width, top, length = CLAMP_SHAPES[cover]
+    if cover == "straw":
+        reach = min(1 - abs(y) / width, 2.2 * (1 - abs(x) / length))
+        return top * min(1.0, reach * 1.1) if reach > 0 else 0.0
+    d = ((abs(x) / length) ** 3 + (abs(y) / width) ** 2) ** 0.5
+    return top * (1 - d * d) ** 0.55 if d < 1 else 0.0
+
+
+def clamp_shade(x, y, cover, step=0.005):
+    gx = (clamp_height(x + step, y, cover) - clamp_height(x - step, y, cover)) / (2 * step) / 60
+    gy = (clamp_height(x, y + step, cover) - clamp_height(x, y - step, cover)) / (2 * step) / 60
+    normal = (-gx, -gy, 1.0)
+    dot = sum(a * b for a, b in zip(normal, CLAMP_LIGHT))
+    dot /= math.sqrt(sum(c * c for c in normal)) * math.sqrt(sum(c * c for c in CLAMP_LIGHT))
+    return 0.5 + 0.62 * max(0.0, dot)
+
+
+def splat(draw, x, y, z, colour):
+    px, py = pzart.project(x, y, z)
+    draw.ellipse([px * SS - 2, py * SS - 1, px * SS + 2, py * SS + 1], fill=colour)
+
+
+def paint_trenches(layer, seed, wet):
+    """The ground worked round the heap, and the drainage trenches dug along both long sides, end to end of the tile:
+    sunk below it, so the far bank shows lit; with rain, water standing level in their floor."""
+    draw = ImageDraw.Draw(layer)
+    rng = random.Random(seed)
+    step = 0.003
+    points = []
+    y = -TRENCH_OUT - 0.03
+    while y <= TRENCH_OUT + 0.03:
+        x = -TRENCH_END
+        while x <= TRENCH_END:
+            points.append((x + y, x, y))
+            x += step
+        y += step
+    points.sort()
+    middle, half = (TRENCH_IN + TRENCH_OUT) / 2, (TRENCH_OUT - TRENCH_IN) / 2
+    for _, x, y in points:
+        if TRENCH_IN <= abs(y) <= TRENCH_OUT:
+            across = (abs(y) - middle) / half
+            far_bank = across * (1 if y > 0 else -1) < -0.4
+            colour = pzart.tint(SOIL, 0.85) if far_bank else pzart.tint(TRENCH, 0.8)
+            z = -TRENCH_DEPTH * (1 - across * across)
+            shade = rng.uniform(0.85, 1.12)
+            glint = rng.random() < 0.06
+            if wet and abs(across) < 0.7:
+                colour, z, shade = pzart.tint(WATER, 1.25 if glint else 1.0), -TRENCH_DEPTH * 0.51, 1.0
+            splat(draw, x, y, z, pzart.tint(colour, shade))
+        else:
+            splat(draw, x, y, 0, pzart.tint(SOIL, rng.uniform(0.95, 1.2)))
+
+
+def paint_heap(layer, cover, seed):
+    """The heap from the back of the tile to the front, so nearer points paint over: straw in strips laid from the
+    ridge down with loose stalks, or soil in clods with straw vents through the ridge."""
+    draw = ImageDraw.Draw(layer)
+    rng = random.Random(seed)
+    strips = [random.Random(seed + 1).uniform(0.8, 1.12) for _ in range(200)]
+    clods = pzart.soft_noise(rng, (160, 100), 3, 3)
+    width = CLAMP_SHAPES[cover][0]
+    step = 0.0035 if cover == "straw" else 0.002
+    points = []
+    y = -width
+    while y <= width:
+        x = -CLAMP_LENGTH
+        while x <= CLAMP_LENGTH:
+            z = clamp_height(x, y, cover)
+            if z > 0:
+                points.append((x + y, x, y, z))
+            x += step
+        y += step
+    points.sort()
+    for _, x, y, z in points:
+        light = clamp_shade(x, y, cover)
+        if cover == "straw":
+            strip = strips[int((x + CLAMP_LENGTH) * 220) % len(strips)]
+            colour = pzart.tint(STRAW, light * strip * rng.uniform(0.94, 1.04))
+        else:
+            grain = clods.getpixel((int((x + CLAMP_LENGTH) / (2 * CLAMP_LENGTH) * 159), int((y + width) / (2 * width) * 99))) / 255
+            colour = pzart.tint(SOIL, light * (0.82 + 0.3 * grain) * rng.uniform(0.92, 1.06))
+        # A short column down from the surface, so steep slopes close up.
+        px, py = pzart.project(x, y, z)
+        draw.rectangle([px * SS - 2, py * SS - 1, px * SS + 2, py * SS + 6], fill=colour)
+    if cover == "straw":
+        for _ in range(260):
+            x, y = rng.uniform(-CLAMP_LENGTH * 0.95, CLAMP_LENGTH * 0.95), rng.uniform(-width * 0.9, width * 0.9)
+            z = clamp_height(x, y, cover)
+            if z <= 2:
+                continue
+            fall = -1 if y < 0 else 1
+            a = pzart.project(x, y, z)
+            b = pzart.project(x + rng.uniform(-0.01, 0.01), y + fall * 0.05, max(0, clamp_height(x, y + fall * 0.05, cover)))
+            draw.line([a[0] * SS, a[1] * SS, b[0] * SS, b[1] * SS],
+                      fill=pzart.tint(STRAW, clamp_shade(x, y, cover) * rng.uniform(0.7, 1.2)), width=max(1, SS // 2))
+    else:
+        for vx in (-0.2, 0.2):
+            base = pzart.project(vx, 0, clamp_height(vx, 0, cover) - 1)
+            for _ in range(14):
+                angle = rng.uniform(-0.9, 0.9)
+                tip = (base[0] + math.sin(angle) * rng.uniform(4, 8), base[1] - math.cos(angle) * rng.uniform(5, 9))
+                draw.line([base[0] * SS, base[1] * SS, tip[0] * SS, tip[1] * SS],
+                          fill=pzart.tint(STRAW, rng.uniform(0.75, 1.15)), width=max(1, SS // 2))
+
+
+def paint_clamp(cover, wet=False):
+    layer = pzart.new_layer(SS)
+    paint_trenches(layer, 210, wet)
+    paint_heap(layer, cover, 200 if cover == "straw" else 220)
+    return pzart.hard_edges(pzart.weather(pzart.shrink(layer), random.Random(230), 0.15))
+
+
+def changed(base, over):
+    """The pixels of over that differ from base: an overlay that leaves the rest of base showing."""
+    mask = ImageChops.difference(base.convert("RGBA"), over.convert("RGBA")).convert("L").point(lambda v: 255 if v else 0)
+    out = Image.new("RGBA", over.size, (0, 0, 0, 0))
+    out.paste(over, (0, 0), mask)
+    return out
+
+
 def paint_braid_icon(kind):
     """A braid for the item icon: a plait of dry stalks down the middle with bulbs (vanilla's icon) on both sides."""
     size = 32
@@ -442,6 +594,9 @@ def lua_tiles():
         "STORAGES": {key: {"tile": prefix + str(storage["tile"]), "overlay": storage["overlay"], "container": storage["container"],
                            "capacity": storage["capacity"]} for key, storage in STORAGES.items()},
         "LEVELS": LEVELS,
+        "CLAMP": {"tile": prefix + str(CLAMP["tile"]), "earthed": prefix + str(CLAMP["earthed"]), "wet": prefix + str(CLAMP["wet"]),
+                  "wetEarthed": prefix + str(CLAMP["wetEarthed"]), "container": CLAMP["container"],
+                  "earthedContainer": CLAMP["earthedContainer"], "capacity": CLAMP["capacity"]},
     }
 
 
@@ -466,6 +621,11 @@ def main():
         tiles[STORAGES["pole"]["overlay"] + level] = paint_pole_bunches(level + 1)
         tiles[STORAGES["hayCrate"]["overlay"] + level] = paint_crate_produce(level + 1)
         tiles[STORAGES["sandCrate"]["overlay"] + level] = paint_sand_produce(level + 1)
+    thatched, earthed = paint_clamp("straw"), paint_clamp("soil")
+    tiles[CLAMP["tile"]] = thatched
+    tiles[CLAMP["earthed"]] = earthed
+    tiles[CLAMP["wet"]] = changed(thatched, paint_clamp("straw", True))
+    tiles[CLAMP["wetEarthed"]] = changed(earthed, paint_clamp("soil", True))
     pzart.write_pack(media / "texturepacks" / f"{NAME}.pack", tiles, NAME, TILESET, PAGE_SIZE)
     pzart.write_tiles(media / f"{NAME}.tiles", [(TILESET, COLUMNS, ROWS)], TILE_PROPS)
     icon = tiles[0].copy()
@@ -476,6 +636,12 @@ def main():
         full = tiles[storage["tile"]].copy()
         full.alpha_composite(tiles[storage["overlay"] + LEVELS - 1])
         pzart.write_build_icon(full, media / "textures" / f"Item_{name}.png")
+        pzart.write_container_icon(full, media / "textures" / f"Container_{name}.png")
+    pzart.write_build_icon(thatched, media / "textures" / "Item_Clamp.png")
+    pzart.write_container_icon(thatched, media / "textures" / "Container_Clamp.png")
+    earthed_icon = thatched.copy()
+    earthed_icon.alpha_composite(earthed)
+    pzart.write_container_icon(earthed_icon, media / "textures" / "Container_ClampEarthed.png")
     paint_braid_icon("garlic").save(media / "textures" / "Item_GarlicBraid.png")
     paint_braid_icon("onion").save(media / "textures" / "Item_OnionBraid.png")
     pzart.write_mod_icon(icon, media.parent / "icon.png")

@@ -26,7 +26,7 @@ In vanilla, a vegetable keeps the same number of days wherever you put it, excep
 
 This mod makes **where you keep vegetables matter**. A basement is a root cellar, frost ruins what's left in the cold, and potatoes, garlic and onions keep longer once they're cured. They're still the game's own vegetables, so every vanilla recipe takes them.
 
-At harvest there's the **kraut barrel**: cabbages and turnips shredded with salt, pressed down under a stone and left to sour into Sauerkraut or Sauer Turnip that keeps the winter. Still to come: the **clamp**, a straw-and-earth mound that keeps root crops through the frost in the field.
+At harvest there's the **kraut barrel**: cabbages and turnips shredded with salt, pressed down under a stone and left to sour into Sauerkraut or Sauer Turnip that keeps the winter. With no basement, the **clamp** keeps root crops through the frost outdoors: a mound of straw and earth in the field.
 
 ---
 
@@ -129,13 +129,33 @@ Three things to build that help, each a container you put vegetables in. The pla
 | **Vegetable Crate (Hay)**: an open crate lined with hay | Carpentry 1: 3 planks, 4 nails, 4 hay (from a farm's hay bales) | 35 | Potatoes, sweet potatoes and pumpkins cure **half again as fast** (a potato in about 5 days); potatoes, turnips, cabbages, sweet potatoes and pumpkins **keep a third longer**. Carrots, beets and leeks gain nothing here |
 | **Vegetable Crate (Sand)**: roots packed in damp sand, their tops showing | Carpentry 1: 3 planks, 4 nails, 1 sack of sand | 35 | Carrots, sugar beets, leeks and turnips **keep a third longer**: the sand stops them drying out |
 
-Each shows what it holds: bunches on the pole, roots and heads in the hay, rows of tops in the sand.
+Each shows what it holds: bunches on the pole, roots and heads in the hay, rows of tops in the sand. Each takes only what it helps: garlic, onions and their braids on the pole; potatoes, turnips, cabbages, sweet potatoes and pumpkins in the hay; carrots, sugar beets, leeks and turnips in the sand.
 
 **Braids.** Select 2 to 10 garlic or onions and right-click: **Braid Garlic** or **Braid Onions**. A braid is only lighter to carry; the bulbs keep and cure inside it as loose ones do, and a braid hung on the Onion and Garlic Pole counts as hung there. **Unbraid** gives them back.
 
 > *Margin note:* potatoes were cured in shallow bins or under sacking on a barn floor, in the dark, because light turns them green. Garlic and onions went the other way, up into the rafters in bunches or plaits where the air could move through them. A softneck garlic plait hung by the kitchen door all winter, and you cut a bulb off when you needed one.
 
 > *Margin note:* a fresh potato's skin is thin and easily scuffed. Kept a week or two somewhere mild and damp, it grows a corky layer over every scrape, and that's what lets it sit in the dark until spring. Garlic and onions are the other way round: their necks have to dry out completely, or rot gets in through them.
+
+### The clamp
+
+No basement? Heap the roots outside under straw and earth, as farms did for centuries.
+
+| Step | You need | What happens |
+|---|---|---|
+| Right-click bare dirt under the open sky: **Dig a Clamp** (where a furrow could go, with the grass removed first; half an hour) | A shovel or spade (kept), 6 hay | A straw-covered ridge with a drainage trench each side. Holds 75 |
+| Put the crops in | Potatoes, turnips, sugar beets, carrots, cabbages | Under straw it sits between the day's warmth and the ground's |
+| **Earth Up** when hard frost comes (right-click, half an hour's digging) | The shovel | Soil over the straw: it stays a degree or two above freezing all winter |
+| **Take Down Soil** in spring (20 minutes) | The shovel | Back to straw |
+| **Level the Clamp** once empty | The shovel | Dug back in; the straw is lost |
+
+You can take crops out or put them in at any time. Leeks stay in the ground, onions and garlic want dry air, and sweet potatoes chill, so none of them go in.
+
+- **Earth it up too early and it sweats.** Above 8 C under the soil, the crops spoil half as fast again. Earthed in October, carrots keep about a month; earthed at the end of November, through to spring.
+- **Under straw alone, a hard frost gets in.** A potato clamped in December under straw lasts a couple of weeks; earthed up, as long as in a basement.
+- After rain you'll see water standing in the trenches. That's where it's meant to go.
+
+> *Margin note:* a clamp breathes. The roots go on living in the dark and give off warmth and damp, which is why tufts of straw were left poking through the ridge every couple of yards: chimneys for the heap. When it was time to eat, you opened one end, took what you needed and packed the straw and soil back.
 
 ---
 
@@ -156,7 +176,7 @@ Days fresh for a vegetable put away on the first of the month, with no power, fr
 
 - **At harvest the basement is still warm.** In October the ground hasn't cooled yet, so a cabbage keeps about three weeks either way. The long keeping starts as the ground cools in winter.
 - **Potatoes picked in September cure on their own** in a mild room, then keep five or six months.
-- **In midwinter only the basement or a fire will do.** An unheated room freezes, and a frozen crop is ruined in half a day. On a mild October day a room can still be better than the still-warm basement.
+- **In midwinter only the basement, an earthed-up clamp or a fire will do.** An unheated room freezes, and a frozen crop is ruined in half a day. On a mild October day a room can still be better than the still-warm basement.
 - **Summer is the hungry gap.** Nothing keeps long in July: eat fresh, or ferment.
 
 ---
@@ -266,6 +286,9 @@ Copied from `DEVHELP.md`; change both together. Debug mode only.
 | `TPFV.frost(hours)` | Freezes the vegetables on you and within 4 tiles for this many hours. `TPFV.frost(12)` ruins them. |
 | `TPFV.give(name, n)` | Spawns vegetables by name (`potato`, `cabbage`, ...). `TPFV.give()` lists them. |
 | `TPFV.kit("cellar")` | Three of each vegetable the cellar keeps. |
+| `TPFV.clamp()` | The nearest clamp: under straw or earthed up, its temperature, what it holds, and whether it is sweating. |
+| `TPFV.earth(on)` | Earths the nearest clamp up at once, or takes the soil down with `TPFV.earth(false)`. |
+| `TPFV.kit("clamp")` | A shovel, hay for two clamps, five of each crop it takes, and a leek and an onion it refuses. |
 | `TPFV.barrel()` | The nearest kraut barrel: stage, contents, place, progress, hours too warm. |
 | `TPFV.age(hours)` | Every kraut barrel this many hours of good weather. `TPFV.age(672)` finishes one. |
 | `TPFV.fast(hours)` | Test timer: a barrel sours in this many hours. `TPFV.fast()` goes back to the sandbox time. |

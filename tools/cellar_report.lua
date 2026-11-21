@@ -16,7 +16,10 @@ local ROTTEN = { potato = 280, turnip = 280, sugarBeet = 6, carrots = 8, cabbage
     sweetPotato = 280, pumpkin = 28 }
 
 local MONTHS = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" }
-local PLACES = { "Sheltered", "AiredRoom", "Basement", "Covered" }
+-- The clamp's two places last (only the crops it takes: M.CLAMP_TAKES), earthed up the whole year: in play it is
+-- earthed for the winter only, and sweats above 8 C (M.SWEAT_C).
+local PLACES = { "Sheltered", "AiredRoom", "Basement", "Covered", "StrawClamp", "EarthedClamp" }
+local CLAMP_PLACES = { StrawClamp = true, EarthedClamp = true }
 local STEPS_PER_HOUR = 6
 
 local function readDays(path)
@@ -51,7 +54,12 @@ end
 
 -- Every ledger starts as a long-running save's would on 1 January.
 local season, ground = Weather.settledMeans(year)(year[1].month, year[1].offset)
-local function settleLedger(ledger) ledger.seasonTemperature, ledger.groundTemperature = season, ground end
+-- The room's and the day's means start at the season's too, not at the first night's reading (the shut room and the
+-- earthed clamp read the three-day mean).
+local function settleLedger(ledger)
+    ledger.seasonTemperature, ledger.groundTemperature = season, ground
+    ledger.threeDayTemperature, ledger.dayTemperature = season, season
+end
 for _, name in ipairs(M.CROP_NAMES) do
     local crop = M.CROPS[name]
     settleLedger(crop.keeper.ledger())
@@ -79,9 +87,11 @@ local stored, results, cured = {}, {}, {}
 local function putAway(month)
     for _, name in ipairs(M.CROP_NAMES) do
         for _, place in ipairs(PLACES) do
+            if CLAMP_PLACES[place] and not M.CLAMP_TAKES[M.CROPS[name].fullType] then goto next end
             local item = vegetable(M.CROPS[name])
             M.keepVegetable(item, H.hours, place)
             table.insert(stored, { item = item, key = name .. month .. place, place = place, start = H.hours })
+            ::next::
         end
     end
 end
@@ -105,7 +115,11 @@ for index, day in ipairs(days) do
     end
 end
 
+local putAwayKeys = {}
+for _, kept in ipairs(stored) do putAwayKeys[kept.key] = true end
+
 local function cell(key)
+    if not putAwayKeys[key] then return "-" end
     local text = results[key] and string.format("%.0f", results[key]) or "365+"
     if cured[key] then text = text .. string.format(" (c %.0f)", cured[key]) end
     return text
@@ -115,8 +129,8 @@ print("Days fresh for a vegetable put away on the first of the month (c: cured o
 for _, name in ipairs(M.CROP_NAMES) do
     print("")
     print(string.format("%s (vanilla %d days)", name, M.CROPS[name].vanilla))
-    print("| Month | Shut room | Aired room | Basement | Under a roof |")
-    print("|---|---|---|---|---|")
+    print("| Month | Shut room | Aired room | Basement | Under a roof | Clamp, straw | Clamp, earthed |")
+    print("|---|---|---|---|---|---|---|")
     for month = 1, 12 do
         local row = { MONTHS[month] }
         for _, place in ipairs(PLACES) do table.insert(row, cell(name .. month .. place)) end

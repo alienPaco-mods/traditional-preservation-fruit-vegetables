@@ -197,6 +197,26 @@ check("a crate is a storage, and so is a braid on a pole", (function()
     inBraid.container = container("Container", braid)
     return M.storageOf(inCrate) == "hayCrate" and M.storageOf(inBraid) == "pole" and M.storageOf(vegetable("Base.Carrots", 6, 8)) == nil
 end)())
+-- What each storage takes (user, session 77): only the crops it does something for
+local function takes(key, fullType, cooked)
+    local item = vegetable(fullType, 1, 2)
+    item.cooked = cooked
+    return M["accept_" .. key](nil, item)
+end
+check("the sand crate takes carrots, sugar beets, leeks and turnips, nothing else",
+    takes("sandCrate", "Base.Carrots") and takes("sandCrate", "Base.SugarBeet") and takes("sandCrate", "Base.Leek")
+    and takes("sandCrate", "Base.Turnip") and not takes("sandCrate", "Base.Potato") and not takes("sandCrate", "Base.Garlic")
+    and not takes("sandCrate", "Base.Apple"))
+check("the hay crate takes potatoes, turnips, cabbages, sweet potatoes and pumpkins; no carrots, beets, leeks, garlic or onions",
+    takes("hayCrate", "Base.Potato") and takes("hayCrate", "Base.Turnip") and takes("hayCrate", "Base.Cabbage")
+    and takes("hayCrate", "Base.SweetPotato") and takes("hayCrate", "Base.Pumpkin") and not takes("hayCrate", "Base.Carrots")
+    and not takes("hayCrate", "Base.SugarBeet") and not takes("hayCrate", "Base.Leek") and not takes("hayCrate", "Base.Onion"))
+check("the pole takes garlic, onions and their braids, nothing else",
+    takes("pole", "Base.Garlic") and takes("pole", "Base.Onion") and takes("pole", M.BRAIDS.garlic.braid)
+    and takes("pole", M.BRAIDS.onion.braid) and not takes("pole", "Base.Potato"))
+check("nothing cooked goes in any of them", not takes("sandCrate", "Base.Carrots", true) and not takes("pole", "Base.Garlic", true))
+check("each storage's accept function is named as the World sets it",
+    M.STORAGE_ACCEPTS.hayCrate == "TraditionalPreservationFruitVegetables.accept_hayCrate")
 check("the sand crate keeps carrots, beets, leeks and turnips a third longer, nothing else, and cures nothing",
     M.storageKeepFactor(CROPS.carrots, "sandCrate") == 0.75 and M.storageKeepFactor(CROPS.sugarBeet, "sandCrate") == 0.75
     and M.storageKeepFactor(CROPS.leek, "sandCrate") == 0.75 and M.storageKeepFactor(CROPS.turnip, "sandCrate") == 0.75

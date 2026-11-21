@@ -1,8 +1,7 @@
-# Traditional Preservation (Fruits and Vegetables) — Build 42 prototype (v0.0.14)
+# Traditional Preservation (Fruits and Vegetables) — Build 42 prototype (v0.0.15)
 
 Vegetables kept the old way, without electricity. Built: **the root cellar** (vanilla vegetables keep by place, and
-potatoes, garlic, onions, sweet potatoes and pumpkins cure), **three storages** (Onion and Garlic Pole, Vegetable Crate (Hay), Vegetable Crate (Sand)) and garlic and onion **braids**, and **the kraut barrel** (cabbage and turnip soured in salt). Planned: the
-clamp for root crops.
+potatoes, garlic, onions, sweet potatoes and pumpkins cure), **three storages** (Onion and Garlic Pole, Vegetable Crate (Hay), Vegetable Crate (Sand)) and garlic and onion **braids**, **the clamp** (roots kept outdoors under straw and soil through the winter), and **the kraut barrel** (cabbage and turnip soured in salt).
 
 ## The root cellar
 
@@ -79,7 +78,9 @@ keeps them all winter.
 Three buildings that hold vegetables, each a container from its tile (`container` and `ContainerCapacity` in the
 `.tiles`, as Fish & Meat's Stockfish Pallet). What lies in one, loose or in a braid there, cures or keeps by a
 multiplier on top of its place (`M.STORAGE_BONUS`): each look notes the storage (`M.storageOf` walks up through braids
-and bags) and the stretch since the last look counts by it, as places do. One facing; the World shows what each holds
+and bags) and the stretch since the last look counts by it, as places do. Each takes only the crops it does something
+for (`M.storageTakes`, read from `M.STORAGE_BONUS`), raw, and the pole its braids: its accept function, set by the World
+on every storage it sees (it isn't saved); what already lies in one stays. One facing; the World shows what each holds
 in three steps by weight (`World.storageLevel`).
 
 | Storage | Build (hammer, saw kept) | Holds | Bonus |
@@ -95,6 +96,39 @@ the pole for garlic and onions, the hay crate for the rest, the sand crate for t
 Garlic or Onion Braid holding them (a container item: capacity 2, weight reduction 30, only its own bulbs). Only
 lighter to carry (user): the bulbs keep and cure inside as loose ones do, and a braid on an Onion and Garlic Pole counts as hung.
 **Unbraid** gives them back.
+
+## The clamp
+
+Roots heaped on bare ground under straw, drainage trenches dug either side, then earthed over once hard frost comes
+(`...Clamp.lua`, art `WIP/TPCore/art/clamp_mock.png`). A storage like the crates: a container from its tile
+(`container = clamp`, capacity 75), no Info window, open the whole time (a real clamp was opened at one end, some taken
+and closed again). It takes **potatoes, turnips, sugar beets, carrots and cabbages** only (its accept function,
+`M.acceptClamp`, set by the World on every clamp it sees: no leeks, which stay in the ground; no onions or garlic,
+which want dry air; no sweet potatoes, which chill).
+
+- **Dig a Clamp** (right-click, as vanilla's Dig Furrow; no build menu): a shovel or spade (kept) and 6 hay, 30
+  minutes, on bare dirt under the sky by vanilla's furrow rule (a free square, no plant) with the grass removed first (Remove Grass; TP Core's
+  `Ground.diggable`). The action puts the tile's object down with its container (`M.makeClamp`). Not movable: once
+  empty, **Level the Clamp** (shovel, 20 minutes) digs it back in, the straw lost.
+- **Its place** is TP Core's own, given by its container: **StrawClamp** under straw, halfway from the day's mean to the
+  basement's temperature; **EarthedClamp** once earthed up, halfway from the 3-day mean to the basement's. Its crops keep
+  on the cellar's curves and freeze at their own points there, as anywhere else.
+- **Earth Up** (shovel, 30 minutes on the game clock): the soil from the trenches over the straw, tufts left through
+  the ridge to breathe. **Take Down Soil** (20 minutes) takes it off again, in spring or if it went on too early. What
+  lies in it catches up at the old place first.
+- **Sweating** (user, session 77): earthed over above 8 C (`M.SWEAT_C`), its crops age 1.5 times as fast
+  (`M.SWEAT_RATE`), on a second ageing on each keeper's ledger (`<crop>Sweat`), counted only for the stretches spent
+  in an earthed clamp (item modData `tpfvSweat`). Earth it up in late November, not at the October harvest.
+- **No rain rule** (user): the spring warmth ends its season. The trenches show rainwater while vanilla's puddles are
+  up (`IsoPuddles` at `M.CLAMP_WET_PUDDLES` or more), only a look.
+- Earthed up or not is the container's type, saved with the object: `clamp` under straw, `earthedclamp` earthed up
+  (`Tiles.CLAMP.earthedContainer`); the place, the loot window's title ("Clamp", "Clamp (Earthed Up)") and its icon
+  follow it. Never rename them.
+
+`tools/cellar_report.lua` has a column for each: under straw all year, and earthed up all year (in play it is earthed
+for the winter only). In the sampled year a potato put in an earthed clamp in December keeps 142 days (the basement's
+145), carrots 121; under straw alone frost takes them in days (a December potato 17). Earthed up in October, carrots
+keep 29 days against 67 under straw: they sweat.
 
 ## Install
 
@@ -139,7 +173,8 @@ In debug mode, `TPFV.help()` in the Lua console lists commands for testing this 
 - The shared core (Weather, Station, UI) is the required TP Core mod (`~/MODS/TraditionalPreservationCore`), loaded as `require "TraditionalPreservationCore/Weather"`. Edit it there.
 - `tiledef` 5174 was picked by `tp new` as the next free number. Tiles: 0-1 the barrel (S, E), overlays 2-3 cabbage,
   4-5 turnip, 6-7 salted and compressed (cloth, board, stone), 8-9 cabbage and turnip mixed; 10 Onion and Garlic Pole, 11 Vegetable
-  Crate (Hay), 18 Vegetable Crate (Sand), their fill steps 12-14, 15-17 and 19-21.
+  Crate (Hay), 18 Vegetable Crate (Sand), their fill steps 12-14, 15-17 and 19-21; 22 the clamp under straw, 23 its
+  soil (earthed up), 24 and 25 rainwater in its trenches under straw and earthed (only the trench left in sight).
 - Save keys: the barrel's ledger lives in global ModData under `TraditionalPreservationFruitVegetables` (totals
   `ferment<Place>`, `hot<Place>`, `keep<Place>`), its batch in movableData `tpfvBarrel`; the cellar's are above. Never
   rename them once the mod is out.

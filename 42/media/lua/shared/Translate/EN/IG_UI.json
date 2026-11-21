@@ -69,5 +69,20 @@
   "IGUI_TraditionalPreservationFruitVegetables_Count_cabbage_one": "%1 cabbage",
   "IGUI_TraditionalPreservationFruitVegetables_Count_cabbage": "%1 cabbages",
   "IGUI_TraditionalPreservationFruitVegetables_Count_turnip_one": "%1 turnip",
-  "IGUI_TraditionalPreservationFruitVegetables_Count_turnip": "%1 turnips"
+  "IGUI_TraditionalPreservationFruitVegetables_Count_turnip": "%1 turnips",
+  "IGUI_ContainerTitle_clamp": "Clamp",
+  "IGUI_TraditionalPreservationFruitVegetables_ClampHolds": "Holds %1 roots and heads.",
+  "IGUI_TraditionalPreservationFruitVegetables_ClampSweating": "Sweating: earthed over above %1°C, its crops spoil half as fast again. Take the soil down until hard frost.",
+  "IGUI_TraditionalPreservationFruitVegetables_EarthUpHelp": "Throw the soil from the trenches over the straw, leaving tufts through the ridge to breathe. Keeps the frost out, but earthed over above %1°C the crops sweat and spoil faster: wait for hard frost.",
+  "IGUI_TraditionalPreservationFruitVegetables_TakeDownSoilHelp": "Take the soil back off the straw, as in spring, or if it was earthed up too early.",
+  "IGUI_TraditionalPreservationFruitVegetables_LevelClampHelp": "Dig the empty clamp back into the ground. The straw is lost.",
+  "IGUI_TraditionalPreservationFruitVegetables_ClampEarthed": "Already earthed up.",
+  "IGUI_TraditionalPreservationFruitVegetables_ClampNotEarthed": "Not earthed up.",
+  "IGUI_TraditionalPreservationFruitVegetables_ClampNotEmpty": "Take everything out first.",
+  "IGUI_TraditionalPreservationFruitVegetables_NoShovel": "Needs a shovel or a spade.",
+  "IGUI_ContainerTitle_earthedclamp": "Clamp (Earthed Up)",
+  "IGUI_TraditionalPreservationFruitVegetables_DigClampHelp": "Dig drainage trenches either side and heap straw for a clamp, to keep potatoes, turnips, sugar beets, carrots and cabbages through the winter outdoors. Takes %1 hay.",
+  "IGUI_TraditionalPreservationFruitVegetables_ClampNoGround": "Needs bare dirt under the open sky, where a furrow could be dug.",
+  "IGUI_TraditionalPreservationFruitVegetables_ClampNoHay": "Needs %1 hay.",
+  "IGUI_TraditionalPreservationFruitVegetables_ClampGrass": "Remove the grass first."
 }

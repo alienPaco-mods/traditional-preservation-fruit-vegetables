@@ -541,6 +541,12 @@ end
 
 Events.OnFillWorldObjectContextMenu.Add(onFillContextMenu)
 
+-- The storages' own icons in the loot window (vanilla shows the shelves for a container type it doesn't know).
+local CONTAINER_ICONS = { pole = "DryingPole", hayCrate = "HayCrate", sandCrate = "SandCrate" }
+for key, name in pairs(CONTAINER_ICONS) do
+    UI.containerIcon(Tiles.STORAGES[key].container, "media/textures/Container_" .. name .. ".png")
+end
+
 -- Vegetables catch up on their keeping whenever they are looked at or moved (TP Core's PlaceKeepingUI).
 PlaceKeepingUI.watch({ keep = M.keepVegetable }, M.CROP_OF_TYPE)
 -- Kraut out of the barrel catches up on its frost the same way.

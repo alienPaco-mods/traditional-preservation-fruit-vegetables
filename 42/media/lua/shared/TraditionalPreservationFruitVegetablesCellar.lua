@@ -202,6 +202,29 @@ for key, storage in pairs(Tiles.STORAGES) do M.STORAGE_OF_CONTAINER[storage.cont
 M.STORED_KEY = "tpfvIn"
 M.STORAGE_WORDS = { pole = "onion and garlic pole", hayCrate = "hay crate", sandCrate = "sand crate" }
 
+-- What each storage takes (its AcceptItemFunction, set by the World on every storage it sees; user, session 77): the
+-- crops it does something for (a cure faster or keeping longer, M.STORAGE_BONUS), raw; the pole its braids too.
+-- Anything else is refused, as the clamp's.
+local function storageTakes(key, item)
+    if item:isCooked() or item:isBurnt() then return false end
+    local fullType = item:getFullType()
+    if key == "pole" and M.BRAIDS then
+        for _, braid in pairs(M.BRAIDS) do
+            if braid.braid == fullType then return true end
+        end
+    end
+    local crop = M.CROP_OF_TYPE[fullType]
+    if not crop then return false end
+    return M.storageKeepFactor(crop, key) ~= 1 or (crop.cure ~= nil and M.storageCureFactor(crop, key) ~= 1)
+end
+M.storageTakes = storageTakes
+M.STORAGE_ACCEPTS = {}
+for key in pairs(M.STORAGE_BONUS) do
+    local name = "accept_" .. key
+    M[name] = function(_, item) return storageTakes(key, item) end
+    M.STORAGE_ACCEPTS[key] = "TraditionalPreservationFruitVegetables." .. name
+end
+
 -- The storage an item lies in, loose or inside a braid or a bag there: "pole", "hayCrate", "sandCrate", or nil.
 function M.storageOf(item)
     local container = item:getContainer()
@@ -312,6 +335,8 @@ function M.keepVegetable(item, now, place)
         clock.fluidAge.age = ageBefore + (clock.fluidAge.age - ageBefore) * keepFactor
         item:setAge(clock.base + clock.fluidAge.age / 24)
     end
+    -- Earthed over in a clamp while warm, it sweats (...Clamp.lua).
+    M.sweat(item, now, keeper, clock)
     frost(crop, item, now, clock, M.storageFrostFactor(storedIn))
     if not crop.cure then return clock end
     local seen = clock.fluidAge

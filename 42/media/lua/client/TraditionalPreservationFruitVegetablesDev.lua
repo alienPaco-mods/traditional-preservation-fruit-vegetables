@@ -20,6 +20,8 @@ function TPFV.help()
     say("TPFV.keep(days)       age the vegetables on you and within reach by this many days at their place and storage")
     say("TPFV.cure()           cure the vegetables that cure, on you and within reach, now")
     say("TPFV.frost(hours)     freeze every kept vegetable near you for hours (default 3): 12 h ruins one; 6 h makes kraut soft")
+    say("TPFV.clamp()          the nearest clamp (within 5 tiles): earthed or not, its place and temperature, what it holds, sweating")
+    say("TPFV.earth(on)        earth the nearest clamp up (true, the default) or take the soil down (false), at once")
     say("TPFV.give(name, n)    spawn n of a vegetable (potato, cabbage...), sauerkraut, sauerTurnip, garlicBraid or onionBraid. TPFV.give() lists them")
     say("TPFV.kit(kind)        the things a test of kind needs; TPFV.kit(\"?\") lists the kinds")
     say("Weather, game speed and the Stone Hearth's commands are TP Core's: TPC.help()")
@@ -135,6 +137,7 @@ function TPFV.veg()
             line = line .. string.format(", frozen %.1f h in all (freezes at %g C%s)", frost.age, crop.freezeC,
                 Frost.freezingAt(crop.frost, frost.place) and ", freezing here now" or "")
         end
+        if item:getModData()[M.SWEAT_KEY] then line = line .. ", in an earthed clamp (sweats above " .. M.SWEAT_C .. " C)" end
         if storage then
             -- describe is the place's alone: the storage's keeping counts on top of it.
             local crop = M.CROP_OF_TYPE[item:getFullType()]
@@ -188,6 +191,46 @@ function TPFV.cure()
         end
     end
     say(string.format("Cured %d vegetables.", count))
+end
+
+-- The nearest clamp within 5 tiles of you, or nil.
+local function nearestClamp()
+    local player = getPlayer()
+    local px, py, pz = math.floor(player:getX()), math.floor(player:getY()), math.floor(player:getZ())
+    local best, bestDistance
+    for x = px - 5, px + 5 do
+        for y = py - 5, py + 5 do
+            local square = getCell():getGridSquare(x, y, pz)
+            local objects = square and square:getObjects()
+            for i = 0, (objects and objects:size() or 0) - 1 do
+                local object = objects:get(i)
+                local distance = math.abs(x - px) + math.abs(y - py)
+                if M.isClamp(object) and (not bestDistance or distance < bestDistance) then best, bestDistance = object, distance end
+            end
+        end
+    end
+    return best
+end
+
+function TPFV.clamp()
+    local clamp = nearestClamp()
+    if not clamp then return say("No clamp within 5 tiles.") end
+    local Weather = require "TraditionalPreservationCore/Weather"
+    local place = M.clampPlace(clamp)
+    local celsius = Weather.placeTemperature(Weather.weatherModData(), place)
+    local container = clamp:getContainer()
+    local items = container and container:getItems()
+    say(string.format("%s, %.1f C, %d pieces, accepts by %s%s", M.clampEarthed(clamp) and "Earthed up" or "Under straw", celsius,
+        items and items:size() or 0, tostring(container and container:getAcceptItemFunction()),
+        (M.clampEarthed(clamp) and celsius > M.SWEAT_C) and string.format(", SWEATING (above %g C)", M.SWEAT_C) or ""))
+end
+
+function TPFV.earth(on)
+    local clamp = nearestClamp()
+    if not clamp then return say("No clamp within 5 tiles.") end
+    M.setClampEarthed(clamp, on ~= false)
+    if TraditionalPreservationFruitVegetablesWorld then TraditionalPreservationFruitVegetablesWorld.refreshClamp(clamp) end
+    TPFV.clamp()
 end
 
 local GIVES = { sauerkraut = M.KRAUTS.cabbage.product, sauerTurnip = M.KRAUTS.turnip.product,
@@ -247,6 +290,17 @@ local KITS = {
             add(inventory, "Base.Onion", 10)
             add(inventory, "Base.Carrots", 6)
             add(inventory, "Base.SugarBeet", 6)
+        end,
+    },
+    clamp = {
+        about = "a shovel and 12 hay to dig two Clamps (one to level); 5 each of potato, turnip, sugar beet, carrots "
+            .. "and cabbage to clamp, and a leek and an onion it refuses",
+        give = function(inventory)
+            add(inventory, "Base.Shovel")
+            add(inventory, "Base.HayTuft", 12)
+            for _, name in ipairs(M.CLAMP_CROPS) do add(inventory, M.CROPS[name].fullType, 5) end
+            add(inventory, "Base.Leek")
+            add(inventory, "Base.Onion")
         end,
     },
     cellar = {

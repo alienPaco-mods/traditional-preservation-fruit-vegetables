@@ -1,5 +1,33 @@
 # Changelog: Traditional Preservation (Fruits and Vegetables)
 
+## 0.0.15
+- **The clamp** (ROADMAP section 8 phase 3; user, session 77; art `art/clamp_mock.png`): roots heaped on bare ground
+  under straw, drainage trenches either side, a storage like the crates (no Info window, open the whole time, capacity
+  75). Takes potatoes, turnips, sugar beets, carrots and cabbages only. **Dig a Clamp** from the right-click menu, as
+  vanilla's Dig Furrow (user: the build menu's hammering didn't fit): a shovel (kept) and 6 hay, 30 minutes, on bare
+  dirt under the sky by vanilla's furrow rule, the grass removed first (a furrow digs through it; TP Core's
+  `Ground.diggable`); no build menu entry, not
+  movable, **Level the Clamp** once empty. What lies in it is at TP
+  Core's **StrawClamp** place, earthed up its **EarthedClamp** place, and keeps and freezes there by the cellar's rules.
+  **Earth Up** (30 minutes) and **Take Down Soil** (20) with a shovel. Earthed over above 8 C its crops **sweat**: they
+  age 1.5 times as fast. No rain rule; the trenches show rainwater while vanilla's puddles are up. The
+  trenches run the tile's whole length on each side, so clamps in a row share one trench line (user). Console
+  `TPFV.clamp()`, `TPFV.earth(on)`, `TPFV.kit("clamp")`; `TPFV.veg()` notes a crop in an earthed clamp. Tiles 22-25.
+  Earthed up is the container's type (`clamp`, `earthedclamp`, saved with the object), item modData `tpfvSweat`. Tests: `test_clamp.lua`.
+- `tools/cellar_report.lua`: a column under straw and one earthed up (the clamp's crops only), and the room's and
+  day's means start at the season's (January's first row moved by a day or so in a shut room; a leek in an aired room
+  keeps its 60 days from 1 January). Golden re-recorded.
+- Dug with hay only, not a dried sheaf, which still holds its grain (session 77, put to the user).
+- **The storages take only what they help** (user, session 77): the Onion and Garlic Pole garlic, onions and their
+  braids; the Vegetable Crate (Hay) potatoes, turnips, cabbages, sweet potatoes and pumpkins; the Vegetable Crate
+  (Sand) carrots, sugar beets, leeks and turnips; nothing cooked (`M.storageTakes`, read from `M.STORAGE_BONUS`; their
+  accept functions set by the World on each one it sees). What already lies in one stays.
+- **Own loot-window icons** (user, session 77; `art/container_icons_mock.png`): the Clamp, the Onion and Garlic Pole
+  and both Vegetable Crates show their own icon on the loot window's button, not vanilla's shelves; the Clamp's
+  follows its state (the straw heap, or the soil dome and "Clamp (Earthed Up)" once earthed up)
+  (`Container_<Name>.png`, from the builder; TP Core's `UI.containerIcon`).
+- Needs TP Core 0.1.53.
+
 ## 0.0.14
 - **Kraut freezes** (ROADMAP NEXT 1, step 3; user, session 76): a portion of Sauerkraut or Sauer Turnip out of the
   barrel freezes at -3 C (salt and acid), on TP Core's Frost ledger by place, and frozen through (6 h in all) goes

@@ -12,5 +12,9 @@
   "ContextMenu_TraditionalPreservationFruitVegetables_Compress": "Salt and Compress (%1 salt)",
   "ContextMenu_TraditionalPreservationFruitVegetables_Braid_garlic": "Braid Garlic (%1)",
   "ContextMenu_TraditionalPreservationFruitVegetables_Braid_onion": "Braid Onions (%1)",
-  "ContextMenu_TraditionalPreservationFruitVegetables_Unbraid": "Unbraid"
+  "ContextMenu_TraditionalPreservationFruitVegetables_Unbraid": "Unbraid",
+  "ContextMenu_TraditionalPreservationFruitVegetables_EarthUp": "Earth Up",
+  "ContextMenu_TraditionalPreservationFruitVegetables_TakeDownSoil": "Take Down Soil",
+  "ContextMenu_TraditionalPreservationFruitVegetables_LevelClamp": "Level the Clamp",
+  "ContextMenu_TraditionalPreservationFruitVegetables_DigClamp": "Dig a Clamp"
 }

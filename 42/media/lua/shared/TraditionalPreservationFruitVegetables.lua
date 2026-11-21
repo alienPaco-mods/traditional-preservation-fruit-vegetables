@@ -1,5 +1,5 @@
 -- Traditional Preservation (Fruits and Vegetables) B42: the public table, the places, the weather ledger and the
--- sandbox. The root cellar is in ...Cellar.lua, the kraut barrel in ...Barrel.lua.
+-- sandbox. The root cellar is in ...Cellar.lua, the clamp in ...Clamp.lua, the kraut barrel in ...Barrel.lua.
 TraditionalPreservationFruitVegetables = TraditionalPreservationFruitVegetables or {}
 local M = TraditionalPreservationFruitVegetables
 local Weather = require "TraditionalPreservationCore/Weather"
@@ -44,5 +44,6 @@ end
 Events.OnInitGlobalModData.Add(M.applySandbox)
 
 require "TraditionalPreservationFruitVegetablesCellar"
+require "TraditionalPreservationFruitVegetablesClamp"
 require "TraditionalPreservationFruitVegetablesBarrel"
 require "TraditionalPreservationFruitVegetablesBraid"

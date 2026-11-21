@@ -37,4 +37,13 @@ return {
         },
     },
     LEVELS = 3,
+    CLAMP = {
+        tile = "traditionalpreservationfruitvegetables_01_22",
+        earthed = "traditionalpreservationfruitvegetables_01_23",
+        wet = "traditionalpreservationfruitvegetables_01_24",
+        wetEarthed = "traditionalpreservationfruitvegetables_01_25",
+        container = "clamp",
+        earthedContainer = "earthedclamp",
+        capacity = 75,
+    },
 }

@@ -1,4 +1,4 @@
--- Traditional Preservation (Fruits and Vegetables) B42: keeps track of every Kraut Barrel and storage, records the
+-- Traditional Preservation (Fruits and Vegetables) B42: keeps track of every Kraut Barrel, storage and clamp, records the
 -- weather (the barrel's ledger and the cellar's), brings each barrel's batch up to now at the place it was seen in
 -- last and layers the sprite for its stage, and each storage's for how full it is. The batch sits in the barrel's movableData, so it goes with a barrel picked up.
 if isClient() then return end
@@ -84,7 +84,8 @@ end
 -- looked at like any vegetable (TP Core's PlaceKeepingUI); the World only draws it.
 local STORAGE_OF_TILE = {}
 local storageTiles = {}
-for _, storage in pairs(Tiles.STORAGES) do
+for key, storage in pairs(Tiles.STORAGES) do
+    storage.key = key
     STORAGE_OF_TILE[storage.tile] = storage
     table.insert(storageTiles, storage.tile)
 end
@@ -106,11 +107,54 @@ local storageTracker = Station.tracker({
         local container = station:getContainer()
         if not container then return end
         local storage = sessionState.storage
+        -- What it takes (an accept function isn't saved, so set on every storage seen).
+        local accept = M.STORAGE_ACCEPTS[storage.key]
+        if container:getAcceptItemFunction() ~= accept then container:setAcceptItemFunction(accept) end
         local level = World.storageLevel(container:getContentsWeight(), storage.capacity, Tiles.LEVELS)
         Station.showSprites(station, sessionState, tostring(level), level and { Tiles.PREFIX .. (storage.overlay + level - 1) } or {})
     end,
     scan = true,
 })
+
+-- The clamp: its container only takes the clamped crops (an accept function isn't saved, so set on every clamp seen),
+-- the soil dome over it once earthed up, and rainwater in its trenches while vanilla's puddles are up.
+local function clampWet()
+    local puddles = IsoPuddles and IsoPuddles.getInstance and IsoPuddles.getInstance()
+    return puddles ~= nil and puddles:getPuddlesSize() >= M.CLAMP_WET_PUDDLES
+end
+
+-- The overlays a clamp shows: the soil earthed up, then the water left in sight.
+function World.clampSprites(earthed, wet)
+    local names = {}
+    if earthed then table.insert(names, Tiles.CLAMP.earthed) end
+    if wet then table.insert(names, earthed and Tiles.CLAMP.wetEarthed or Tiles.CLAMP.wet) end
+    return names
+end
+
+local function refreshClamp(station, sessionState)
+    local container = station:getContainer()
+    if container and container:getAcceptItemFunction() ~= M.CLAMP_ACCEPT then container:setAcceptItemFunction(M.CLAMP_ACCEPT) end
+    local earthed, wet = M.clampEarthed(station), clampWet()
+    Station.showSprites(station, sessionState, tostring(earthed) .. tostring(wet), World.clampSprites(earthed, wet))
+end
+
+local clampTracker = Station.tracker({
+    sprites = { Tiles.CLAMP.tile },
+    newSessionState = function(isoObject)
+        return M.isClamp(isoObject) and {} or nil
+    end,
+    refresh = refreshClamp,
+    scan = true,
+})
+
+-- Redraws a clamp now (a clamp just built, earthed up or taken down), and starts tracking it.
+function World.refreshClamp(station)
+    local sessionState = clampTracker.track(station)
+    if sessionState then refreshClamp(station, sessionState) end
+end
+
+-- Stops tracking a clamp levelled away.
+World.forgetClamp = clampTracker.forget
 
 Weather.onReading(function(now, climate)
     M.advance(M.getLedger(), now, climate:getTemperature())
@@ -119,3 +163,4 @@ end)
 
 tracker.start()
 storageTracker.start()
+clampTracker.start()
