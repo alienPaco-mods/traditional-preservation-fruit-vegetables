@@ -1,4 +1,4 @@
-# Traditional Preservation (Fruits and Vegetables) — Build 42 prototype (v0.0.15)
+# Traditional Preservation (Fruits and Vegetables) — Build 42 prototype (v0.0.16)
 
 Vegetables kept the old way, without electricity. Built: **the root cellar** (vanilla vegetables keep by place, and
 potatoes, garlic, onions, sweet potatoes and pumpkins cure), **three storages** (Onion and Garlic Pole, Vegetable Crate (Hay), Vegetable Crate (Sand)) and garlic and onion **braids**, **the clamp** (roots kept outdoors under straw and soil through the winter), and **the kraut barrel** (cabbage and turnip soured in salt).
@@ -175,6 +175,8 @@ In debug mode, `TPFV.help()` in the Lua console lists commands for testing this 
   4-5 turnip, 6-7 salted and compressed (cloth, board, stone), 8-9 cabbage and turnip mixed; 10 Onion and Garlic Pole, 11 Vegetable
   Crate (Hay), 18 Vegetable Crate (Sand), their fill steps 12-14, 15-17 and 19-21; 22 the clamp under straw, 23 its
   soil (earthed up), 24 and 25 rainwater in its trenches under straw and earthed (only the trench left in sight).
+  The clamp's tiles have their own depth texture, `common/media/depthmaps/DEPTH_<tileset>.png` (the builder computes
+  it from the heap's shape; the game reads it only from there; ENGINE_NOTES "Depth").
 - Save keys: the barrel's ledger lives in global ModData under `TraditionalPreservationFruitVegetables` (totals
   `ferment<Place>`, `hot<Place>`, `keep<Place>`), its batch in movableData `tpfvBarrel`; the cellar's are above. Never
   rename them once the mod is out.

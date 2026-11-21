@@ -85,10 +85,11 @@ for storage in STORAGES.values():
                                    ("ContainerCapacity", str(storage["capacity"])), ("CustomName", storage["custom"]),
                                    ("GroupName", storage["group"]), ("IsLow", ""), ("IsMoveAble", ""), ("Material", "Wood"),
                                    ("Material2", "Nails"), ("PickUpWeight", "50"), ("ScrapSize", "Small")]
-# Not moveable: a heap of earth, levelled once empty (the mod's Level the Clamp).
+# Not moveable: a heap of earth, levelled once empty (the mod's Level the Clamp). Solid: walked round, not over (user,
+# session 77), and seen past (solidtrans, as the barrel).
 TILE_PROPS[CLAMP["tile"]] = [("BlocksPlacement", ""), ("container", CLAMP["container"]),
                              ("ContainerCapacity", str(CLAMP["capacity"])), ("CustomName", CLAMP["custom"]),
-                             ("GroupName", CLAMP["group"])]
+                             ("GroupName", CLAMP["group"]), ("solidtrans", "")]
 for index, facing in enumerate(FACES):
     # The engine only links the facings of tiles with a GroupName, and that link lets a moved station rotate.
     TILE_PROPS[index] = [("BlocksPlacement", ""), ("CustomName", CUSTOM), ("Facing", facing), ("GroupName", GROUP),
@@ -551,6 +552,73 @@ def paint_clamp(cover, wet=False):
     return pzart.hard_edges(pzart.weather(pzart.shrink(layer), random.Random(230), 0.15))
 
 
+# B42 draws a tile by a depth texture: a mod's from common/media/depthmaps/DEPTH_<tileset>.png, laid out as the sheet.
+# Without one a mod tile gets a default that let neighbouring floors cut into the clamp's trenches, so two clamps in a
+# row showed a step (user, session 77). A pixel's value is its distance from the camera, read off vanilla's: a rug falls
+# 2 a pixel down the screen (185 at the floor's middle, FOOT), a standing face rises 0.65 a pixel down (a fridge's
+# front). So a point h pixels up from the floor at screen row y_floor is DEPTH_AT_FOOT - 2 (y_floor - FOOT y) - 0.65 h.
+DEPTH_AT_FOOT, DEPTH_PER_FLOOR_PIXEL, DEPTH_PER_HEIGHT_PIXEL = 185, 2.0, 0.65
+
+
+def depth_value(x, y, h):
+    floor_y = pzart.project(x, y, 0)[1]
+    value = DEPTH_AT_FOOT - DEPTH_PER_FLOOR_PIXEL * (floor_y - pzart.FOOT[1]) - DEPTH_PER_HEIGHT_PIXEL * h
+    return max(1, min(254, round(value)))
+
+
+def clamp_depth(alpha):
+    """The clamp's depth texture: the worked ground and trenches, then the earthed dome over them (the biggest it gets;
+    the straw heap and the overlays lie inside it and share the tile's depth), back to front so the nearest point a
+    pixel shows wins; kept where the art (alpha) is, a pixel the heap leaves without depth (a straw tuft) taking the
+    one below it."""
+    depth = Image.new("L", (pzart.TILE_W, pzart.TILE_H), 0)
+    draw = ImageDraw.Draw(depth)
+    points = []
+    step = 0.003
+    y = -TRENCH_OUT - 0.03
+    while y <= TRENCH_OUT + 0.03:
+        x = -TRENCH_END
+        while x <= TRENCH_END:
+            across = (abs(y) - (TRENCH_IN + TRENCH_OUT) / 2) / ((TRENCH_OUT - TRENCH_IN) / 2)
+            h = -TRENCH_DEPTH * (1 - across * across) if TRENCH_IN <= abs(y) <= TRENCH_OUT else 0
+            points.append((x + y, x, y, h, 1))
+            h_heap = clamp_height(x, y, "soil")
+            if h_heap > 0:
+                points.append((x + y + 0.0001, x, y, h_heap, 2))
+            x += step
+        y += step
+    points.sort()
+    for _, x, y, h, rows in points:
+        px, py = pzart.project(x, y, h)
+        draw.rectangle([px - 0.5, py - 0.5, px + 0.5, py + rows], fill=depth_value(x, y, h))
+    pixels, mask = depth.load(), alpha.load()
+    for column in range(pzart.TILE_W):
+        below = 0
+        for row in range(pzart.TILE_H - 1, -1, -1):
+            if pixels[column, row]:
+                below = pixels[column, row]
+            elif mask[column, row] and below:
+                pixels[column, row] = below
+    out = Image.new("RGBA", depth.size, (0, 0, 0, 0))
+    grey = Image.merge("RGB", (depth, depth, depth))
+    keep = Image.eval(Image.composite(depth, Image.new("L", depth.size, 0), alpha), lambda v: 255 if v else 0)
+    out.paste(grey, (0, 0), keep)
+    return out
+
+
+def write_depth(path, tiles):
+    """DEPTH_<tileset>.png: the clamp's depth on its tile and its overlays (an overlay uses its parent's, but each is
+    given it anyway); every other tile empty, so it keeps the game's own."""
+    sheet = Image.new("RGBA", (COLUMNS * pzart.TILE_W, ROWS * pzart.TILE_H), (0, 0, 0, 0))
+    union = tiles[CLAMP["tile"]].copy()
+    union.alpha_composite(tiles[CLAMP["earthed"]])
+    depth = clamp_depth(union.getchannel("A"))
+    for index in (CLAMP["tile"], CLAMP["earthed"], CLAMP["wet"], CLAMP["wetEarthed"]):
+        sheet.alpha_composite(depth, ((index % COLUMNS) * pzart.TILE_W, (index // COLUMNS) * pzart.TILE_H))
+    path.parent.mkdir(parents=True, exist_ok=True)
+    sheet.save(path)
+
+
 def changed(base, over):
     """The pixels of over that differ from base: an overlay that leaves the rest of base showing."""
     mask = ImageChops.difference(base.convert("RGBA"), over.convert("RGBA")).convert("L").point(lambda v: 255 if v else 0)
@@ -628,6 +696,7 @@ def main():
     tiles[CLAMP["wetEarthed"]] = changed(earthed, paint_clamp("soil", True))
     pzart.write_pack(media / "texturepacks" / f"{NAME}.pack", tiles, NAME, TILESET, PAGE_SIZE)
     pzart.write_tiles(media / f"{NAME}.tiles", [(TILESET, COLUMNS, ROWS)], TILE_PROPS)
+    write_depth(media.parent.parent / "common" / "media" / "depthmaps" / f"DEPTH_{TILESET}.png", tiles)
     icon = tiles[0].copy()
     icon.alpha_composite(tiles[OVERLAYS["weighted"]])
     pzart.write_build_icon(icon, media / "textures" / "Item_KrautBarrel.png")

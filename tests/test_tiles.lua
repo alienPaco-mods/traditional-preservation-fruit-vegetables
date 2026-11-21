@@ -16,5 +16,7 @@ for key, file in pairs(SCRIPTS) do
 end
 check("no build script for the clamp: it is dug from the right-click menu",
     io.open("42/media/scripts/entities/entity_Clamp.txt") == nil)
+check("the clamp has its own depth texture, so neighbouring floors don't cut into its trenches (B42 depth)",
+    io.open("common/media/depthmaps/DEPTH_" .. Tiles.PREFIX:sub(1, -2) .. ".png") ~= nil)
 check("the clamp's overlays are its own tiles", Tiles.CLAMP.earthed ~= Tiles.CLAMP.tile and Tiles.CLAMP.wet ~= Tiles.CLAMP.wetEarthed)
 H.done()

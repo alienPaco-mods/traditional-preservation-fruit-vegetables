@@ -1,5 +1,14 @@
 # Changelog: Traditional Preservation (Fruits and Vegetables)
 
+## 0.0.16
+- **Clamps in a row join up in game** (user, session 77): the clamp has its own depth texture for B42
+  (`common/media/depthmaps/DEPTH_traditionalpreservationfruitvegetables_01.png`, computed by `tools/build_tileset.py`
+  from the heap's shape: the worked ground, the trenches and the earthed dome). Without one the game's default let a
+  neighbouring floor draw over the trenches, leaving a step where two clamps met.
+- **The clamp is solid** (user): walked round, not over (`solidtrans`, as the Kraut Barrel); its loot window still
+  opens from the next square.
+- Needs TP Core 0.1.54.
+
 ## 0.0.15
 - **The clamp** (ROADMAP section 8 phase 3; user, session 77; art `art/clamp_mock.png`): roots heaped on bare ground
   under straw, drainage trenches either side, a storage like the crates (no Info window, open the whole time, capacity
