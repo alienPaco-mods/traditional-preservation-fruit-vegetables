@@ -61,7 +61,7 @@ local function addClampMenu(context, playerObj, station)
     if earthed and celsius > M.SWEAT_C then note = note .. " <LINE> " .. say(KEY .. "ClampSweating", M.SWEAT_C) end
     UI.tooltip(status, note)
 
-    local shovel = UI.findItems(playerObj, isShovel)[1]
+    local shovel = UI.findItems(playerObj, isShovel, true)[1]
     addWorkRow(menu, playerObj, station, earthed and "unearth" or "earth", shovel)
     if itemCount(station) == 0 then addWorkRow(menu, playerObj, station, "level", shovel) end
 end
@@ -80,7 +80,7 @@ end
 -- clamp yet, greyed with the reason where the ground or the hay won't do. Returns true if it added the row.
 local function addDigRow(context, playerObj, square, test)
     if not square or square:getZ() ~= 0 or not square:isOutside() or TPClamp.clampOn(square) then return false end
-    local shovel = UI.findItems(playerObj, isShovel)[1]
+    local shovel = UI.findItems(playerObj, isShovel, true)[1]
     if not shovel then return false end
     if test then ISWorldObjectContextMenu.setTest() return true end
     local option = context:addOption(getText(MENU .. "DigClamp"), playerObj, onDig, square, shovel)

@@ -1,5 +1,10 @@
 # Changelog: Traditional Preservation (Fruits and Vegetables)
 
+## 0.0.20
+- **Fixed: a favourite shovel didn't count for the clamp** (Dig Clamp, earth, unearth, level): it is kept, so a
+  favourite is fine, as in vanilla's crafting. Needs TP Core 0.1.58.
+
+
 ## 0.0.19
 - **Docs:** README and guide say a storage's keeping factor counts on the stale days too (the code always did; the
   pole's x0.75 makes garlic's 30 stale days 40). Only the temperature stops mattering once a vegetable is stale.

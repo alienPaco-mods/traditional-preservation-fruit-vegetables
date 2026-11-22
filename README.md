@@ -1,4 +1,4 @@
-# Traditional Preservation (Fruits and Vegetables) — Build 42 prototype (v0.0.19)
+# Traditional Preservation (Fruits and Vegetables) — Build 42 prototype (v0.0.20)
 
 Vegetables kept the old way, without electricity. Built: **the root cellar** (vanilla vegetables keep by place, and
 potatoes, garlic, onions, sweet potatoes and pumpkins cure), **three storages** (Onion and Garlic Pole, Vegetable Crate (Hay), Vegetable Crate (Sand)) and garlic and onion **braids**, **the clamp** (roots kept outdoors under straw and soil through the winter), and **the kraut barrel** (cabbage and turnip soured in salt).
