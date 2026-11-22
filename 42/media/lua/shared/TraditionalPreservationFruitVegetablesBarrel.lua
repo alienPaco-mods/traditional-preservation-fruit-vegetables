@@ -11,7 +11,9 @@
 -- apples and carrots shared out over all the heads. The last
 -- portion, or emptying a spoiled barrel, gives the board and stone back (the cloth is used up). Out of the barrel a
 -- portion keeps by vanilla's clock; frozen through (TP Core's Frost, KRAUT_FREEZE_C) it goes soft: the days it has
--- left count 2/3 (user, session 76). Required by TraditionalPreservationFruitVegetables.lua.
+-- left count 2/3 (user, session 76). A head already stale when the barrel is sealed makes a soft portion (user,
+-- 2026-11-22: wilted cabbage gives a poor brine): in the barrel it keeps as a soft batch would, and the soft portions
+-- of a kind are taken first. Required by TraditionalPreservationFruitVegetables.lua.
 TraditionalPreservationFruitVegetables = TraditionalPreservationFruitVegetables or {}
 local M = TraditionalPreservationFruitVegetables
 local Weather = require "TraditionalPreservationCore/Weather"
@@ -160,13 +162,14 @@ function M.compressRefusal(barrel, have)
     if not have.stone then return "NoStone" end
 end
 
--- A packed piece as kept: its age, the hour it went in and its food. food: { hunger, calories, carbs, proteins, lipids }.
--- Until the barrel is salted and compressed a piece ages as it would lying out (vanilla's pace, Food Spoilage
--- included), so an unsealed barrel is no cold store: Unpack gives it back that much older.
-function M.pack(barrel, kind, age, food, hour)
+-- A packed piece as kept: its age, the hour it went in, its food and (a head) the age it goes stale at. food:
+-- { hunger, calories, carbs, proteins, lipids }. Until the barrel is salted and compressed a piece ages as it would
+-- lying out (vanilla's pace, Food Spoilage included), so an unsealed barrel is no cold store: Unpack gives it back
+-- that much older.
+function M.pack(barrel, kind, age, food, hour, offAge)
     barrel.stage = "Packing"
     barrel.heads = barrel.heads or {}
-    table.insert(barrel.heads, { kind = kind, age = age, hour = hour, food = food })
+    table.insert(barrel.heads, { kind = kind, age = age, hour = hour, food = food, offAge = offAge })
 end
 
 function M.packExtra(barrel, extra, age, food, hour)
@@ -179,6 +182,29 @@ end
 function M.packedAge(piece, now)
     if not piece.hour or not now then return piece.age end
     return piece.age + math.max(now - piece.hour, 0) / 24 * FluidAgeing.foodRotSpeed()
+end
+
+-- Whether a packed head is stale now (one packed before heads kept their stale age never is).
+function M.isStaleHead(head, now)
+    return head.offAge ~= nil and M.packedAge(head, now) > head.offAge
+end
+
+-- Stale heads in a packing barrel now, of one kind or (kind nil) all.
+function M.staleHeads(barrel, now, kind)
+    local count = 0
+    for _, head in ipairs(barrel.heads or {}) do
+        if (not kind or head.kind == kind) and M.isStaleHead(head, now) then count = count + 1 end
+    end
+    return count
+end
+
+-- Soft portions still in a sealed barrel from heads that were stale, of one kind or (kind nil) all.
+function M.softLeft(barrel, kind)
+    local count = 0
+    for softKind, n in pairs(barrel.softHeads or {}) do
+        if not kind or softKind == kind then count = count + n end
+    end
+    return count
 end
 
 local function clear(barrel)
@@ -223,15 +249,20 @@ function M.portionOf(barrel, kind)
     return portion
 end
 
--- Seals a packed barrel and starts the ferment: what was packed becomes its portions.
-function M.compress(barrel, ledger)
-    barrel.portion, barrel.portions, barrel.headCounts = {}, {}, {}
+-- Seals a packed barrel and starts the ferment: what was packed becomes its portions, the heads stale now its soft ones.
+function M.compress(barrel, ledger, now)
+    barrel.portion, barrel.portions, barrel.headCounts, barrel.softHeads = {}, {}, {}, nil
     for _, kind in ipairs(M.KRAUT_KINDS) do
         local count = M.headCount(barrel, kind)
         if count > 0 then
             barrel.portion[kind] = M.portionOf(barrel, kind)
             barrel.portions[kind] = count
             barrel.headCounts[kind] = count
+            local stale = M.staleHeads(barrel, now, kind)
+            if stale > 0 then
+                barrel.softHeads = barrel.softHeads or {}
+                barrel.softHeads[kind] = stale
+            end
         end
     end
     barrel.apples = M.extraCount(barrel, "apple")
@@ -295,11 +326,18 @@ function M.placeTemperatureAt(ledger, place)
 end
 
 -- Takes one portion of a kind out of a ready barrel: { portion, kind, ageShare (of its fresh days), soft, last }, or
--- nil. The last one of all empties the barrel.
+-- nil. The last one of all empties the barrel. A kind's soft portions (stale heads) come first: they have kept as a
+-- soft batch would, SOFT_KEEP faster, so they come out further on, past fresh once the barrel is two thirds through
+-- its keeping. A soft batch's portions are all soft already.
 function M.takePortion(barrel, kind)
     if M.barrelStage(barrel) ~= "Ready" or M.portionsLeft(barrel, kind) <= 0 then return nil end
     local taken = { portion = barrel.portion[kind], kind = kind, soft = barrel.soft == true,
         ageShare = math.min(barrel.keepDays / M.KEEP_DAYS, 1) }
+    if not barrel.soft and M.softLeft(barrel, kind) > 0 then
+        barrel.softHeads[kind] = barrel.softHeads[kind] - 1
+        taken.soft = true
+        taken.ageShare = math.min(barrel.keepDays * M.SOFT_KEEP / M.KEEP_DAYS, M.PORTION_DAYS[2] / M.PORTION_DAYS[1])
+    end
     barrel.portions[kind] = barrel.portions[kind] - 1
     if M.portionsLeft(barrel) <= 0 then
         taken.last = true

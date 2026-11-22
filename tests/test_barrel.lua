@@ -165,6 +165,33 @@ check("the turnips gone, the cabbage still there", M.takePortion(mixed, "turnip"
 for _ = 1, 19 do M.takePortion(mixed, "cabbage") end
 check("the last of all empties it", M.takePortion(mixed, "cabbage").last == true and M.barrelStage(mixed) == "Empty")
 
+-- Stale heads make soft kraut, head by head (user, 2026-11-22): 4 of 20 cabbages stale at sealing (one went stale
+-- while the barrel stood packed), 10 fresh turnips; the soft ones of a kind come out first, further on.
+local staled = {}
+for _ = 1, 3 do M.pack(staled, "cabbage", 8, CABBAGE, 100, 7) end
+M.pack(staled, "cabbage", 6.5, CABBAGE, 100, 7)
+for _ = 1, 16 do M.pack(staled, "cabbage", 1, CABBAGE, 100, 7) end
+for _ = 1, 10 do M.pack(staled, "turnip", 1, TURNIP, 100, 28) end
+M.pack(staled, "cabbage", 8, CABBAGE)
+check("stale heads while packing: 3 now, 4 a day later", M.staleHeads(staled, 100) == 3 and M.staleHeads(staled, 124) == 4)
+M.compress(staled, ledger, 124)
+check("sealed: 4 soft cabbages, no soft turnips (an old head without its stale age isn't counted)",
+    M.softLeft(staled, "cabbage") == 4 and M.softLeft(staled, "turnip") == 0 and M.softLeft(staled) == 4)
+staled.workHours = M.FERMENT_HOURS
+M.updateBarrel(staled, ledger, "Basement")
+staled.keepDays = 60
+local firstOut = M.takePortion(staled, "cabbage")
+check("the soft portions first, kept a soft batch's pace", firstOut.soft == true
+    and near(firstOut.ageShare, 60 * M.SOFT_KEEP / M.KEEP_DAYS) and M.softLeft(staled, "cabbage") == 3)
+for _ = 1, 3 do M.takePortion(staled, "cabbage") end
+local fifth = M.takePortion(staled, "cabbage")
+check("then the rest as usual", fifth.soft == false and near(fifth.ageShare, 60 / M.KEEP_DAYS) and M.softLeft(staled) == 0)
+check("a turnip from a fresh lot isn't soft", M.takePortion(staled, "turnip").soft == false)
+staled.keepDays = 170
+staled.softHeads = { cabbage = 1 }
+check("late in the barrel a soft portion comes out past fresh, never past rotten",
+    near(M.takePortion(staled, "cabbage").ageShare, 170 * M.SOFT_KEEP / M.KEEP_DAYS))
+
 -- A barrel by a fire is 28 C: too warm
 check("by a fire is too warm for kraut", M.hotRate(M.placeTemperatureAt(ledger, "Fireside")) == 1)
 

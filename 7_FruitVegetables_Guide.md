@@ -192,7 +192,7 @@ A standing oak barrel, narrower at the top, bound with iron: Fish & Meat's Salti
 
 | Row | Takes | Notes |
 |---|---|---|
-| **Pack Cabbage** / **Pack Turnip** | All (as many as you hold), or One | Cabbages and turnips mix. 20 heads at least, 60 at most (a bigger barrel waits the same weeks). Rotten heads won't do |
+| **Pack Cabbage** / **Pack Turnip** | All (as many as you hold), or One | Cabbages and turnips mix. 20 heads at least, 60 at most (a bigger barrel waits the same weeks). Rotten heads won't do; a head already stale when you seal it makes **soft** kraut (wilted cabbage gives a poor brine): its portion keeps two thirds as long and comes out first |
 | **Add Apple** / **Add Carrot** | All, or One | Up to one of each for every 5 heads. Their food goes into the kraut |
 | **Unpack the Barrel** | | Everything back. Only until it is salted and compressed. Packed but not sealed, they go on ageing as if left on the table: the barrel only keeps once it is sealed |
 | **Salt and Compress** | A use of salt per 5 heads, a cloth (ripped sheet, burlap or cheesecloth), a plank, a flat stone | The salt goes in and the kraut is pressed down under the cloth, the board and the stone until its own juice rises over it. **Sealed**: nothing more goes in |

@@ -327,6 +327,11 @@ function KrautUI.judgeDrop(barrel, items)
     judged.cells = Holds.filledCells({ share = cellsShare(heads) }) - Holds.filledCells({ share = cellsShare(M.headCount(barrel)) })
     if #judged.take > 0 then
         table.insert(judged.lines, say(KEY .. "DropPack", #judged.take))
+        local stale = 0
+        for _, item in ipairs(judged.take) do
+            if M.KRAUT_OF_HEAD[item:getFullType()] and item:getAge() > item:getOffAge() then stale = stale + 1 end
+        end
+        if stale > 0 then table.insert(judged.lines, say(KEY .. "DropStale", stale)) end
         judged.pattern = PATTERNS[(added.turnip or 0) > (added.cabbage or 0) and "turnip" or "cabbage"]
     end
     if refusal then
@@ -337,8 +342,10 @@ function KrautUI.judgeDrop(barrel, items)
     return judged
 end
 
--- The cells: the heads' share of a full barrel, cabbage and turnip split by share; what is dragged on packs while packing.
-function KrautUI.holding(barrel, drop)
+-- The cells: the heads' share of a full barrel, cabbage and turnip split by share; what is dragged on packs while
+-- packing. Under them the stale heads (their kraut will be soft), then once sealed the soft portions left. now: the
+-- hour (the game's when nil).
+function KrautUI.holding(barrel, drop, now)
     local stage = M.barrelStage(barrel)
     local cabbages, turnips = headsOf(barrel, "cabbage"), headsOf(barrel, "turnip")
     local heads = cabbages + turnips
@@ -359,6 +366,12 @@ function KrautUI.holding(barrel, drop)
         holding.parts, holding.colour = nil, SPOILED_COLOUR
     else
         holding.state = countsText({ { cabbages, "cabbage" }, { turnips, "turnip" } })
+    end
+    if stage == "Packing" then
+        local stale = M.staleHeads(barrel, now or getGameTime():getWorldAgeHours())
+        if stale > 0 then holding.under = say(KEY .. "HoldsStale", stale) end
+    elseif (stage == "Fermenting" or stage == "Ready") and not barrel.soft and M.softLeft(barrel) > 0 then
+        holding.under = say(KEY .. "HoldsSoft", M.softLeft(barrel))
     end
     local apples = barrel.apples or M.extraCount(barrel, "apple")
     local carrots = barrel.carrots or M.extraCount(barrel, "carrot")

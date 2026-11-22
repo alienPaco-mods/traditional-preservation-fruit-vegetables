@@ -77,6 +77,7 @@ local function food(fullType, age, hunger, calories)
     function item:getFullType() return self.fullType end
     function item:getAge() return self.age end
     function item:isRotten() return self.rotten == true end
+    function item:getOffAge() return self.offAge or 7 end
     function item:getHungChange() return hunger end
     function item:getCalories() return calories end
     function item:getCarbohydrates() return 1 end
@@ -274,13 +275,21 @@ check("ready but soft: amber, how long it keeps", word == "Soft" and text == "ke
 check("Speed and Too warm rows only while it ferments", #KrautUI.rows({ stage = "Fermenting", rate = 0.65, hotHours = 0 }) == 2
     and #KrautUI.rows({ stage = "Ready" }) == 0)
 
-local function piece(fullType, rotten)
-    return { getFullType = function() return fullType end, isRotten = function() return rotten == true end }
+local function piece(fullType, rotten, age)
+    return { getFullType = function() return fullType end, isRotten = function() return rotten == true end,
+        getAge = function() return age or 0 end, getOffAge = function() return 7 end }
 end
 local judged = KrautUI.judgeDrop(heads(4), { piece("Base.Apple"), piece("Base.Turnip"), piece("Base.Cabbage"), piece("Base.Steak") })
 check("a drag packs heads first, so their room lets an apple in; a steak is refused", #judged.take == 3
     and judged.take[3]:getFullType() == "Base.Apple" and judged.lines[1] == "Pack 3 in the barrel"
     and judged.refused == "Only cabbages, turnips, apples and carrots go in.")
+judged = KrautUI.judgeDrop(heads(4), { piece("Base.Cabbage", false, 9), piece("Base.Cabbage", false, 9), piece("Base.Cabbage") })
+check("stale heads in a drag say their kraut will be soft", #judged.take == 3 and judged.lines[2] == "2 stale: their kraut will be soft")
+local packing = heads(20)
+packing.heads[1].offAge, packing.heads[1].age = 7, 8
+check("a packing barrel shows its stale heads under the cells", KrautUI.holding(packing, nil, 100).under == "1 stale: soft kraut")
+check("a sealed barrel its soft portions left", KrautUI.holding({ stage = "Ready", portions = { cabbage = 20 }, headCounts = { cabbage = 20 },
+    softHeads = { cabbage = 3 } }).under == "3 soft, taken first")
 judged = KrautUI.judgeDrop(heads(4), { piece("Base.Turnip"), piece("Base.Turnip") })
 check("turnips dragged show in the turnip pattern", judged.pattern:find("TPCell_Turnip", 1, true) ~= nil)
 judged = KrautUI.judgeDrop(heads(60), { piece("Base.Cabbage") })

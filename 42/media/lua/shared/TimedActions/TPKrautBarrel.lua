@@ -89,7 +89,7 @@ function TPKrautBarrel:complete()
         if inInventory(self, self.item) and packRefusal(barrel, self.item) == nil then
             local kind = M.KRAUT_OF_HEAD[self.item:getFullType()]
             if kind then
-                M.pack(barrel, kind, self.item:getAge(), M.foodOf(self.item), now)
+                M.pack(barrel, kind, self.item:getAge(), M.foodOf(self.item), now, self.item:getOffAge())
             else
                 M.packExtra(barrel, M.EXTRA_OF_TYPE[self.item:getFullType()], self.item:getAge(), M.foodOf(self.item), now)
             end
@@ -110,7 +110,7 @@ function TPKrautBarrel:complete()
             Action.removeItem(kit.stone)
             -- Packing's xp comes here, not as each piece goes in: Unpack gives them back, so packing again would pay again.
             local pieces = M.headCount(barrel) + M.extraCount(barrel, "apple") + M.extraCount(barrel, "carrot")
-            M.compress(barrel, M.getLedger())
+            M.compress(barrel, M.getLedger(), now)
             character:getXp():AddXP(Perks.Cooking, M.COMPRESS_XP + M.PACK_XP * pieces)
         end
     elseif self.mode == "take" then

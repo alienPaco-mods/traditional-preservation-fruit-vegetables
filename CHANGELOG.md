@@ -1,5 +1,12 @@
 # Changelog: Traditional Preservation (Fruits and Vegetables)
 
+## 0.0.21
+- **Stale heads make soft kraut, head by head** (user, 2026-11-22: wilted cabbage gives a poor brine). A head
+  already stale at Salt and Compress makes a soft portion: in the barrel it keeps as a soft batch does (2/3 as long),
+  and a kind's soft portions are taken first. A mixed batch comes out mixed. Kraut Barrel Info shows the stale heads
+  under the cells while packing (a drag says how many it holds), then the soft portions left. Heads packed before
+  this version and batches already sealed are as before. README, guide; tests in `test_barrel.lua`, `test_menu.lua`.
+
 ## 0.0.20
 - **Fixed: a favourite shovel didn't count for the clamp** (Dig Clamp, earth, unearth, level): it is kept, so a
   favourite is fine, as in vanilla's crafting. Needs TP Core 0.1.58.
