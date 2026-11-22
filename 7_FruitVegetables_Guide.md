@@ -71,7 +71,7 @@ Every vegetable below keeps by the temperature of where it is. These are its **d
 
 - **Never worse than vanilla.** A vegetable in a warm room keeps vanilla's days (a cabbage a week: vanilla's two days are no real cabbage's); anywhere cooler keeps longer.
 - **Colder than a fridge counts as a fridge**, until it freezes (below). Sweet potatoes and pumpkins hate the cold: below about 10 C they chill, so a fridge or a cold basement is the wrong place for them.
-- **Stale, it goes off in weeks, wherever it is.** Cold buys the fresh days only. Once stale, a vegetable rots in its own days, a cellar no help: potato 45, turnip, sugar beet and garlic 30, carrots, cabbage and onion 21, leek 10, sweet potato and pumpkin 14. A potato from the basement rots about 195 days after it was dug; left in a warm room, 73.
+- **Stale, it goes off in weeks, whatever the temperature.** Cold buys the fresh days only. Once stale, a vegetable rots in its own days, a cellar no help; a storage still helps a little (the pole's air, a crate's packing that stops rot spreading), at its usual factor: potato 45, turnip, sugar beet and garlic 30, carrots, cabbage and onion 21, leek 10, sweet potato and pumpkin 14. A potato from the basement rots about 195 days after it was dug; left in a warm room, 73.
 - **A powered freezer stops the clock**, as in vanilla.
 - **Garlic and onions hate the damp.** A basement is the wrong place for them: hang them in a dry room. Garlic sprouts in a fridge, too, but keeps best of all in a cold, dry room upstairs, as long as it doesn't freeze hard.
 - **Sweet potatoes and pumpkins hate the cold.** Below about 10 C a sweet potato is chilled and a pumpkin rots in the damp: a cool room suits them better than the basement.

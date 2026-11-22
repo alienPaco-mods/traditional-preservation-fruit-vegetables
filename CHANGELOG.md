@@ -1,6 +1,8 @@
 # Changelog: Traditional Preservation (Fruits and Vegetables)
 
 ## 0.0.19
+- **Docs:** README and guide say a storage's keeping factor counts on the stale days too (the code always did; the
+  pole's x0.75 makes garlic's 30 stale days 40). Only the temperature stops mattering once a vegetable is stale.
 - **A vegetable's tooltip says how it keeps** (user, 2026-11-21): TP Core's keeping lines (how long it keeps where it
   is, the temperature, how fast it ages), then the storage it lies in with its factors ("In the Onion and Garlic Pole:
   ageing x0.75, curing x1.5") and its cure ("Curing (dry): 40%, about 6 days more here", "not curing here", "Cured

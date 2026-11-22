@@ -35,8 +35,9 @@ Days fresh at a temperature. The warm room is vanilla's days, except a cabbage's
   pumpkin: chilled below about 10 C, a fridge is no better for them than a cold basement (user, session 78). Frost is
   apart from that (below).
 - **Stale to rotten** (user, session 78: realism the goal): cold storage buys the fresh days; once stale, a vegetable
-  goes off in its own days at a day a day wherever it is, only frost stopping it (`M.STALE_DAYS`, TP Core's
-  PlaceKeeping `staleShare`, `M.STALE_SHARE` 0): potato 45, turnip, sugar beet, garlic 30, carrots, cabbage, onion 21,
+  goes off in its own days at a day a day whatever the temperature (`M.STALE_DAYS`, TP Core's PlaceKeeping
+  `staleShare`, `M.STALE_SHARE` 0); only frost and a storage change that (the pole, a crate: air round each bulb, or
+  packing that keeps one rotting root from spreading to the next, so its keeping factor counts on the stale days too): potato 45, turnip, sugar beet, garlic 30, carrots, cabbage, onion 21,
   leek 10, sweet potato, pumpkin 14. That replaces vanilla's rotten day (a potato's 280 left a cellar potato stale
   for years): a potato rots 73 days after it is new in a warm room, 195 in a basement (cured 255).
 - Where it is goes by Core's places: a shut room is the 3-day mean, warmer in winter and stuffy in summer, an aired
