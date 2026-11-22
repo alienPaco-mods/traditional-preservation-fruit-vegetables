@@ -84,5 +84,13 @@
   "IGUI_TraditionalPreservationFruitVegetables_DigClampHelp": "Dig drainage trenches either side and heap straw for a clamp, to keep potatoes, turnips, sugar beets, carrots and cabbages through the winter outdoors. Takes %1 hay.",
   "IGUI_TraditionalPreservationFruitVegetables_ClampNoGround": "Needs bare dirt under the open sky, where a furrow could be dug.",
   "IGUI_TraditionalPreservationFruitVegetables_ClampNoHay": "Needs %1 hay.",
-  "IGUI_TraditionalPreservationFruitVegetables_ClampGrass": "Remove the grass first."
+  "IGUI_TraditionalPreservationFruitVegetables_ClampGrass": "Remove the grass first.",
+  "IGUI_TraditionalPreservationFruitVegetables_KeepIn": "In the %1: ageing x%2",
+  "IGUI_TraditionalPreservationFruitVegetables_KeepInCure": "In the %1: ageing x%2, curing x%3",
+  "IGUI_TraditionalPreservationFruitVegetables_Curing": "Curing (%1): %2, %3 more here",
+  "IGUI_TraditionalPreservationFruitVegetables_CuringWaits": "Curing (%1): %2, not curing here",
+  "IGUI_TraditionalPreservationFruitVegetables_Cured": "Cured (%1)",
+  "IGUI_TraditionalPreservationFruitVegetables_CureKind_warm": "warm",
+  "IGUI_TraditionalPreservationFruitVegetables_CureKind_hot": "hot",
+  "IGUI_TraditionalPreservationFruitVegetables_CureKind_dry": "dry"
 }

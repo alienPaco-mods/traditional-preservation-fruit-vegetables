@@ -62,8 +62,13 @@ for _, name in ipairs(M.CROP_NAMES) do
         worst = math.max(worst, crop.keeper.ageRate(celsius))
         if crop.curedKeeper then worst = math.max(worst, crop.curedKeeper.ageRate(celsius)) end
     end
-    check(name .. ": a fridge never worse than vanilla's (0.2 a day)", crop.keeper.ageRate(4) <= M.VANILLA_FRIDGE_RATE + 1e-9)
+    if not crop.chills then
+        check(name .. ": a fridge never worse than vanilla's (0.2 a day)", crop.keeper.ageRate(4) <= M.VANILLA_FRIDGE_RATE + 1e-9)
+    end
 end
+check("a sweet potato and a pumpkin chill (user, session 78): a fridge no better than the basement, cured or not",
+    near(M.daysFresh(CROPS.sweetPotato, 4), 30) and near(M.daysFresh(CROPS.sweetPotato, 4, true), 45)
+    and near(M.daysFresh(CROPS.pumpkin, 4), 30) and near(M.daysFresh(CROPS.pumpkin, 4, true), 60))
 check("no crop anywhere ages faster than vanilla", worst <= 1 + 1e-9)
 check("hotter than a warm room is a warm room (vanilla's for a potato), colder than a fridge is a fridge",
     CROPS.cabbage.keeper.ageRate(35) == 2 / 7 and CROPS.potato.keeper.ageRate(35) == 1 and CROPS.cabbage.keeper.ageRate(-10) == CROPS.cabbage.keeper.ageRate(4))
@@ -74,7 +79,8 @@ ledger.seasonTemperature, ledger.groundTemperature, ledger.temperature = 5, 5, 5
 local cabbage = vegetable("Base.Cabbage", 2, 4, 0.5)
 M.keepVegetable(cabbage, 0, "Basement")
 check("the first look starts its clock from the age it has", cabbage.modData[M.CELLAR_KEY].base == 0.5)
-check("vanilla's days are left alone", cabbage.offAge == 2 and cabbage.offAgeMax == 4)
+check("its fresh days are vanilla's, rotten its stale days after (user, session 78)", cabbage.offAge == 2
+    and cabbage.offAgeMax == 2 + M.STALE_DAYS.cabbage)
 local basementRate = CROPS.cabbage.keeper.rate("Basement", ledger)
 CROPS.cabbage.keeper.recordWeather(240, 5)
 cabbage.age = 10   -- vanilla's own clock ran on between looks
@@ -352,6 +358,7 @@ M.keepVegetable(cellarPotato, hour, "Basement")
 check("the first look starts a frost record", openPotato.modData[M.FROST_KEY] ~= nil and openPotato.modData[M.FROST_KEY].age == 0)
 local function keptAge(item)
     local clock = item.modData[M.keeperOf(item).keepingRules.modDataKey]
+    if clock.stale then return item.offAge + clock.stale.age / 24 end
     return clock.base + clock.fluidAge.age / 24
 end
 local before = {}
@@ -363,15 +370,35 @@ SandboxVars = nil
 local keepingOnly = offPotato.age - before[offPotato]
 for _, item in ipairs({ openPotato, leekOut, hayPotato }) do M.keepVegetable(item, hour, "Open") end
 M.keepVegetable(cellarPotato, hour, "Basement")
-check("three hours at -5 C in the open cost a potato a quarter of its life to rotten (42 days: 10.5)",
-    near(openPotato.age - before[openPotato], keepingOnly + 3 / 12 * 42, 0.05))
-check("in a hay crate half of that", near(hayPotato.age - before[hayPotato], keepingOnly * 0.75 + 1.5 / 12 * 42, 0.05))
+local rotten = openPotato.offAgeMax
+check("three hours at -5 C in the open cost a potato a quarter of its life to rotten (28 + 45 stale days: 18.25)",
+    rotten == 28 + M.STALE_DAYS.potato and near(openPotato.age - before[openPotato], keepingOnly + 3 / 12 * rotten, 0.05))
+check("in a hay crate half of that", near(hayPotato.age - before[hayPotato], keepingOnly * 0.75 + 1.5 / 12 * rotten, 0.05))
 check("a leek takes no harm at -5 C", leekOut.age - before[leekOut] < 0.5)
 check("a basement never freezes", cellarPotato.age - before[cellarPotato] < 0.5)
 check("the sandbox off: frost does no harm, but the record goes on", keepingOnly < 0.5 and offPotato.modData[M.FROST_KEY].age > 2.9)
 check("the keeping clock carries the frost, so the next look keeps it", near(keptAge(openPotato), openPotato.age, 1e-6))
 frostWeather(24, -5)
 M.keepVegetable(openPotato, hour, "Open")
-check("a day of frost: rotten, and no older than that", near(openPotato.age, 42, 1e-6))
+check("a day of frost: rotten, and no older than that", near(openPotato.age, rotten, 1e-6))
+
+-- The tooltip's forecast (M.forecast): read-only, its storage's factors in, the cure's progress and time left here.
+local pole = container("dryingpole")
+local loose, hung = vegetable("Base.Garlic", 14, 28), vegetable("Base.Garlic", 14, 28)
+hung.container = pole
+local looseView, hungView = M.forecast(loose, "Covered"), M.forecast(hung, "Covered")
+check("garlic on the pole: in the pole, ageing three quarters as fast as loose", hungView.storage == "pole"
+    and looseView.storage == nil and near(hungView.rate, looseView.rate * 0.75))
+check("and drying half again as fast: two thirds of the time left", looseView.cure.kind == "dry"
+    and near(hungView.cure.hoursLeft, looseView.cure.hoursLeft / 1.5) and hungView.cure.share == 0)
+check("the forecast changes nothing", hung.age == 0 and hung.modData[M.CURING_KEY] == nil and hung.modData[M.CELLAR_KEY] == nil)
+check("in a basement the dry cure waits", M.forecast(loose, "Basement").cure.hoursLeft == nil)
+local done = vegetable("Base.Garlic", 14, 28)
+done.modData[M.CURED] = true
+check("cured garlic says so", M.forecast(done, "Covered").cure.cured == true)
+check("a cabbage has no cure", M.forecast(vegetable("Base.Cabbage", 2, 5), "Basement").cure == nil)
+local cookedGarlic = vegetable("Base.Garlic", 14, 28)
+cookedGarlic.cooked = true
+check("a cooked one isn't kept: no forecast", M.forecast(cookedGarlic, "Covered") == nil)
 
 H.done()

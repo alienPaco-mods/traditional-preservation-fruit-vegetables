@@ -2,6 +2,7 @@
 -- take kraut out, empty a spoiled one) and its Info window (TP Core's InfoWindow), opened from the menu; Braid and Unbraid on garlic and onions; the door rule for the barrel and the storages; and the cellar's
 -- look at vegetables (TP Core's PlaceKeepingUI).
 local UI = require "TraditionalPreservationCore/UI"
+local KeepingTooltip = require "TraditionalPreservationCore/KeepingTooltip"
 local InfoWindow = require "TraditionalPreservationCore/InfoWindow"
 local StationReport = require "TraditionalPreservationCore/StationReport"
 local PlaceKeepingUI = require "TraditionalPreservationCore/PlaceKeepingUI"
@@ -553,3 +554,39 @@ end
 PlaceKeepingUI.watch({ keep = M.keepVegetable }, M.CROP_OF_TYPE)
 -- Kraut out of the barrel catches up on its frost the same way.
 PlaceKeepingUI.watch({ keep = M.keepKraut }, M.KRAUT_OF_PRODUCT)
+
+-- A vegetable's tooltip (TP Core's KeepingTooltip): how long it keeps where it is, then the storage it lies in (its
+-- ageing and curing factors) and its cure's progress.
+local function factorText(factor)
+    return (string.format("%.2f", factor):gsub("0+$", ""):gsub("%.$", ""))
+end
+
+local function vegetableLines(item)
+    local forecast = M.forecast(item)
+    local lines = forecast and KeepingTooltip.forecastLines(forecast)
+    if not lines then return nil end
+    local crop = M.CROP_OF_TYPE[item:getFullType()]
+    if forecast.storage then
+        local name = getText("IGUI_ContainerTitle_" .. Tiles.STORAGES[forecast.storage].container)
+        local keep = factorText(M.storageKeepFactor(crop, forecast.storage))
+        if crop.cure and not (forecast.cure and forecast.cure.cured) then
+            table.insert(lines, say(KEY .. "KeepInCure", name, keep, factorText(M.storageCureFactor(crop, forecast.storage))))
+        else
+            table.insert(lines, say(KEY .. "KeepIn", name, keep))
+        end
+    end
+    local cure = forecast.cure
+    if cure then
+        local kind = getText(KEY .. "CureKind_" .. cure.kind)
+        if cure.cured then
+            table.insert(lines, say(KEY .. "Cured", kind))
+        elseif cure.hoursLeft then
+            table.insert(lines, say(KEY .. "Curing", kind, UI.percent(cure.share), UI.durationText(cure.hoursLeft)))
+        else
+            table.insert(lines, say(KEY .. "CuringWaits", kind, UI.percent(cure.share)))
+        end
+    end
+    return lines
+end
+
+KeepingTooltip.add(M.CROP_OF_TYPE, vegetableLines)

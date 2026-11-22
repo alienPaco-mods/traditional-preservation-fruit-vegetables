@@ -67,6 +67,8 @@ local function vegetable(fullType, offAge, offAgeMax)
     function self:getFullType() return self.fullType end
     function self:getOffAge() return self.offAge end
     function self:getOffAgeMax() return self.offAgeMax end
+    function self:setOffAge(x) self.offAge = x end
+    function self:setOffAgeMax(x) self.offAgeMax = x end
     function self:getAge() return self.age end
     function self:setAge(x) self.age = x end
     function self:getModData() return self.modData end

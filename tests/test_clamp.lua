@@ -25,10 +25,12 @@ local function clamp(earthed)
 end
 
 local function vegetable(fullType, container)
-    local self = { fullType = fullType, age = 0, modData = {}, container = container }
+    local self = { fullType = fullType, age = 0, modData = {}, container = container, offAge = 6, offAgeMax = 8 }
     function self:getFullType() return self.fullType end
-    function self:getOffAge() return 6 end
-    function self:getOffAgeMax() return 8 end
+    function self:getOffAge() return self.offAge end
+    function self:getOffAgeMax() return self.offAgeMax end
+    function self:setOffAge(x) self.offAge = x end
+    function self:setOffAgeMax(x) self.offAgeMax = x end
     function self:getAge() return self.age end
     function self:setAge(x) self.age = x end
     function self:getModData() return self.modData end

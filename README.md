@@ -1,4 +1,4 @@
-# Traditional Preservation (Fruits and Vegetables) — Build 42 prototype (v0.0.18)
+# Traditional Preservation (Fruits and Vegetables) — Build 42 prototype (v0.0.19)
 
 Vegetables kept the old way, without electricity. Built: **the root cellar** (vanilla vegetables keep by place, and
 potatoes, garlic, onions, sweet potatoes and pumpkins cure), **three storages** (Onion and Garlic Pole, Vegetable Crate (Hay), Vegetable Crate (Sand)) and garlic and onion **braids**, **the clamp** (roots kept outdoors under straw and soil through the winter), and **the kraut barrel** (cabbage and turnip soured in salt).
@@ -7,9 +7,12 @@ potatoes, garlic, onions, sweet potatoes and pumpkins cure), **three storages** 
 
 Every vanilla **Potato, Turnip, Sugar Beet, Carrot, Cabbage, Leek, Garlic, Onion, Sweet Potato and Pumpkin**, found or grown, keeps by the
 temperature of where it is (TP Core's `PlaceKeeping` and its places, as Fish & Meat's Potted Meat and Dairy's butter).
-There is no station: a basement is the cellar.
+There is no station: a basement is the cellar. A vegetable's tooltip says how long it keeps where it is and how fast
+it ages there (TP Core's keeping lines; sandbox *Keeping in item tooltips*), then, in a storage, its factors (*In the
+Onion and Garlic Pole: ageing x0.75, curing x1.5*) and, for one that cures, how far along it is (*Curing (dry): 40%,
+about 6 days more here*, *not curing here* where it can't, *Cured (dry)*). Read from `M.forecast(item, place)`.
 
-Days fresh at a temperature (rotten follows at vanilla's own fresh-to-rotten ratio). The warm room is vanilla's days, except a cabbage's 7 (vanilla's 2 is too short; user, 2026-11-18):
+Days fresh at a temperature. The warm room is vanilla's days, except a cabbage's 7 (vanilla's 2 is too short; user, 2026-11-18):
 
 | Crop | Warm room 22 C | Cool room 15 C | Basement 8 C | Fridge 4 C | Vanilla |
 |---|---|---|---|---|---|
@@ -21,14 +24,21 @@ Days fresh at a temperature (rotten follows at vanilla's own fresh-to-rotten rat
 | Leek | 5 | 10 | 60 | 60 | 5 |
 | Garlic, Onion | 14 | 28 | 30 (too damp) | 70 | 14 |
 | Garlic, Onion cured | 90 | 180 | 60 | onion 180, garlic 70 (it sprouts); garlic 210 at 0 C (an unheated room in winter) | |
-| Sweet Potato | 28 | 120 | 30 (chilled) | 140 | 28 |
-| Sweet Potato cured | 56 | 240 | 45 (chilled) | 140 | |
-| Pumpkin | 30 | 45 | 30 (too damp) | 70 | 14 |
+| Sweet Potato | 28 | 120 | 30 (chilled) | 30 (chilled) | 28 |
+| Sweet Potato cured | 56 | 240 | 45 (chilled) | 45 (chilled) | |
+| Pumpkin | 30 | 45 | 30 (too damp) | 30 (chilled) | 14 |
 | Pumpkin cured | twice the uncured everywhere | | | | |
 
 - A day counts as vanilla's days fresh over the place's, on straight lines between the four temperatures. Warmer than
-  22 C counts as 22 C; colder than 4 C counts as 4 C. **No place keeps worse than vanilla**, and a
-  powered fridge never worse than vanilla's fridge at its default (a day counts 0.2). Frost is apart from that (below).
+  22 C counts as 22 C; colder than 4 C counts as 4 C. **No place keeps its fresh days worse than vanilla**, and a
+  powered fridge never worse than vanilla's fridge at its default (a day counts 0.2), except for a sweet potato and a
+  pumpkin: chilled below about 10 C, a fridge is no better for them than a cold basement (user, session 78). Frost is
+  apart from that (below).
+- **Stale to rotten** (user, session 78: realism the goal): cold storage buys the fresh days; once stale, a vegetable
+  goes off in its own days at a day a day wherever it is, only frost stopping it (`M.STALE_DAYS`, TP Core's
+  PlaceKeeping `staleShare`, `M.STALE_SHARE` 0): potato 45, turnip, sugar beet, garlic 30, carrots, cabbage, onion 21,
+  leek 10, sweet potato, pumpkin 14. That replaces vanilla's rotten day (a potato's 280 left a cellar potato stale
+  for years): a potato rots 73 days after it is new in a warm room, 195 in a basement (cured 255).
 - Where it is goes by Core's places: a shut room is the 3-day mean, warmer in winter and stuffy in summer, an aired
   room (a window open) the day's mean (both 22 C with the grid on), a basement the ground's 30-day mean a month behind
   (about 5 C in late winter, 13 C in late summer), under a roof the hour's air, a powered fridge 4 C, a freezer stops
@@ -51,12 +61,12 @@ Days fresh at a temperature (rotten follows at vanilla's own fresh-to-rotten rat
   cure somewhere dry they already keep by the cured days (curing is drying), and once cured they keep by them in a
   damp place too.
 - **Frost** (`M.FROST_RUIN_HOURS`, TP Core's Frost): each crop freezes at its own point, and every hour at or below it,
-  by Core's place temperature, moves it 1/12 of the way to rotten (vanilla's DaysTotallyRotten), so 12 hours ruin it;
+  by Core's place temperature, moves it 1/12 of the way to rotten (its fresh days plus its stale days), so 12 hours ruin it;
   never past rotten. Potato, sweet potato, pumpkin -1 C; carrots, sugar beet, turnip -1.5 C; cabbage -3 C; garlic and
   onion -3.5 C (braids too: the bulbs inside freeze); leek -10 C. A basement never freezes, nor a place by a lit fire
   or banked embers while the noted fuel lasts; a powered fridge never, a powered freezer keeps vanilla's rules; a
   Vegetable Crate (Hay) counts half the hours. Loot too, from its first look (vanilla has already aged it from the
-  apocalypse). Since a potato's rotten is 280 days, one or two hours of frost already make it stale.
+  apocalypse). An hour costs a potato about 6 days of its life, a carrot about 2.
   In an unheated house that means November for potatoes and December for most crops; a leek lasts the winter
   everywhere but the open.
 - Cooked or burnt vegetables go by vanilla's clock. The sandbox's *Vegetables keep by place* (on) turns it all off,

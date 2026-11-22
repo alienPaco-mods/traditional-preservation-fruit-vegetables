@@ -131,8 +131,9 @@ function M.sweat(item, now, keeper, clock)
         itemModData[M.SWEAT_KEY] = nil
     end
     if hours > 0 then
-        clock.fluidAge.age = clock.fluidAge.age + hours
-        item:setAge(clock.base + clock.fluidAge.age / 24)
+        local active = keeper.active(clock)
+        active.age = active.age + hours
+        keeper.settle(item, clock)
     end
     return hours
 end

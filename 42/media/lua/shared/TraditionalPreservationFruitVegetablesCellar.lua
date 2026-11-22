@@ -26,7 +26,9 @@ local Fire = require "TraditionalPreservationCore/Fire"
 local Frost = require "TraditionalPreservationCore/Frost"
 
 M.CELLAR_TEMPERATURES = { 4, 8, 15, 22 }
--- Vanilla's fridge, at the sandbox's default Fridge Effectiveness: a day counts as 0.2.
+-- Vanilla's fridge, at the sandbox's default Fridge Effectiveness: a day counts as 0.2. A crop's 4 C keeps at least
+-- that well, except a chilled crop's (chills: a sweet potato and a pumpkin are hurt below about 10 C, so a fridge is
+-- no better than the basement for them; user, session 78).
 M.VANILLA_FRIDGE_RATE = 0.2
 
 -- Days fresh at 4, 8, 15 and 22 C; vanilla is its script's DaysFresh (22 C uses it). cured: the cured crop's days.
@@ -50,10 +52,10 @@ M.CROPS = {
     -- keeps best at 13 to 15 C, a pumpkin rots in a damp cellar; cured, both keep twice as long.
     -- A sweet potato is chilled below 10 C (a hard, rotting core within weeks): a cold basement is the wrong place
     -- even cured. A cured pumpkin keeps 2 months in a warm room (user, 2026-11-18).
-    sweetPotato = { fullType = "Base.SweetPotato", vanilla = 28, days = { 140, 30, 120, 28 }, cure = "hot",
-        cureHours = 7 * 24, cured = { 140, 45, 240, 56 }, freezeC = -1 },
-    pumpkin = { fullType = "Base.Pumpkin", vanilla = 14, days = { 70, 30, 45, 30 }, cure = "hot",
-        cureHours = 10 * 24, curedShare = 0.5, freezeC = -1 },
+    sweetPotato = { fullType = "Base.SweetPotato", vanilla = 28, days = { 30, 30, 120, 28 }, cure = "hot",
+        cureHours = 7 * 24, cured = { 45, 45, 240, 56 }, freezeC = -1, chills = true },
+    pumpkin = { fullType = "Base.Pumpkin", vanilla = 14, days = { 30, 30, 45, 30 }, cure = "hot",
+        cureHours = 10 * 24, curedShare = 0.5, freezeC = -1, chills = true },
 }
 M.CROP_NAMES = {}
 for name in pairs(M.CROPS) do table.insert(M.CROP_NAMES, name) end
@@ -100,21 +102,32 @@ function M.frostDamage()
 end
 
 -- A curve of days of vanilla age a day counts as, from days fresh at M.CELLAR_TEMPERATURES. Never faster than
--- vanilla, nor than vanilla's fridge at 4 C.
-function M.cellarCurve(vanilla, days)
+-- vanilla, nor than vanilla's fridge at 4 C unless the crop chills.
+function M.cellarCurve(vanilla, days, chills)
     local curve = {}
     for index, celsius in ipairs(M.CELLAR_TEMPERATURES) do
         local rate = math.min(vanilla / days[index], 1)
-        if index == 1 then rate = math.min(rate, M.VANILLA_FRIDGE_RATE) end
+        if index == 1 and not chills then rate = math.min(rate, M.VANILLA_FRIDGE_RATE) end
         table.insert(curve, { celsius, rate })
     end
     return curve
 end
 
-local function newKeeper(name, suffix, curve, modDataKey)
+-- Days from stale to rotten, every crop's own, at a day a day wherever it lies (TP Core's PlaceKeeping staleShare,
+-- M.STALE_SHARE); only frost stops them. In place of vanilla's rotten day (user, session 78: realism the goal, vanilla's
+-- 280 for a potato left a cellar's potato stale for years). How long each goes off once its storage life is over:
+-- sprouting and softening, shrivelling, rot spreading (my estimates, by the commercial storage tables' descriptions).
+M.STALE_DAYS = { potato = 45, turnip = 30, sugarBeet = 30, carrots = 21, cabbage = 21, leek = 10, garlic = 30, onion = 21,
+    sweetPotato = 14, pumpkin = 14 }
+-- The share of a place's slowing that still holds once stale: 0, none (user, session 78: at half, a cellar potato
+-- still ended near vanilla's 280).
+M.STALE_SHARE = 0
+
+local function newKeeper(name, suffix, curve, modDataKey, crop)
     return PlaceKeeping.new({
         process = name .. suffix, curve = curve, ledgerKey = M.CELLAR_LEDGER_KEY .. name .. suffix,
-        modDataKey = modDataKey, enabled = M.cellarByPlace,
+        modDataKey = modDataKey, enabled = M.cellarByPlace, staleShare = M.STALE_SHARE,
+        days = { [crop.fullType] = { crop.vanilla, crop.vanilla + M.STALE_DAYS[name] } },
     })
 end
 
@@ -122,15 +135,15 @@ end
 for name, crop in pairs(M.CROPS) do
     crop.name = name
     crop.frost = Frost.point(crop.freezeC)
-    crop.keeper = newKeeper(name, "", M.cellarCurve(crop.vanilla, crop.days), M.CELLAR_KEY)
+    crop.keeper = newKeeper(name, "", M.cellarCurve(crop.vanilla, crop.days, crop.chills), M.CELLAR_KEY, crop)
     if crop.curedShare then
         local curve = {}
         for _, point in ipairs(crop.keeper.keepingRules.curve) do table.insert(curve, { point[1], point[2] * crop.curedShare }) end
-        crop.curedKeeper = newKeeper(name, "Cured", curve, M.CURED_KEY)
+        crop.curedKeeper = newKeeper(name, "Cured", curve, M.CURED_KEY, crop)
     elseif crop.cured then
-        local curve = M.cellarCurve(crop.vanilla, crop.cured)
+        local curve = M.cellarCurve(crop.vanilla, crop.cured, crop.chills)
         if crop.curedAtZero then table.insert(curve, 1, { 0, crop.vanilla / crop.curedAtZero }) end
-        crop.curedKeeper = newKeeper(name, "Cured", curve, M.CURED_KEY)
+        crop.curedKeeper = newKeeper(name, "Cured", curve, M.CURED_KEY, crop)
     end
 end
 
@@ -327,13 +340,16 @@ function M.keepVegetable(item, now, place)
     -- The storage it lay in since the last look counts for that stretch, as its place does.
     local storedIn = itemModData[M.STORED_KEY]
     itemModData[M.STORED_KEY] = M.storageOf(item)
+    -- The storage's factor on this stretch, on whichever clock it ran (fresh, or stale once it was).
     local held = itemModData[keeper.keepingRules.modDataKey]
-    local ageBefore = held and held.fluidAge.age
+    local wasStale = held and held.stale ~= nil
+    local ageBefore = held and keeper.active(held).age
     local clock = keeper.keep(item, now, place)
     local keepFactor = M.storageKeepFactor(crop, storedIn)
-    if ageBefore and keepFactor ~= 1 then
-        clock.fluidAge.age = ageBefore + (clock.fluidAge.age - ageBefore) * keepFactor
-        item:setAge(clock.base + clock.fluidAge.age / 24)
+    if ageBefore and keepFactor ~= 1 and (clock.stale ~= nil) == wasStale then
+        local active = keeper.active(clock)
+        active.age = ageBefore + (active.age - ageBefore) * keepFactor
+        keeper.settle(item, clock)
     end
     -- Earthed over in a clamp while warm, it sweats (...Clamp.lua).
     M.sweat(item, now, keeper, clock)
@@ -351,6 +367,34 @@ function M.keepVegetable(item, now, place)
     local wantedClock = wanted.keep(item, now, place)
     if wantedClock then copyFire(seen, wantedClock.fluidAge) end
     return wantedClock
+end
+
+-- What a vegetable faces where it is now, read-only (its tooltip's; the age and cure as at its last look): its
+-- keeper's forecast (TP Core's PlaceKeeping) with its storage's keeping factor, and storage (nil: none); for a crop that
+-- cures, cure = { kind, cured } or { kind, share (0 to 1), hoursLeft (nil while it doesn't cure here) }. Nil when it
+-- isn't kept (as keepVegetable).
+function M.forecast(item, place)
+    local crop = M.CROP_OF_TYPE[item:getFullType()]
+    if not crop or not M.cellarByPlace() or item:isCooked() or item:isBurnt() then return nil end
+    local storage = M.storageOf(item)
+    place = place or FluidAgeing.placeOfItem(item)
+    local forecast = M.keeperOf(item).forecast(item, place, M.storageKeepFactor(crop, storage))
+    forecast.storage = storage
+    if not crop.cure then return forecast end
+    local itemModData = item:getModData()
+    if itemModData[M.CURED] then
+        forecast.cure = { kind = crop.cure, cured = true }
+        return forecast
+    end
+    local rule = M.CURES[crop.cure]
+    local hours = crop.cureHours or rule.hours
+    local curing = itemModData[M.CURING_KEY]
+    local done = curing and curing.age or 0
+    local perHour = forecast.celsius and rule.ageing.rate(forecast.celsius) or 0
+    perHour = perHour * M.storageCureFactor(crop, storage) * (rule.places and M.dryCurePlace(forecast.place) or 1)
+    forecast.cure = { kind = crop.cure, share = math.min(done / hours, 1),
+        hoursLeft = perHour > 0 and math.max(hours - done, 0) / perHour or nil }
+    return forecast
 end
 
 -- Days fresh a crop keeps at a temperature, cured or not (the console's and the report's).

@@ -1,5 +1,22 @@
 # Changelog: Traditional Preservation (Fruits and Vegetables)
 
+## 0.0.19
+- **A vegetable's tooltip says how it keeps** (user, 2026-11-21): TP Core's keeping lines (how long it keeps where it
+  is, the temperature, how fast it ages), then the storage it lies in with its factors ("In the Onion and Garlic Pole:
+  ageing x0.75, curing x1.5") and its cure ("Curing (dry): 40%, about 6 days more here", "not curing here", "Cured
+  (dry)"). Read-only, from the new `M.forecast(item, place)`; tests in `test_cellar.lua`. Needs TP Core 0.1.57.
+- **Stale vegetables go off in weeks, not years** (user, session 78: realism the goal, from the tooltip's "rotten in
+  about 1327 days" for a fridge potato). Each crop's rotten day is its fresh days plus its own stale days (`M.STALE_DAYS`:
+  potato 45, turnip, beet, garlic 30, carrots, cabbage, onion 21, leek 10, sweet potato, pumpkin 14), and the stale
+  stretch runs at a day a day wherever it lies, only frost stopping it (TP Core's `staleShare`, here 0). Fresh days are
+  as before. A potato rots 73 days after new in a warm room (vanilla's 280), 195 in a basement.
+- **Frost** moves a crop 1/12 of the way to its new rotten day an hour: about 6 days for a potato (was 23: an hour
+  made it stale), about 2 for a carrot (was 0.7). 12 hours still ruin any crop.
+- **Sweet potatoes and pumpkins chill in a fridge** too, as in a cold basement: 30 days (cured sweet potato 45,
+  cured pumpkin 60), no longer vanilla's fridge floor of 140 (user, session 78).
+- In a running save each vegetable takes its new rotten day at its next look; one already further past stale than its
+  stale days rots then. Golden `cellar_report` re-recorded (frost months, chilled crops).
+
 ## 0.0.18
 - **In TP Core's station report** (written on each save, for the long-save log): the Kraut Barrel window take part
   (`StationReport.add`). Needs TP Core 0.1.56.
