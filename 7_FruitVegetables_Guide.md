@@ -51,7 +51,7 @@ There's nothing to build for the cellar and no recipe to learn: the cellar is th
 
 ## 3. The Root Cellar
 
-Every vegetable below keeps by the temperature of where it is. These are its **days fresh**; rotten follows at the game's own pace after that.
+Every vegetable below keeps by the temperature of where it is. These are its **days fresh**. Hover one to see how long it keeps where it lies, how fast it ages there, and in a storage or while curing, how that is going (sandbox *Keeping in item tooltips*, on by default).
 
 | Vegetable | Warm room, 22 C | Cool room, 15 C | Basement, 8 C | Powered fridge | Vanilla |
 |---|---|---|---|---|---|
@@ -64,13 +64,14 @@ Every vegetable below keeps by the temperature of where it is. These are its **d
 | Leek | 5 | 10 | 60 | 60 | 5 |
 | Garlic, Onion | 14 | 28 | 30 | 70 | 14 |
 | Garlic, Onion, cured | 90 | **180** | 60 | onion 180, garlic 70 | |
-| Sweet Potato | 28 | 120 | 30 | 140 | 28 |
-| Sweet Potato, cured | 56 | **240** | 45 | 140 | |
-| Pumpkin | 30 | 45 | 30 | 70 | 14 |
-| Pumpkin, cured | 60 | **90** | 60 | 140 | |
+| Sweet Potato | 28 | 120 | 30 | 30 | 28 |
+| Sweet Potato, cured | 56 | **240** | 45 | 45 | |
+| Pumpkin | 30 | 45 | 30 | 30 | 14 |
+| Pumpkin, cured | 60 | **90** | 60 | 60 | |
 
 - **Never worse than vanilla.** A vegetable in a warm room keeps vanilla's days (a cabbage a week: vanilla's two days are no real cabbage's); anywhere cooler keeps longer.
-- **Colder than a fridge counts as a fridge**, until it freezes (below).
+- **Colder than a fridge counts as a fridge**, until it freezes (below). Sweet potatoes and pumpkins hate the cold: below about 10 C they chill, so a fridge or a cold basement is the wrong place for them.
+- **Stale, it goes off in weeks, wherever it is.** Cold buys the fresh days only. Once stale, a vegetable rots in its own days, a cellar no help: potato 45, turnip, sugar beet and garlic 30, carrots, cabbage and onion 21, leek 10, sweet potato and pumpkin 14. A potato from the basement rots about 195 days after it was dug; left in a warm room, 73.
 - **A powered freezer stops the clock**, as in vanilla.
 - **Garlic and onions hate the damp.** A basement is the wrong place for them: hang them in a dry room. Garlic sprouts in a fridge, too, but keeps best of all in a cold, dry room upstairs, as long as it doesn't freeze hard.
 - **Sweet potatoes and pumpkins hate the cold.** Below about 10 C a sweet potato is chilled and a pumpkin rots in the damp: a cool room suits them better than the basement.
@@ -79,7 +80,7 @@ Every vegetable below keeps by the temperature of where it is. These are its **d
 
 ### Frost
 
-Each crop freezes at its own point, and **half a day of frost ruins it**. A shorter frost takes a share of its days: every hour below freezing is a twelfth of the way to rotten. Potatoes go stale after an hour or two.
+Each crop freezes at its own point, and **half a day of frost ruins it**. A shorter frost takes a share of its days: every hour below freezing is a twelfth of the way to rotten. An hour costs a potato about 6 days, a carrot about 2.
 
 | Crop | Freezes at |
 |---|---|
