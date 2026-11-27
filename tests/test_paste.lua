@@ -231,6 +231,23 @@ local fromTwo = M.packPaste(character, { { getFluidContainer = function() return
 check("packing from All Pots: two pots' 4 portions in one crock, both emptied", near(M.crockPortions(fromTwo), 4)
     and near(potC.amount, 0) and near(potD.amount, 0))
 
+-- Straight from the cauldron: a source by its fire, packed a crock at a time until it runs dry
+local Cauldron = require "TraditionalPreservationCore/Cauldron"
+local Fire = require "TraditionalPreservationCore/Fire"
+local hearth = { cauldron = { fluid = M.TOMATO_PASTE_FLUID, ml = 2400, tpFluidAge = { age = 3 } } }
+function hearth:getSquare() return {} end
+Cauldron.of = function(fire) return fire.cauldron end
+Fire.redraw = function() end
+local fromCauldron = M.cauldronSource(hearth)
+check("the cauldron as a source: its 2.4 L of paste", near(M.sourcesLitres(fromCauldron), 2.4)
+    and M.sourcesInReach(character, { fromCauldron }))
+local first = M.packPaste(character, { fromCauldron }, bag:AddItem("Base.ClayPot"), nil)
+check("packed from the cauldron: a full crock, 0.9 L left in it", near(M.crockPortions(first), 10) and near(hearth.cauldron.ml, 900))
+local second = M.packPaste(character, { fromCauldron }, bag:AddItem("Base.ClayPot"), nil)
+check("the next jar takes the rest: 6 portions, the cauldron empty and its age forgotten", near(M.crockPortions(second), 6)
+    and (hearth.cauldron.ml or 0) == 0 and hearth.cauldron.tpFluidAge == nil)
+check("an empty cauldron packs nothing more", M.packPaste(character, { fromCauldron }, bag:AddItem("Base.ClayPot"), nil) == nil)
+
 -- Spooning out
 local spoon = M.spoonOut(character, inJar)
 check("a spoonful: a portion of Tomato Paste, one fewer in the jar", spoon.fullType == M.PASTE_PORTION

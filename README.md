@@ -186,7 +186,9 @@ salted and packed into clay, a spoonful at a time all winter. All year round, no
    share of keeping used carried over; a sealed crock needs a fresh cap (1 use) every time. The cap's food goes into the portions (it is eaten with the
    paste), one cap's worth at most: a refresh's fat beyond it is lost on the rim and the spoon. A rotten crock takes no
    paste: **Empty the Crock** throws it out and gives the vessel back.
-   **Pack Tomato Paste** is on an empty jar's or pot's own menu too: a row per pot of paste and All Pots.
+   **Pack Tomato Paste** is on an empty jar's or pot's own menu too: a row per pot of paste, a cauldron of paste near
+   by, and All Pots. The Stone Hearth's menu packs **straight from the cauldron** and adds from it to a crock; **All
+   Jars** packs one empty vessel after another, as many as the paste fills, each its own salt and cap.
    **Add to the Crock** puts a pot's paste into a crock or jar already packed: all of it up to the crock's room, for
    **1 salt** and, on a sealed crock, **1 use of oil or fat**, however much it adds; the crock's age becomes the
    portions' average. The crock's own menu has it too, **Add Tomato Paste**: a row per pot of paste in reach and

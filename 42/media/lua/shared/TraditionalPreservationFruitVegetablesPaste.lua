@@ -19,6 +19,7 @@ local Portions = require "TraditionalPreservationCore/Portions"
 local Uses = require "TraditionalPreservationCore/Uses"
 local Action = require "TraditionalPreservationCore/Action"
 local FluidAgeing = require "TraditionalPreservationCore/FluidAgeing"
+local Fire = require "TraditionalPreservationCore/Fire"
 local Weather = require "TraditionalPreservationCore/Weather"
 
 M.TOMATO = "Base.Tomato"
@@ -237,24 +238,67 @@ function M.afterCrockUse(crock, container)
         crock:getModData().tpfvVessel or "Base.ClayJar", M.labelCrock)
 end
 
--- The paste in sources (a pot or a list of pots), in litres.
+-- A source of paste is a pot or saucepan holding it, or a fire's cauldron (M.cauldronSource: packed straight
+-- from it, a ladle at a time; user, 2026-11-27).
+function M.cauldronSource(fire)
+    return { tpfvFire = fire }
+end
+
+-- A fire's cauldron, brought up to now. Core's Cauldron is required only here, where a cauldron is used.
+local function cauldronOf(fire)
+    return require("TraditionalPreservationCore/Cauldron").of(fire)
+end
+
+-- Litres of paste in a fire's cauldron, or 0.
+function M.cauldronPaste(fire)
+    local cauldron = cauldronOf(fire)
+    if cauldron.fluid ~= M.TOMATO_PASTE_FLUID then return 0 end
+    return (cauldron.ml or 0) / 1000
+end
+
+local function sourceLitres(source)
+    if source.tpfvFire then return M.cauldronPaste(source.tpfvFire) end
+    return M.pasteLitres(source:getFluidContainer())
+end
+
+-- The paste in sources (a source or a list of them), in litres.
 local function sourceList(sources)
-    if sources.getFluidContainer then return { sources } end
+    if sources.getFluidContainer or sources.tpfvFire then return { sources } end
     return sources
 end
 function M.sourcesLitres(sources)
     local litres = 0
-    for _, source in ipairs(sourceList(sources)) do litres = litres + M.pasteLitres(source:getFluidContainer()) end
+    for _, source in ipairs(sourceList(sources)) do litres = litres + sourceLitres(source) end
     return litres
 end
 
--- Takes litres of paste out of sources, the pots in turn.
+-- Whether a character can still take from every source: a pot carried, a cauldron's fire still there.
+function M.sourcesInReach(character, sources)
+    local inventory = character:getInventory()
+    for _, source in ipairs(sourceList(sources)) do
+        if source.tpfvFire then
+            if not source.tpfvFire:getSquare() then return false end
+        elseif not inventory:containsRecursive(source) then
+            return false
+        end
+    end
+    return true
+end
+
+-- Takes litres of paste out of sources in turn: a pot's fluid, or the cauldron's (an emptied cauldron keeps no age).
 local function drawPaste(sources, litres)
     for _, source in ipairs(sourceList(sources)) do
-        local container = source:getFluidContainer()
-        local take = math.min(litres, M.pasteLitres(container))
+        local take = math.min(litres, sourceLitres(source))
         if take > 0 then
-            container:adjustSpecificFluidAmount(Fluid.Get(M.TOMATO_PASTE_FLUID), container:getAmount() - take)
+            if source.tpfvFire then
+                local cauldron = cauldronOf(source.tpfvFire)
+                CauldronFluid.take(cauldron, math.floor(take * 1000 + 0.5))
+                if (cauldron.ml or 0) <= 0 then cauldron[FluidAgeing.KEY] = nil end
+                Fire.redraw(source.tpfvFire)
+            else
+                local container = source:getFluidContainer()
+                container:adjustSpecificFluidAmount(Fluid.Get(M.TOMATO_PASTE_FLUID), container:getAmount() - take)
+            end
             litres = litres - take
         end
     end

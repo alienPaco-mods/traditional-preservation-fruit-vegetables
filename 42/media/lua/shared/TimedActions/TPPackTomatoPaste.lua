@@ -15,9 +15,7 @@ local DURATION = 120
 function TPPackTomatoPaste:isValid()
     local inventory = self.character:getInventory()
     if not inventory:containsRecursive(self.vessel) then return false end
-    for _, source in ipairs(self.sources) do
-        if not inventory:containsRecursive(source) then return false end
-    end
+    if not M.sourcesInReach(self.character, self.sources) then return false end
     local plan = M.packPlan(M.sourcesLitres(self.sources))
     if plan.portions < 1 or Uses.count(self.character, ItemTag.SALT) < plan.salt then return false end
     return not self.seal or self.seal:getCurrentUses() >= M.PASTE_SEAL_USES

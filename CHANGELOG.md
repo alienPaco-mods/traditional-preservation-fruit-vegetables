@@ -1,5 +1,11 @@
 # Changelog: Traditional Preservation (Fruits and Vegetables)
 
+## 0.0.23
+- **Pack straight from the cauldron** (user, 2026-11-27): the Stone Hearth's menu, its cauldron holding paste, has
+  **Pack Tomato Paste** and **Add to the Crock**; a crock's and an empty jar's own menus list a cauldron near by as a
+  source beside the pots. **All Jars** (on every Pack Tomato Paste menu) packs one empty vessel after another, each
+  its own salt crust and cap, as many as the paste fills. An emptied cauldron forgets the paste's age.
+
 ## 0.0.22
 - **Tomato paste** (user, 2026-11-27, ROADMAP §8 phase 4): tomatoes cooked down in a pot or the cauldron (Pulp Tomatoes into a Pot,
   on a tomato's or the pot's own menu; TP Core's pot route, 3 hours, to a fifth of the pulp; a pot scorches 2 hours on, Scrape Out gives it back; cooked paste not

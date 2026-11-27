@@ -14,9 +14,7 @@ local DURATION = 90
 function TPAddTomatoPaste:isValid()
     local inventory = self.character:getInventory()
     if not inventory:containsRecursive(self.crock) or self.crock:isRotten() then return false end
-    for _, source in ipairs(self.sources) do
-        if not inventory:containsRecursive(source) then return false end
-    end
+    if not M.sourcesInReach(self.character, self.sources) then return false end
     if M.topUpPlan(M.sourcesLitres(self.sources), self.crock).portions <= 0 then return false end
     if Uses.count(self.character, ItemTag.SALT) < M.TOPUP_SALT then return false end
     if self.crock:getFullType() == M.CROCK_SEALED and not self.seal then return false end
