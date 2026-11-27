@@ -2,5 +2,12 @@
   "TraditionalPreservationFruitVegetables.Sauerkraut": "Sauerkraut",
   "TraditionalPreservationFruitVegetables.SauerTurnip": "Sauer Turnip",
   "TraditionalPreservationFruitVegetables.GarlicBraid": "Garlic Braid",
-  "TraditionalPreservationFruitVegetables.OnionBraid": "Onion Braid"
+  "TraditionalPreservationFruitVegetables.OnionBraid": "Onion Braid",
+  "TraditionalPreservationFruitVegetables.CrockOfTomatoPaste": "Crock of Tomato Paste",
+  "TraditionalPreservationFruitVegetables.CrockOfTomatoPasteSealed": "Crock of Tomato Paste (Sealed)",
+  "TraditionalPreservationFruitVegetables.TomatoPaste": "Tomato Paste",
+  "TraditionalPreservationFruitVegetables.PotOfScorchedTomatoPaste": "Pot of Scorched Tomato Paste",
+  "TraditionalPreservationFruitVegetables.PotForgedScorchedTomatoPaste": "Forged Pot of Scorched Tomato Paste",
+  "TraditionalPreservationFruitVegetables.SaucepanScorchedTomatoPaste": "Saucepan of Scorched Tomato Paste",
+  "TraditionalPreservationFruitVegetables.SaucepanCopperScorchedTomatoPaste": "Copper Saucepan of Scorched Tomato Paste"
 }

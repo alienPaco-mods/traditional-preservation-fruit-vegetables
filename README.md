@@ -1,4 +1,4 @@
-# Traditional Preservation (Fruits and Vegetables) — Build 42 prototype (v0.0.21)
+# Traditional Preservation (Fruits and Vegetables) — Build 42 prototype (v0.0.22)
 
 Vegetables kept the old way, without electricity. Built: **the root cellar** (vanilla vegetables keep by place, and
 potatoes, garlic, onions, sweet potatoes and pumpkins cure), **three storages** (Onion and Garlic Pole, Vegetable Crate (Hay), Vegetable Crate (Sand)) and garlic and onion **braids**, **the clamp** (roots kept outdoors under straw and soil through the winter), and **the kraut barrel** (cabbage and turnip soured in salt).
@@ -168,6 +168,60 @@ its batch), icons recoloured from vanilla's. `luajit tools/kraut_report.lua` pri
 first of each month, the days to ready by place and the days it keeps after (golden-checked). It shows the cold:
 sealed in a basement in October, November or December a barrel is ready in about 47, 60 or 83 days; in an unheated
 room (about 0 C in a Kentucky winter) it mostly waits for spring.
+
+## Tomato paste
+
+The Sicilian *'strattu*, the Turkish and Balkan *salça* and the autumn ajvar's way: tomatoes cooked down at the fire,
+salted and packed into clay, a spoonful at a time all winter. All year round, no sun needed.
+
+1. **Pulp Tomatoes into a Pot** (a tomato's right-click menu, or **Pulp Tomatoes** on the pot's own: a row per cooking pot, forged pot, saucepan or copper
+   saucepan, One or All; Cooking 1): each tomato goes in as 0.15 L of **Tomato Pulp**, 10 to a pot, 4 to a
+   saucepan. Or **Put Tomatoes in the Cauldron** on a Stone Hearth with TP Core's Forged Cauldron, up to 400.
+2. **Cook it down**: kept steaming **3 hours** on any stove or fire it cooks down to **Tomato Paste (Cooked)**,
+   **a fifth of the pulp**: 10 tomatoes in a pot make 0.3 L, two portions. In a pot or
+   saucepan, **2 hours more scorches it**: the vessel becomes a *Pot of Scorched Tomato Paste* (and so on), and
+   **Scrape Out Scorched Tomato Paste** gives it back. The cauldron never scorches; fill a pot from it to pack. Pour
+   five pots (50 tomatoes) fill a crock.
+   A salt-crust crock may take a cap on an addition (a whole cap, 3 uses), and is a sealed crock from then on, its
+   share of keeping used carried over; a sealed crock needs a fresh cap (1 use) every time. The cap's food goes into the portions (it is eaten with the
+   paste), one cap's worth at most: a refresh's fat beyond it is lost on the rim and the spoon. A rotten crock takes no
+   paste: **Empty the Crock** throws it out and gives the vessel back.
+   **Pack Tomato Paste** is on an empty jar's or pot's own menu too: a row per pot of paste and All Pots.
+   **Add to the Crock** puts a pot's paste into a crock or jar already packed: all of it up to the crock's room, for
+   **1 salt** and, on a sealed crock, **1 use of oil or fat**, however much it adds; the crock's age becomes the
+   portions' average. The crock's own menu has it too, **Add Tomato Paste**: a row per pot of paste in reach and
+   **All Pots**, every pot emptied into it as one addition (on a sealed crock each row opens the oils and fats carried, to pick the cap). Packing and adding take a part portion too (the last spoonful is smaller), so no scrap stays
+   in the pot; packing needs a portion at least.
+   Pulp left raw goes off when its oldest tomato would have; **cooked paste not packed keeps about a week at 20 C**
+   (slower in the cold, stopped frozen; TP Core's fluid ageing, so its age goes with it when poured or ladled, and its
+   tooltip says how long), so the crock is what keeps it.
+3. **Pack Tomato Paste** (the pot's right-click menu): into an empty **Ceramic Jar, Glazed Ceramic Jar, Ceramic Pot,
+   Empty Jar or Crafted Jar** (glass: no lid needed), up to **10 portions** (1.5 L, **50 tomatoes**; a portion is
+   0.15 L, five tomatoes cooked down; a part portion stays in the pot; user: "50 tomatoes to a crock, for gameplay
+   sake"), under a **salt crust**: 1 salt use a litre. Or **capped with oil or
+   fat** as well, 3 uses of the first carried: **Olive Oil, Vegetable Oil, Lard**, Dairy's **Clarified Butter** or
+   Fish & Meat's **Tallow** when those mods are on; its food goes into the crock. Oil is the tradition (it flows back
+   as the paste is spooned out); a solid fat cap is sound (pure fat, airtight, as confit); plain butter is not. Olive
+   Oil is loot only; Vegetable Oil is pressed (vanilla: seed paste at a Hand Press). Cooking XP 2 a portion.
+4. **Spoon Out Tomato Paste** (the crock's right-click menu): a **Tomato Paste** portion for a soup, stew, pasta,
+   sauce, pie, pizza or rice dish (unhappiness -5, boredom -5, five tomatoes' food at 70 kcal but only hunger -10:
+   paste is a seasoning, not bulk; salty), keeping a week out of the
+   crock; the last spoonful gives the vessel back. The crock can also be eaten from, like Potted Meat.
+
+The crock keeps by place (TP Core's PlaceKeeping, its tooltip says how long): its days are a 15 C cellar's.
+
+| Kept at | Salt crust, fresh / rotten | Capped with oil or fat |
+|---|---|---|
+| A cellar, 15 C | 180 / 240 days | 365 / 480 |
+| A powered fridge, 4 C | about a year / 16 months | about two years |
+| A room at 22 C | 90 / 120 | about 180 / 240 |
+| 30 C and over | 60 / 80 | about 120 / 160 |
+| Frozen, a powered freezer | never | never |
+
+A crock in a glass jar is a *Jar of Tomato Paste*. Code: `shared/TraditionalPreservationFruitVegetablesPaste.lua`
+(the rules, `M.packPaste`, `M.spoonOut`, `M.PASTE_KEEPER`), `client/...PasteUI.lua` (the menus, the cauldron's notes),
+actions `TPPackTomatoPaste` and `TPSpoonTomatoPaste`; icons from `tools/build_food_icons.py`. Console:
+`TPFV.kit("paste")`, `TPFV.give("pasteCrock")`.
 
 ## Rebuilding the tileset
 

@@ -1,0 +1,40 @@
+module TraditionalPreservationFruitVegetables
+{
+    /* Tomato paste in a pot or TP Core's cauldron (TraditionalPreservationFruitVegetablesPaste.lua): each tomato goes
+       in as 0.15 L of TomatoPulp; kept steaming 3 hours it is TomatoPaste, packed into a crock. Pulp left raw goes off
+       when its oldest tomato would have, paste left unpacked a week after it was cooked (RottenTomatoPulp). Pulp and
+       paste have no category: the game offers Drink only for a Beverage, and Hazardous would mark good paste as
+       dangerous in its tooltip (user, 2026-11-27). The rotten pulp is Hazardous. Never rename them once the mod is out: saves hold the
+       names. */
+    fluid TomatoPulp
+    {
+        ColorReference = Tomato,
+        DisplayName = Fluid_Name_TomatoPulp,
+    }
+
+    fluid TomatoPaste
+    {
+        ColorReference = Brown,
+        DisplayName = Fluid_Name_TomatoPaste,
+    }
+
+    fluid RottenTomatoPulp
+    {
+        ColorReference = DarkOliveGreen,
+        DisplayName = Fluid_Name_RottenTomatoPulp,
+        Categories
+        {
+            Hazardous,
+        }
+        Properties
+        {
+            UnhappyChange = 60.0,
+        }
+        Poison
+        {
+            maxEffect = Mild,
+            minAmount = 0.1,
+            diluteRatio = 0.2,
+        }
+    }
+}

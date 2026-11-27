@@ -16,5 +16,22 @@
   "ContextMenu_TraditionalPreservationFruitVegetables_EarthUp": "Earth Up",
   "ContextMenu_TraditionalPreservationFruitVegetables_TakeDownSoil": "Take Down Soil",
   "ContextMenu_TraditionalPreservationFruitVegetables_LevelClamp": "Level the Clamp",
-  "ContextMenu_TraditionalPreservationFruitVegetables_DigClamp": "Dig a Clamp"
+  "ContextMenu_TraditionalPreservationFruitVegetables_DigClamp": "Dig a Clamp",
+  "ContextMenu_TraditionalPreservationFruitVegetables_TomatoesInPot": "Pulp Tomatoes into a Pot",
+  "ContextMenu_TraditionalPreservationFruitVegetables_TomatoPotRow": "%1 (%2 tomatoes)",
+  "ContextMenu_TraditionalPreservationFruitVegetables_TomatoesInCauldron": "Put Tomatoes in the Cauldron",
+  "ContextMenu_TraditionalPreservationFruitVegetables_TomatoPieces": "Tomatoes (%1)",
+  "ContextMenu_TraditionalPreservationFruitVegetables_PackPaste": "Pack Tomato Paste",
+  "ContextMenu_TraditionalPreservationFruitVegetables_SpoonOut": "Spoon Out Tomato Paste",
+  "ContextMenu_TraditionalPreservationFruitVegetables_AddToCrock": "Add to the Crock",
+  "ContextMenu_TraditionalPreservationFruitVegetables_AddRow": "%1, %2 of 10 (adds %3)",
+  "ContextMenu_TraditionalPreservationFruitVegetables_AddPaste": "Add Tomato Paste",
+  "ContextMenu_TraditionalPreservationFruitVegetables_AddFrom": "%1 (adds %2)",
+  "ContextMenu_TraditionalPreservationFruitVegetables_AllPots": "All Pots",
+  "ContextMenu_TraditionalPreservationFruitVegetables_AddCap": "Salt crust, %1 cap",
+  "ContextMenu_TraditionalPreservationFruitVegetables_PulpTomatoes": "Pulp Tomatoes (%1 fit)",
+  "ContextMenu_TraditionalPreservationFruitVegetables_AddSaltOnly": "Salt crust",
+  "ContextMenu_TraditionalPreservationFruitVegetables_AddSeals": "Salt crust, %1 cap (seals it, %2 uses)",
+  "ContextMenu_TraditionalPreservationFruitVegetables_EmptyCrock": "Empty the Crock",
+  "ContextMenu_TraditionalPreservationFruitVegetables_PackFrom": "%1 (%2 portions)"
 }

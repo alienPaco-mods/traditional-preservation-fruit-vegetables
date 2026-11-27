@@ -234,7 +234,8 @@ function TPFV.earth(on)
 end
 
 local GIVES = { sauerkraut = M.KRAUTS.cabbage.product, sauerTurnip = M.KRAUTS.turnip.product,
-    garlicBraid = M.BRAIDS.garlic.braid, onionBraid = M.BRAIDS.onion.braid }
+    garlicBraid = M.BRAIDS.garlic.braid, onionBraid = M.BRAIDS.onion.braid,
+    pasteCrock = M.CROCK, pasteCrockSealed = M.CROCK_SEALED, tomatoPaste = M.PASTE_PORTION }
 for name, crop in pairs(M.CROPS) do GIVES[name] = crop.fullType end
 local GIVE_NAMES = {}
 for name in pairs(GIVES) do table.insert(GIVE_NAMES, name) end
@@ -301,6 +302,21 @@ local KITS = {
             for _, name in ipairs(M.CLAMP_CROPS) do add(inventory, M.CROPS[name].fullType, 5) end
             add(inventory, "Base.Leek")
             add(inventory, "Base.Onion")
+        end,
+    },
+    paste = {
+        about = "20 tomatoes, a cooking pot and a saucepan to cook them down; a Ceramic Jar, a Glazed Ceramic Jar and an "
+            .. "Empty Jar to pack into; 2 salt shakers for the crust; a bottle of Vegetable Oil and a block of Lard to cap it",
+        give = function(inventory)
+            add(inventory, M.TOMATO, 20)
+            add(inventory, "Base.Pot")
+            add(inventory, "Base.Saucepan")
+            add(inventory, "Base.ClayJar")
+            add(inventory, "Base.ClayJarGlazed")
+            add(inventory, "Base.EmptyJar")
+            add(inventory, "Base.Salt", 2)
+            add(inventory, "Base.OilVegetable")
+            add(inventory, "Base.Lard")
         end,
     },
     cellar = {

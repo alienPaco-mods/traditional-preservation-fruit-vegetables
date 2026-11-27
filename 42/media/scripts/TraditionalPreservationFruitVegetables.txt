@@ -73,4 +73,160 @@ module TraditionalPreservationFruitVegetables
         WorldStaticModel = Onion_Ground,
         Tooltip = Tooltip_TraditionalPreservationFruitVegetables_Braid,
     }
+
+    /* Tomato paste (TraditionalPreservationFruitVegetablesPaste.lua; user, 2026-11-27): tomatoes cooked down in a pot
+       or TP Core's cauldron (Tomato Pulp, then Tomato Paste fluid), packed with a salt crust into a clay jar or pot,
+       optionally under a cap of oil or fat (Vegetable or Olive Oil, Clarified Butter, Lard, Tallow). A crock holds 10
+       portions at most, 5 tomatoes each, and keeps by place: its days are a 15 C cellar's, salt crust 180 / 240, capped 365 /
+       480 (TP Core's PlaceKeeping). The model index is the vessel's: 0 unglazed, 1 glazed, 2 a glass jar (no lid needed). Food values here are one
+       portion's; a packed crock holds its own (TP Core's Portions). */
+    item CrockOfTomatoPaste
+    {
+        DisplayCategory = Food,
+        ItemType = base:food,
+        Weight = 1.0,
+        Icon = TomatoPaste_Clay,
+        IconsForTexture = TomatoPaste_Clay;TomatoPaste_Glazed;TomatoPaste_Jar,
+        DaysFresh = 180,
+        DaysTotallyRotten = 240,
+        HungerChange = -10.0,
+        ThirstChange = 5.0,
+        UnhappyChange = 5,
+        FoodType = Vegetables,
+        Carbohydrates = 17.5,
+        Proteins = 6.5,
+        Lipids = 1.0,
+        Calories = 70.0,
+        StaticModel = ClayJar,
+        WorldStaticModel = ClayJar,
+        WorldStaticModelsByIndex = ClayJar;GlazedClayJar;JarGlass_Ground,
+        Tooltip = Tooltip_TraditionalPreservationFruitVegetables_TomatoPasteCrock,
+    }
+
+    item CrockOfTomatoPasteSealed
+    {
+        DisplayCategory = Food,
+        ItemType = base:food,
+        Weight = 1.0,
+        Icon = TomatoPaste_ClayCapped,
+        IconsForTexture = TomatoPaste_ClayCapped;TomatoPaste_GlazedCapped;TomatoPaste_JarCapped,
+        DaysFresh = 365,
+        DaysTotallyRotten = 480,
+        HungerChange = -10.0,
+        ThirstChange = 5.0,
+        UnhappyChange = 5,
+        FoodType = Vegetables,
+        Carbohydrates = 17.5,
+        Proteins = 6.5,
+        Lipids = 1.0,
+        Calories = 70.0,
+        StaticModel = ClayJar,
+        WorldStaticModel = ClayJar,
+        WorldStaticModelsByIndex = ClayJar;GlazedClayJar;JarGlass_Ground,
+        Tooltip = Tooltip_TraditionalPreservationFruitVegetables_TomatoPasteCrockSealed,
+    }
+
+    /* A spoonful out of a crock (Spoon Out Tomato Paste): five tomatoes' food cooked down, light on hunger, salty,
+       for a soup, stew, pasta or sauce, where it lifts the mood. Out of the crock it keeps a week. */
+    item TomatoPaste
+    {
+        DisplayCategory = Food,
+        ItemType = base:food,
+        Weight = 0.15,
+        Icon = TomatoPaste,
+        HungerChange = -10.0,
+        ThirstChange = 5.0,
+        UnhappyChange = -5,
+        BoredomChange = -5,
+        DaysFresh = 7,
+        DaysTotallyRotten = 14,
+        EvolvedRecipe = Pizza:5;Soup:5;Stew:5;Pie:5;Stir fry:5;Rice:5;Pasta:5;Sandwich:5;Burger:5;Taco:5;Burrito:5,
+        FoodType = Vegetables,
+        Carbohydrates = 17.5,
+        Proteins = 6.5,
+        Lipids = 1.0,
+        Calories = 70.0,
+        StaticModel = Tomato_Ground,
+        WorldStaticModel = Tomato_Ground,
+        Tooltip = Tooltip_TraditionalPreservationFruitVegetables_TomatoPaste,
+    }
+
+    /* Tomato paste left steaming too long in a pot or saucepan scorches (TP Core's ItemFluid, M.SCORCHED_PASTE): the
+       vessel is swapped for one of these, flagged burnt, its condition kept. Only Scrape Out Scorched Tomato Paste
+       gives it back. One for each vanilla pot and saucepan, with its look (as Dairy's burnt butter). */
+    item PotOfScorchedTomatoPaste
+    {
+        DisplayCategory = Food,
+        ItemType = base:food,
+        Weight = 1.2,
+        Icon = PotFull,
+        CantEat = true,
+        StaticModel = CookingPotSoup_Ground,
+        WorldStaticModel = CookingPotSoup_Ground,
+        Tags = base:hasmetal,
+        Tooltip = Tooltip_TraditionalPreservationFruitVegetables_ScorchedPaste,
+    }
+
+    item PotForgedScorchedTomatoPaste
+    {
+        DisplayCategory = Food,
+        ItemType = base:food,
+        Weight = 1.2,
+        Icon = Pot_Forged_Stew,
+        CantEat = true,
+        StaticModel = CookingPotForged_StewGround,
+        WorldStaticModel = CookingPotForged_StewGround,
+        Tags = base:hasmetal,
+        Tooltip = Tooltip_TraditionalPreservationFruitVegetables_ScorchedPaste,
+    }
+
+    item SaucepanScorchedTomatoPaste
+    {
+        DisplayCategory = Food,
+        ItemType = base:food,
+        Weight = 0.8,
+        Icon = SaucepanFilled,
+        CantEat = true,
+        StaticModel = SaucePanRice,
+        WorldStaticModel = SaucePanRice,
+        Tags = base:hasmetal,
+        Tooltip = Tooltip_TraditionalPreservationFruitVegetables_ScorchedPaste,
+    }
+
+    item SaucepanCopperScorchedTomatoPaste
+    {
+        DisplayCategory = Food,
+        ItemType = base:food,
+        Weight = 0.8,
+        Icon = CopperPot_Pasta,
+        CantEat = true,
+        StaticModel = SaucepanCopperRice,
+        WorldStaticModel = SaucepanCopperRice,
+        Tags = base:hasmetal,
+        Tooltip = Tooltip_TraditionalPreservationFruitVegetables_ScorchedPaste,
+    }
+
+    /* The only way to get the vessel back from scorched paste, its condition kept. */
+    craftRecipe ScrapeOutScorchedTomatoPaste
+    {
+        timedAction = MixingBowl,
+        time = 80,
+        Tags = InHandCraft;CanBeDoneFromFloor;Cooking,
+        category = Cooking,
+        inputs
+        {
+            item 1 [TraditionalPreservationFruitVegetables.PotOfScorchedTomatoPaste;TraditionalPreservationFruitVegetables.PotForgedScorchedTomatoPaste;TraditionalPreservationFruitVegetables.SaucepanScorchedTomatoPaste;TraditionalPreservationFruitVegetables.SaucepanCopperScorchedTomatoPaste] mappers[vesselType] flags[InheritCondition;AllowRottenItem;ItemCount] mode:destroy,
+        }
+        outputs
+        {
+            item 1 mapper:vesselType,
+        }
+        itemMapper vesselType
+        {
+            Base.Pot = TraditionalPreservationFruitVegetables.PotOfScorchedTomatoPaste,
+            Base.PotForged = TraditionalPreservationFruitVegetables.PotForgedScorchedTomatoPaste,
+            Base.Saucepan = TraditionalPreservationFruitVegetables.SaucepanScorchedTomatoPaste,
+            Base.SaucepanCopper = TraditionalPreservationFruitVegetables.SaucepanCopperScorchedTomatoPaste,
+        }
+    }
 }

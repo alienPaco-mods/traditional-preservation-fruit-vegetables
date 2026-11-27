@@ -1,5 +1,17 @@
 # Changelog: Traditional Preservation (Fruits and Vegetables)
 
+## 0.0.22
+- **Tomato paste** (user, 2026-11-27, ROADMAP §8 phase 4): tomatoes cooked down in a pot or the cauldron (Pulp Tomatoes into a Pot,
+  on a tomato's or the pot's own menu; TP Core's pot route, 3 hours, to a fifth of the pulp; a pot scorches 2 hours on, Scrape Out gives it back; cooked paste not
+  packed ages on TP Core's FluidAgeing, a week at 20 C, its age carried when poured: side agent's catch), packed under a salt crust into a clay jar or pot or a glass jar, optionally capped
+  with oil or fat (a row per type carried: Olive or Vegetable Oil, Lard, Clarified Butter, Tallow): a Crock of
+  Tomato Paste, 10 portions of 5 tomatoes at most (50 tomatoes a crock), keeping by place (180 / 240 days in a
+  cellar, a capped one twice). Spoon Out Tomato Paste for a dish (70 kcal, hunger -10, -5 unhappiness, -5 boredom).
+  Add to the Crock tops up a started crock (1 salt, 1 seal use on a sealed one, per addition; age averaged by
+  portions; a salt-crust crock may be capped on an addition, a whole cap, and is sealed from then on, its share of
+  keeping carried over; the crock holds one cap's food at most, however often refreshed; never into a rotten crock, Empty the Crock instead; Pack Tomato Paste on an empty vessel's own menu too, with All Pots; on the crock's own menu too, Add Tomato Paste, with All Pots as one addition); packing and adding take part portions too, so no scrap stays in the pot.
+  Icons `tools/build_food_icons.py`; console `TPFV.kit("paste")`; tests `test_paste.lua`. Needs TP Core 0.1.75.
+
 ## 0.0.21
 - **Stale heads make soft kraut, head by head** (user, 2026-11-22: wilted cabbage gives a poor brine). A head
   already stale at Salt and Compress makes a soft portion: in the barrel it keeps as a soft batch does (2/3 as long),

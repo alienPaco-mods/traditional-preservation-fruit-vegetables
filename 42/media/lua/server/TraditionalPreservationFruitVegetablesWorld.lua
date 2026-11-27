@@ -159,6 +159,7 @@ World.forgetClamp = clampTracker.forget
 Weather.onReading(function(now, climate)
     M.advance(M.getLedger(), now, climate:getTemperature())
     M.recordCellarWeather(now, climate:getTemperature())
+    M.PASTE_KEEPER.recordWeather(now, climate:getTemperature())
 end)
 
 tracker.start()
