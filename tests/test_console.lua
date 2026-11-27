@@ -45,7 +45,7 @@ run("give", "sauerkraut", 2)
 check("give spawns kraut", #player.given == 2 and player.given[1] == "TraditionalPreservationFruitVegetables.Sauerkraut")
 player.given = {}
 run("kit", "barrel")
-check("the barrel's kit: its build, two batches' heads, apples, carrots, salt and salting and compressing", #player.given == 1 + 1 + 7 + 10 + 4 + 30 + 6 + 6 + 30 + 2 + 1 + 1
+check("the barrel's kit: its build, two batches' heads, apples, carrots, salt and salting and compressing", #player.given == 1 + 1 + 7 + 10 + 4 + 30 + 6 + 6 + 30 + 2 + 1 + 1 + 1 + 4 + 1
     and player.given[1] == "Base.Hammer")
 check("kit lists the kinds", run("kit", "?"):find("barrel", 1, true) ~= nil and run("kit"):find("cellar", 1, true) ~= nil
     and run("kit"):find("storage", 1, true) ~= nil)

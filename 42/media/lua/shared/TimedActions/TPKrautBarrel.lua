@@ -1,7 +1,10 @@
 -- Traditional Preservation (Fruits and Vegetables): the hand jobs at a Kraut Barrel. "pack" shreds and packs one head
 -- (a cabbage or a turnip; they mix) or one apple or carrot, "unpack" takes everything packed back out before it is salted and compressed,
 -- "compress" lays the cloth, the board and the stone on it with the salt (sealing it), "take" takes one portion out of a
--- ready barrel, and "empty" empties a spoiled one. The last portion and emptying give the board and stone back.
+-- ready barrel, "empty" empties a spoiled one, and "unseal" lifts the board and stone off (they come back only so). The
+-- brine (user, 2026-11-27): "starter" pours 1 L of Kraut Brine from item onto a packing barrel, "draw" draws 1 L off a
+-- ready one into item, "drain" fills item from a barrel of brine, "pour" pours item's brine into an empty barrel or
+-- one of brine, and "putback" puts a portion (item) back under the brine.
 require "TimedActions/ISBaseTimedAction"
 require "TraditionalPreservationFruitVegetables"
 
@@ -10,7 +13,9 @@ TPKrautBarrel = ISBaseTimedAction:derive("TPKrautBarrel")
 local M = TraditionalPreservationFruitVegetables
 local Action = require "TraditionalPreservationCore/Action"
 local Uses = require "TraditionalPreservationCore/Uses"
-local DURATIONS = { pack = 120, unpack = 150, compress = 250, take = 40, empty = 150 }
+local FluidAgeing = require "TraditionalPreservationCore/FluidAgeing"
+local DURATIONS = { pack = 120, unpack = 150, compress = 250, take = 40, empty = 150, starter = 60, draw = 60, drain = 120,
+    pour = 120, putback = 40, unseal = 100 }
 
 -- Brought up to the minute first, so a barrel that has just turned is seen as it is now.
 local function barrelNow(self)
@@ -60,7 +65,22 @@ function TPKrautBarrel:isValid()
         -- The kit is looked for once, before the action starts, and again as it ends: not on every tick.
         return self.started or M.compressRefusal(barrel, TPKrautBarrel.compressKit(self.character)) == nil
     elseif self.mode == "take" then
-        return stage == "Ready" and M.portionsLeft(barrel, self.kind) > 0
+        return stage == "Ready" and M.portionsLeft(barrel, self.kind) > 0 and not M.pressed(barrel)
+    elseif self.mode == "starter" then
+        return inInventory(self, self.item) and M.onlyFluid(self.item, M.KRAUT_BRINE) >= M.STARTER_L - 1e-6
+            and M.starterRefusal(barrel) == nil
+    elseif self.mode == "draw" then
+        return inInventory(self, self.item) and M.roomFor(self.item, M.KRAUT_BRINE) >= M.STARTER_L - 1e-6 and M.drawRefusal(barrel) == nil
+    elseif self.mode == "drain" then
+        return inInventory(self, self.item) and stage == "Brine" and not M.pressed(barrel)
+            and M.roomFor(self.item, barrel.brineSpoiled and M.ROTTEN_BRINE or M.KRAUT_BRINE) > 0
+    elseif self.mode == "pour" then
+        return inInventory(self, self.item) and M.onlyFluid(self.item, M.KRAUT_BRINE) > 0 and M.pourRefusal(barrel) == nil
+    elseif self.mode == "unseal" then
+        return M.unsealRefusal(barrel) == nil
+    elseif self.mode == "putback" then
+        return inInventory(self, self.item) and M.KRAUT_OF_PRODUCT[self.item:getFullType()] ~= nil
+            and M.putBackRefusal(barrel, M.isFreshKraut(self.item)) == nil
     end
     return stage == "Spoiled"
 end
@@ -75,7 +95,7 @@ function TPKrautBarrel:start()
     self:setActionAnim("Loot")
 end
 
--- The board and stone, back once the barrel is empty (user, 2026-11-18: a new plank every batch would be a chore).
+-- The board and stone, back when it is unsealed (user, 2026-11-27: Unseal, not the last portion, gives them back).
 local function givePress(character)
     Actions.addOrDropItem(character, instanceItem(M.BOARD))
     Actions.addOrDropItem(character, instanceItem(M.STONE))
@@ -97,9 +117,42 @@ function TPKrautBarrel:complete()
         end
     elseif self.mode == "unpack" then
         for _, piece in ipairs(M.unpack(barrel, now)) do
-            local item = instanceItem(piece.fullType)
-            item:setAge(piece.age)
-            Actions.addOrDropItem(character, item)
+            if piece.brine then
+                -- The starter back into a carried container with room for it; with none, it is poured away.
+                local into = TPKrautBarrel.brineContainer(character, piece.brine)
+                if into then M.fillWith(into, M.KRAUT_BRINE, piece.brine) end
+            else
+                local item = instanceItem(piece.fullType)
+                item:setAge(piece.age)
+                Actions.addOrDropItem(character, item)
+            end
+        end
+    elseif self.mode == "starter" then
+        if M.onlyFluid(self.item, M.KRAUT_BRINE) >= M.STARTER_L - 1e-6 and M.addStarter(barrel) then
+            M.takeFluid(self.item, M.KRAUT_BRINE, M.STARTER_L)
+        end
+    elseif self.mode == "draw" then
+        if M.roomFor(self.item, M.KRAUT_BRINE) >= M.STARTER_L - 1e-6 then
+            M.fillWith(self.item, M.KRAUT_BRINE, M.drawStarter(barrel))
+        end
+    elseif self.mode == "drain" then
+        local fluid = barrel.brineSpoiled and M.ROTTEN_BRINE or M.KRAUT_BRINE
+        local room = M.roomFor(self.item, fluid)
+        if room > 0 then
+            local litres, drained, fluidAge = M.drainBrine(barrel, room)
+            M.fillWith(self.item, drained or fluid, litres, fluidAge)
+        end
+    elseif self.mode == "pour" then
+        local litres = M.onlyFluid(self.item, M.KRAUT_BRINE)
+        local fluidAge = FluidAgeing.sourceFluidAge(self.item, now)
+        local took = M.pourBrine(barrel, litres, fluidAge)
+        if took > 0 then M.takeFluid(self.item, M.KRAUT_BRINE, took) end
+    elseif self.mode == "putback" then
+        local item = self.item
+        local kind = M.KRAUT_OF_PRODUCT[item:getFullType()]
+        if kind and M.putBack(barrel, kind, M.foodOf(item), item:getAge(), item:getModData()[M.KRAUT_SOFT_KEY] == true,
+            M.getLedger()) then
+            Action.removeItem(item)
         end
     elseif self.mode == "compress" then
         local kit = TPKrautBarrel.compressKit(character)
@@ -119,10 +172,12 @@ function TPKrautBarrel:complete()
             local item = instanceItem(M.KRAUTS[taken.kind].product)
             M.applyPortion(item, taken)
             Actions.addOrDropItem(character, item)
-            if taken.last then givePress(character) end
+
         end
-    elseif M.emptySpoiled(barrel) then
-        givePress(character)
+    elseif self.mode == "unseal" then
+        if M.unseal(barrel) then givePress(character) end
+    else
+        M.emptySpoiled(barrel)
     end
     TraditionalPreservationFruitVegetablesWorld.refresh(self.station)
     return true
@@ -136,7 +191,18 @@ function TPKrautBarrel:getDuration()
     return Action.duration(self.character, DURATIONS[self.mode])
 end
 
--- item is the head, apple or carrot for "pack"; kind the kraut to take ("cabbage" or "turnip") for "take".
+-- A carried container with room for litres of Kraut Brine (empty, or holding only it), or nil.
+function TPKrautBarrel.brineContainer(character, litres)
+    local found
+    local items = character:getInventory():getAllEvalRecurse(function(item)
+        return M.roomFor(item, M.KRAUT_BRINE) >= litres - 1e-6
+    end)
+    if items:size() > 0 then found = items:get(0) end
+    return found
+end
+
+-- item is the head, apple or carrot for "pack", the container for the brine's modes, the portion for "putback"; kind
+-- the kraut to take ("cabbage" or "turnip") for "take".
 function TPKrautBarrel:new(character, station, mode, item, kind)
     local o = ISBaseTimedAction.new(self, character)
     o.station = station

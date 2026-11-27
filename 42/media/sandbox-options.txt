@@ -9,6 +9,15 @@ option TraditionalPreservationFruitVegetables.FermentDays {
     translation = TraditionalPreservationFruitVegetables_FermentDays,
 }
 
+option TraditionalPreservationFruitVegetables.KrautStarterBonus {
+    type = integer,
+    min = 0,
+    max = 100,
+    default = 25,
+    page = TraditionalPreservationFruitVegetables,
+    translation = TraditionalPreservationFruitVegetables_KrautStarterBonus,
+}
+
 option TraditionalPreservationFruitVegetables.TemperatureSensitivity {
     type = enum,
     numValues = 4,

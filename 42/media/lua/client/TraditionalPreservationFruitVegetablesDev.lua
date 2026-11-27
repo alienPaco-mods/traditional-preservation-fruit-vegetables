@@ -22,7 +22,7 @@ function TPFV.help()
     say("TPFV.frost(hours)     freeze every kept vegetable near you for hours (default 3): 12 h ruins one; 6 h makes kraut soft")
     say("TPFV.clamp()          the nearest clamp (within 5 tiles): earthed or not, its place and temperature, what it holds, sweating")
     say("TPFV.earth(on)        earth the nearest clamp up (true, the default) or take the soil down (false), at once")
-    say("TPFV.give(name, n)    spawn n of a vegetable (potato, cabbage...), sauerkraut, sauerTurnip, garlicBraid or onionBraid. TPFV.give() lists them")
+    say("TPFV.give(name, n)    spawn n of a vegetable (potato, cabbage...), sauerkraut, sauerTurnip, krautBrine, garlicBraid or onionBraid. TPFV.give() lists them")
     say("TPFV.kit(kind)        the things a test of kind needs; TPFV.kit(\"?\") lists the kinds")
     say("Weather, game speed and the Stone Hearth's commands are TP Core's: TPC.help()")
 end
@@ -239,9 +239,21 @@ local GIVES = { sauerkraut = M.KRAUTS.cabbage.product, sauerTurnip = M.KRAUTS.tu
 for name, crop in pairs(M.CROPS) do GIVES[name] = crop.fullType end
 local GIVE_NAMES = {}
 for name in pairs(GIVES) do table.insert(GIVE_NAMES, name) end
+table.insert(GIVE_NAMES, "krautBrine")
 table.sort(GIVE_NAMES)
 
+-- A glass jar of a litre of good Kraut Brine: a starter for a new barrel, or to drink.
+local function brineJar(inventory)
+    local jar = inventory:AddItem("Base.EmptyJar")
+    if jar and jar.getFluidContainer and jar:getFluidContainer() then M.fillWith(jar, M.KRAUT_BRINE, M.STARTER_L) end
+    return jar
+end
+
 function TPFV.give(name, count)
+    if name == "krautBrine" then
+        for _ = 1, count or 1 do brineJar(getPlayer():getInventory()) end
+        return say("Gave " .. (count or 1) .. " jar(s) of kraut brine.")
+    end
     local fullType = GIVES[name]
     if not fullType then return say("Things: " .. table.concat(GIVE_NAMES, ", ")) end
     local inventory = getPlayer():getInventory()
@@ -257,7 +269,8 @@ end
 local KITS = {
     barrel = {
         about = "a hammer, a saw, 6 planks, 10 nails and 4 twine to build the Kraut Barrel (Woodwork 3); 30 cabbages, "
-            .. "6 apples, 6 carrots, 30 turnips, 2 salt shakers, a ripped sheet, a plank and a flat stone to fill, salt and compress it",
+            .. "6 apples, 6 carrots, 30 turnips, 2 salt shakers, a ripped sheet, a plank and a flat stone to fill, salt and compress it; "
+            .. "a jar of kraut brine for its starter, 4 empty jars and a bucket to draw and drain brine into",
         give = function(inventory)
             add(inventory, "Base.Hammer")
             add(inventory, "Base.Saw")
@@ -271,6 +284,9 @@ local KITS = {
             add(inventory, "Base.Salt", 2)
             add(inventory, "Base.RippedSheets")
             add(inventory, M.STONE)
+            brineJar(inventory)
+            add(inventory, "Base.EmptyJar", 4)
+            add(inventory, "Base.BucketEmpty")
         end,
     },
     storage = {

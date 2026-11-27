@@ -37,4 +37,46 @@ module TraditionalPreservationFruitVegetables
             diluteRatio = 0.2,
         }
     }
+
+    /* Kraut brine (TraditionalPreservationFruitVegetablesBarrel.lua): 0.15 L a head packed, drawn off a ready barrel as a
+       starter (1 L at most while kraut is in it) or drained once the kraut is out. Good brine is a Beverage (sour and
+       salty, drunk by the glass); on TP Core's FluidAgeing it goes mouldy in about 3 weeks at 20 C (RottenKrautBrine,
+       Hazardous). Values are a litre's. */
+    fluid KrautBrine
+    {
+        ColorReference = Khaki,
+        DisplayName = Fluid_Name_KrautBrine,
+        Categories
+        {
+            Beverage,
+        }
+        Properties
+        {
+            ThirstChange = -10.0,
+            UnhappyChange = 5.0,
+            Calories = 40.0,
+            Carbohydrates = 8.0,
+            Proteins = 1.0,
+        }
+    }
+
+    fluid RottenKrautBrine
+    {
+        ColorReference = DarkOliveGreen,
+        DisplayName = Fluid_Name_RottenKrautBrine,
+        Categories
+        {
+            Hazardous,
+        }
+        Properties
+        {
+            UnhappyChange = 40.0,
+        }
+        Poison
+        {
+            maxEffect = Mild,
+            minAmount = 0.1,
+            diluteRatio = 0.2,
+        }
+    }
 }

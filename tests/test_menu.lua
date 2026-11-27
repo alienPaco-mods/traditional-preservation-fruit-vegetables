@@ -202,6 +202,13 @@ barrel.workHours = M.FERMENT_HOURS
 M.updateBarrel(barrel, M.getLedger(), "Sheltered")
 menu = menuFor()
 local take = named(menu, "Take Sauerkraut")
+check("ready but sealed: Take Sauerkraut in red, Unseal it first", take ~= nil and take.notAvailable == true)
+local unseal = named(menu, "Unseal")
+unseal.onSelect(unseal.target, unpack(unseal.args))
+runQueued()
+check("Unseal gives the plank and stone back", #given == 2 and given[1].fullType == "Base.Plank" and given[2].fullType == "Base.FlatStone")
+given = {}
+take = named(menuFor(), "Take Sauerkraut")
 check("ready: Take Sauerkraut (30 left)", take ~= nil and take.name:find("30 left", 1, true) ~= nil)
 take.subOption.options[2].onSelect(take.subOption.options[2].target, unpack(take.subOption.options[2].args))
 runQueued()
@@ -211,10 +218,11 @@ check("one portion out, with the batch's food and no mood", #given == 1
 take = named(menuFor(), "Take Sauerkraut")
 take.subOption.options[1].onSelect(take.subOption.options[1].target, unpack(take.subOption.options[1].args))
 runQueued()
-check("All takes the other 29 and the plank and stone come back", #given == 32 and given[31].fullType == "Base.Plank"
-    and given[32].fullType == "Base.FlatStone"
-    and M.barrelStage(barrel) == "Empty")
-check("emptied, it picks up again", canPickUp() == true)
+check("All takes the other 29", #given == 30
+    and M.barrelStage(barrel) == "Brine" and math.abs(M.brineOf(barrel) - 4.5) < 1e-6)
+check("its brine left in, it stays put", canPickUp() ~= true)
+M.drainBrine(barrel)
+check("drained and open, it picks up again", M.barrelStage(barrel) == "Empty" and canPickUp() == true)
 
 -- Braid Garlic on 12 selected bulbs (vanilla's stacked entry), Unbraid on a braid
 local inventoryHandlers = H.handlers.OnFillInventoryObjectContextMenu
@@ -312,7 +320,7 @@ held = KrautUI.holding(sealed, {})
 check("sealed: no drag, the heads", held.drop == nil and held.amount == "40 heads")
 check("a kind at none is left out", KrautUI.holding(heads(20, "turnip"), {}).state == "20 turnips"
     and #KrautUI.holding(heads(20, "turnip"), {}).counts == 0)
-local ready = { stage = "Ready", portions = { cabbage = 22, turnip = 10 }, headCounts = { cabbage = 30, turnip = 10 } }
+local ready = { stage = "Ready", portions = { cabbage = 22, turnip = 10 }, headCounts = { cabbage = 30, turnip = 10 }, press = false }
 held = KrautUI.holding(ready, {})
 check("ready: the portions left", held.amount == "32 portions" and held.state == "22 Sauerkraut, 10 Sauer Turnip" and held.under == nil)
 ready.apples, ready.carrots = 2, 0
@@ -327,16 +335,44 @@ check("packing: Salt and Compress greyed with the reason, then Unpack (43)", #bu
 buttons[2].onClick()
 check("Unpack asks to unpack", asked == "unpack")
 buttons = KrautUI.buttons(ready, {}, function(mode, pieces, kind) asked = { mode = mode, pieces = pieces, kind = kind } end)
-check("ready: one menu button a kraut, One and All (n)", #buttons == 2 and buttons[1].title == "Take Sauerkraut (22)"
+check("ready and open: one menu button a kraut, One and All (n), then Draw Starter (1 L)", #buttons == 3
+    and buttons[3].title == "Draw Starter (1 L)" and buttons[1].title == "Take Sauerkraut (22)"
     and buttons[2].title == "Take SauerTurnip (10)" and #buttons[1].menu == 2 and buttons[1].menu[1].title == "One"
     and buttons[1].menu[2].title == "All (22)")
 buttons[2].menu[2].onClick()
 check("All takes every portion of its kind", asked.mode == "take" and #asked.pieces == 10 and asked.kind == "turnip")
-buttons = KrautUI.buttons({ stage = "Ready", portions = { cabbage = 1, turnip = 0 } }, {}, function() end)
-check("one portion left: one button, One alone", #buttons == 1 and #buttons[1].menu == 1)
+local shut = KrautUI.buttons({ stage = "Ready", portions = { cabbage = 3, turnip = 0 } }, {}, function() end)
+check("ready but sealed: its Take greyed, Draw Starter greyed, Unseal", #shut == 3 and shut[1].enabled == false
+    and shut[2].enabled == false and shut[3].title == "Unseal")
+buttons = KrautUI.buttons({ stage = "Ready", portions = { cabbage = 1, turnip = 0 }, press = false }, {}, function() end)
+check("one portion left: its button, One alone (and Draw Starter, greyed: no brine in that one)", #buttons == 2
+    and #buttons[1].menu == 1 and buttons[2].enabled == false)
+local noJar = KrautUI.buttons(ready, { drawRoom = false }, function() end)
+check("no container with room: Draw Starter greyed, saying so", noJar[3].enabled == false and noJar[3].tooltip ~= nil)
+check("no container: Drain Brine greyed", KrautUI.buttons({ stage = "Brine", brine = 2 }, { drainRoom = false }, function() end)[1].enabled == false)
+local brine = KrautUI.buttons({ stage = "Brine", brine = 4.5 }, {}, function(mode) asked = mode end)
+brine[1].onClick()
+check("brine only: Drain Brine (4.5 L)", #brine == 1 and brine[1].title == "Drain Brine (4.5 L)")
 buttons = KrautUI.buttons({ stage = "Spoiled" }, {}, function(mode) asked = mode end)
 buttons[1].onClick()
-check("spoiled: Empty", #buttons == 1 and asked == "empty")
+check("spoiled: Empty, then Unseal", #buttons == 2 and asked == "empty" and buttons[2].title == "Unseal")
 check("no buttons while it ferments", #KrautUI.buttons(sealed, {}, function() end) == 0)
+
+-- The brine in the window (art/kraut_brine_mock.png)
+local function portionItem(age, offAge)
+    return { getFullType = function() return M.KRAUTS.cabbage.product end, getAge = function() return age end,
+        getOffAge = function() return offAge or 14 end, isRotten = function() return false end,
+        isCooked = function() return false end, isBurnt = function() return false end }
+end
+local inBrine = { stage = "Brine", brine = 0.45 }
+local judged = KrautUI.judgePutBack(inBrine, { portionItem(2), portionItem(9), portionItem(5), portionItem(20) })
+check("put back by drag: the oldest fresh ones first, as many as the brine covers (3), the stale one refused",
+    #judged.take == 3 and judged.take[1]:getAge() == 9 and judged.refused ~= nil)
+check("a mouldy barrel takes none", #KrautUI.judgePutBack({ stage = "Brine", brine = 3, brineSpoiled = true }, { portionItem(2) }).take == 0)
+local slot = KrautUI.starterSlot({ stage = "Packing" }, { drop = {}, click = function() end })
+check("the slot while packing: Add Starter, a drop target", slot.look == "empty" and slot.drop ~= nil)
+check("sealed: used", KrautUI.starterSlot({ stage = "Fermenting" }).look == "pending")
+check("the brine tank: 6 of 9 L covering 40", KrautUI.brineHolding({ stage = "Ready", brine = 6, portions = { cabbage = 40 } }).share
+    == 6 / 9)
 
 H.done()

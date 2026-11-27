@@ -11,5 +11,7 @@
   "Sandbox_TraditionalPreservationFruitVegetables_FermentDays": "Kraut ferment (days at 18°C)",
   "Sandbox_TraditionalPreservationFruitVegetables_FermentDays_tooltip": "How many in-game days a kraut barrel takes to be ready at 18°C. Cooler is slower, warmer faster; at 0°C it stops.",
   "Sandbox_TraditionalPreservationFruitVegetables_FrostDamage": "Vegetables freeze",
-  "Sandbox_TraditionalPreservationFruitVegetables_FrostDamage_tooltip": "Each crop freezes at its own point (potatoes, sweet potatoes and pumpkins at -1°C, leeks only at -10°C), and half a day of frost ruins it; shorter frosts take a share of its days. A basement never freezes, nor a place by a lit fire or banked embers; a Vegetable Crate (Hay) keeps out half the frost. Sauerkraut and Sauer Turnip out of the barrel freeze at -3°C and go soft. Vegetables need Vegetables keep by place. Off, the cold does them no harm."
+  "Sandbox_TraditionalPreservationFruitVegetables_FrostDamage_tooltip": "Each crop freezes at its own point (potatoes, sweet potatoes and pumpkins at -1°C, leeks only at -10°C), and half a day of frost ruins it; shorter frosts take a share of its days. A basement never freezes, nor a place by a lit fire or banked embers; a Vegetable Crate (Hay) keeps out half the frost. Sauerkraut and Sauer Turnip out of the barrel freeze at -3°C and go soft. Vegetables need Vegetables keep by place. Off, the cold does them no harm.",
+  "Sandbox_TraditionalPreservationFruitVegetables_KrautStarterBonus": "Kraut starter bonus (percent)",
+  "Sandbox_TraditionalPreservationFruitVegetables_KrautStarterBonus_tooltip": "How much faster a kraut barrel sours with a starter of old kraut brine (1 L, put in while packing). 0 turns the starter's speed off."
 }

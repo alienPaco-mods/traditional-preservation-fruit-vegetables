@@ -1,5 +1,24 @@
 # Changelog: Traditional Preservation (Fruits and Vegetables)
 
+## 0.0.24
+- **Kraut brine** (user, 2026-11-27, art/kraut_brine_mock.png): a barrel makes 0.15 L of brine a head at Salt and
+  Compress (a barrel sealed before this has its batch's). **Draw Starter** takes 1 L at most off a ready barrel with
+  kraut in it; once the last portion is out the brine stays (a **Brine** stage: it ages as Kraut Brine) and **Drain
+  Brine** takes it all, after which the barrel can be picked up. **Pour In Brine** (up to 9 L) on an empty barrel, then
+  **Put Back** fresh Sauerkraut or Sauer Turnip (menu or drag onto the barrel, as many as the brine covers, 0.15 L a
+  portion): each keeps its own age and keeps by place again; the oldest sets when the barrel spoils, and stale
+  portions are refused. **Kraut Brine** is a Beverage on TP Core's FluidAgeing (its age goes with it when poured),
+  mouldy in about 3 weeks at 20 C. **Back-slopping**: an **Add Starter** slot while packing takes 1 L of good brine,
+  used at Salt and Compress, the batch 25% faster (sandbox *Kraut starter bonus*). The window shows the slot, a brine
+  tank, the Brine band and the Draw Starter and Drain Brine buttons. Console: `TPFV.give("krautBrine")`, and the
+  barrel kit brings a jar of brine, 4 empty jars and a bucket.
+  **Unseal** (user): the plank and stone stay on after Salt and Compress until Unseal lifts them off and gives them
+  back, once the barrel is ready, spoiled or down to brine (never mid-ferment); nothing else returns them. Pressed, a
+  barrel is shut (no Take, Draw Starter, Drain or Put Back: "Unseal it first"), takes no new heads or starter and
+  stays where it is. The tile shows the cloth, board and stone only while they are on; unsealed it shows the shreds of
+  what is left in it (cabbage, turnip or mixed), and nothing once only brine is left. A barrel sealed before this has them on. Put Back needs
+  neither.
+
 ## 0.0.23
 - **Pack straight from the cauldron** (user, 2026-11-27): the Stone Hearth's menu, its cauldron holding paste, has
   **Pack Tomato Paste** and **Add to the Crock**; a crock's and an empty jar's own menus list a cauldron near by as a

@@ -38,6 +38,7 @@ function M.applySandbox()
     local options = SandboxVars and SandboxVars.TraditionalPreservationFruitVegetables
     if not options then return end
     if options.FermentDays then M.FERMENT_HOURS = options.FermentDays * 24 end
+    if options.KrautStarterBonus then M.STARTER_BONUS = options.KrautStarterBonus / 100 end
     if options.TemperatureSensitivity then M.SENSITIVITY = Weather.sensitivity(options.TemperatureSensitivity) end
 end
 

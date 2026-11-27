@@ -101,18 +101,29 @@ M.updateBarrel(barrel, ledger, "Basement")
 check("ready kraut keeps by place", barrel.keepDays > 0 and barrel.keepDays < 60)
 
 -- Portions
+check("sealed, it is shut: no kraut, no starter, no put back; Unseal is offered", M.takePortion(barrel, "cabbage") == nil
+    and M.drawRefusal(barrel) == "Pressed" and M.putBackRefusal(barrel, true) == "Pressed" and M.unsealRefusal(barrel) == nil)
+check("Unseal lifts the plank and stone off: once", M.unseal(barrel) and not M.pressed(barrel)
+    and M.unsealRefusal(barrel) == "NotPressed")
 check("no turnip portion from an all-cabbage barrel", M.takePortion(barrel, "turnip") == nil)
 local taken = M.takePortion(barrel, "cabbage")
 check("a portion out: the batch's food, its share of keeping", taken.portion.calories == portion.calories and taken.kind == "cabbage"
     and near(taken.ageShare, barrel.keepDays / 180) and M.portionsLeft(barrel) == 59 and not taken.last)
 for _ = 1, 58 do M.takePortion(barrel, "cabbage") end
 local last = M.takePortion(barrel, "cabbage")
-check("the last portion empties the barrel (and gives the stone back)", last.last == true and M.barrelStage(barrel) == "Empty")
+check("the last portion leaves the brine: 9 L of 60 heads, stage Brine",
+    last.last == true and M.barrelStage(barrel) == "Brine" and near(M.brineOf(barrel), 9) and barrel.portions == nil)
+local drained = M.drainBrine(barrel)
+check("Drain Brine takes all of it, the barrel empty and open", near(drained, 9) and M.barrelStage(barrel) == "Empty"
+    and M.packRefusal(barrel) == nil)
+check("a barrel emptied with its press still on takes no new heads", M.packRefusal({ stage = "Empty", press = true }) == "Pressed"
+    and M.starterRefusal({ press = true }) == "Pressed" and M.drainBrine({ stage = "Brine", brine = 2, press = true }) == 0)
 
 -- Too warm
 local hot = {}
 for _ = 1, 30 do M.pack(hot, "turnip", 0, CABBAGE) end
 M.compress(hot, ledger)
+hot.press = false  -- opened, as Unseal would
 weather(1, 30)  -- a day in the open at 30 C
 M.updateBarrel(hot, ledger, "Open")
 weather(1.5, 30)
@@ -126,6 +137,7 @@ check("a spoiled barrel empties (the stone back)", M.emptySpoiled(hot) and M.bar
 local soft = {}
 for _ = 1, 30 do M.pack(soft, "cabbage", 0, CABBAGE) end
 M.compress(soft, ledger)
+soft.press = false  -- opened, as Unseal would
 soft.workHours = M.FERMENT_HOURS - 1
 weather(3, 30)
 M.updateBarrel(soft, ledger, "Open")
@@ -155,6 +167,7 @@ check("each kind keeps its own food, the apples shared over all 30 heads",
 local back = M.unpack({ heads = { { kind = "turnip", age = 1 }, { kind = "cabbage", age = 2 } }, stage = "Packing" })
 check("unpacking a mix gives each head back as itself", back[1].fullType == "Base.Turnip" and back[2].fullType == "Base.Cabbage")
 M.compress(mixed, ledger)
+mixed.press = false
 mixed.workHours = M.FERMENT_HOURS
 M.updateBarrel(mixed, ledger, "Sheltered")
 check("ready: 20 Sauerkraut and 10 Sauer Turnip", M.portionsLeft(mixed, "cabbage") == 20 and M.portionsLeft(mixed, "turnip") == 10)
@@ -163,7 +176,8 @@ check("a turnip portion: a turnip's food", turnipOut.kind == "turnip" and near(t
 for _ = 1, 9 do M.takePortion(mixed, "turnip") end
 check("the turnips gone, the cabbage still there", M.takePortion(mixed, "turnip") == nil and M.barrelStage(mixed) == "Ready")
 for _ = 1, 19 do M.takePortion(mixed, "cabbage") end
-check("the last of all empties it", M.takePortion(mixed, "cabbage").last == true and M.barrelStage(mixed) == "Empty")
+check("the last of all leaves its 4.5 L of brine", M.takePortion(mixed, "cabbage").last == true and M.barrelStage(mixed) == "Brine"
+    and near(M.brineOf(mixed), 4.5))
 
 -- Stale heads make soft kraut, head by head (user, 2026-11-22): 4 of 20 cabbages stale at sealing (one went stale
 -- while the barrel stood packed), 10 fresh turnips; the soft ones of a kind come out first, further on.
@@ -175,6 +189,7 @@ for _ = 1, 10 do M.pack(staled, "turnip", 1, TURNIP, 100, 28) end
 M.pack(staled, "cabbage", 8, CABBAGE)
 check("stale heads while packing: 3 now, 4 a day later", M.staleHeads(staled, 100) == 3 and M.staleHeads(staled, 124) == 4)
 M.compress(staled, ledger, 124)
+staled.press = false  -- opened, as Unseal would
 check("sealed: 4 soft cabbages, no soft turnips (an old head without its stale age isn't counted)",
     M.softLeft(staled, "cabbage") == 4 and M.softLeft(staled, "turnip") == 0 and M.softLeft(staled) == 4)
 staled.workHours = M.FERMENT_HOURS
@@ -247,5 +262,67 @@ check("anything else is left alone", M.keepKraut({ getFullType = function() retu
 local cooked = portion()
 cooked.cooked = true
 check("cooked kraut keeps vanilla's clock: no frost record", M.keepKraut(cooked, frostHour, "Open") == nil and cooked.modData[M.KRAUT_FROST_KEY] == nil)
+
+-- The brine and the starter (user, 2026-11-27)
+local FluidAgeing = require "TraditionalPreservationCore/FluidAgeing"
+local fresh = {}
+check("a starter only while empty or packing, once", M.addStarter(fresh) and M.starterRefusal(fresh) == "HasStarter")
+for _ = 1, 40 do M.pack(fresh, "cabbage", 0.5, CABBAGE, H.hours) end
+local back = M.unpack({ stage = "Packing", heads = {}, starter = true }, H.hours)
+check("Unpack gives the starter back as 1 L of brine", #back == 1 and back[1].brine == 1)
+ledger.seasonTemperature, ledger.groundTemperature = 18, 18
+M.compress(fresh, ledger, H.hours)
+local here = M.barrelStatus(fresh, ledger, "Basement")
+check("sealed with a starter: used, 6 L of brine for 40 heads, 25% faster than the place's own rate", fresh.starter == nil
+    and fresh.starterUsed and near(M.brineOf(fresh), 6) and near(here.rate, M.fermentRate(here.temperature) * 1.25, 0.001))
+fresh.workHours = M.FERMENT_HOURS
+M.updateBarrel(fresh, ledger, "Basement")
+check("then ready", M.barrelStage(fresh) == "Ready")
+M.unseal(fresh)
+check("no brine drained while kraut is in; a starter drawn once, 1 L", M.drainBrine(fresh) == 0
+    and M.drawStarter(fresh) == 1 and near(M.brineOf(fresh), 5) and M.drawRefusal(fresh) == "Drawn" and M.drawStarter(fresh) == 0)
+check("put back on a full barrel: what its 5 L cover (33) less the 40 in, none", M.putBackRoom(fresh) == 0
+    and M.putBackRefusal(fresh, true) == "Covered")
+for _ = 1, 10 do M.takePortion(fresh, "cabbage") end
+check("10 out: room for 3 back", M.putBackRoom(fresh) == 3)
+check("a stale portion isn't put back", M.putBackRefusal(fresh, false) == "Stale")
+check("a fresh one goes back, with its own clock", M.putBack(fresh, "cabbage", CABBAGE, 7, false, ledger)
+    and M.portionsLeft(fresh) == 31 and #fresh.pieces == 31 and near(fresh.keepDays, 90))
+weather(10, 8)
+ledger.groundTemperature = 8
+M.updateBarrel(fresh, ledger, "Basement")
+check("the barrel keeps by its oldest piece: the one put back half through, older by the days since", fresh.keepDays > 90
+    and fresh.keepDays < 120)
+local first = M.takePortion(fresh, "cabbage")
+check("the oldest comes out first, as far into its days as it is", near(first.ageShare, fresh.keepDays / 180, 0.05) or first.ageShare > 0.5)
+local lastOut
+for _ = 1, 30 do lastOut = M.takePortion(fresh, "cabbage") or lastOut end
+check("not unsealed mid-ferment, but once ready", M.unsealRefusal({ stage = "Fermenting" }) == "Fermenting"
+    and M.unsealRefusal({ stage = "Ready" }) == nil)
+check("emptied: 5 L of brine left, aging as Kraut Brine", M.barrelStage(fresh) == "Brine" and near(M.brineOf(fresh), 5)
+    and fresh[FluidAgeing.KEY] ~= nil)
+check("brine only takes kraut back as it covers (33)", M.putBackRoom(fresh) == 33)
+check("a barrel of brine takes more poured in, up to 9 L", near(M.pourBrine(fresh, 6), 4) and near(M.brineOf(fresh), 9)
+    and M.pourRefusal(fresh) == "Full")
+weather(25, 20)
+ledger.groundTemperature, ledger.seasonTemperature = 20, 20
+M.updateBarrel(fresh, ledger, "Sheltered")
+check("three weeks at 20 C: mouldy, nothing goes back, nothing poured in", fresh.brineSpoiled == true
+    and M.putBackRoom(fresh) == 0 and M.pourRefusal(fresh) == "Mouldy")
+local litres, fluid = M.drainBrine(fresh)
+check("drained as rotten brine, the barrel empty", near(litres, 9) and fluid == M.ROTTEN_BRINE and M.barrelStage(fresh) == "Empty")
+check("an empty barrel takes good brine poured in", near(M.pourBrine(fresh, 2), 2) and M.barrelStage(fresh) == "Brine")
+check("a barrel sealed before the press was recorded has it on", M.pressed({ stage = "Ready" }) and not M.pressed({}))
+local reopened = { stage = "Brine", brine = 1.5, press = false }
+M.putBack(reopened, "cabbage", CABBAGE, 2, false, ledger)
+check("an unsealed barrel of brine with kraut put back stays unsealed", M.barrelStage(reopened) == "Ready" and not M.pressed(reopened)
+    and reopened.press == false)
+
+local old = { stage = "Ready", portions = { cabbage = 30 }, headCounts = { cabbage = 40 }, keepDays = 5, keepMarks = {} }
+check("a barrel sealed before brine: its batch's, 0.15 L a head it was sealed with", near(M.brineOf(old), 6) and old.brine == nil)
+M.brineOf(old, true)
+check("written down when it is brought up to now", near(old.brine, 6))
+check("Kraut Brine goes off in 3 weeks at 20 C, about 2 months at 8, never frozen",
+    near(M.BRINE_SPOIL_HOURS / M.brineRate(20) / 24, 21) and near(21 / M.brineRate(8), 60) and M.brineRate(-1) == 0)
 
 H.done()

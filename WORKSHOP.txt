@@ -24,7 +24,7 @@ Traditional Preservation (Fruits and Vegetables) requires [b]Traditional Preserv
 [*][b]Build a Kraut Barrel[/b] (Build menu, Furniture; Carpentry 3).
 [*][b]Pack Cabbage[/b] and [b]Pack Turnip[/b] from its right-click menu, 20 to 60 heads in any mix.
 [*][b]Salt and Compress[/b]: a use of salt per five heads, a ripped sheet, a plank and a flat stone. From then on nothing more goes in.
-[*][b]Wait[/b] (the Kraut Barrel window shows how long), then [b]Take Sauerkraut[/b]. The last portion gives the plank and stone back.
+[*][b]Wait[/b] (the Kraut Barrel window shows how long), then [b]Take Sauerkraut[/b]. [b]Unseal[/b] gives the plank and stone back.
 [/olist]
 
 [h2]Part of Traditional Preservation[/h2]

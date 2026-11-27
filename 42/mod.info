@@ -1,7 +1,7 @@
 name=Traditional Preservation (Fruits and Vegetables)
 id=TraditionalPreservationFruitVegetables
 author=alienPaco
-modversion=0.0.23
+modversion=0.0.24
 versionMin=42.22
 description=Traditional Preservation (Fruits and Vegetables): a root cellar for vanilla vegetables, a clamp for roots through the winter, and a kraut barrel for sauerkraut and sauer turnips. B42 prototype.
 icon=icon.png

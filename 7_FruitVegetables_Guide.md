@@ -212,7 +212,7 @@ A standing oak barrel, narrower at the top, bound with iron: Fish & Meat's Salti
 - **Too warm spoils it.** Two days above 27 C before it's ready and it comes out **soft**: it keeps only two thirds as long. Five days and it **spoils**: empty it to get the plank and stone back. A barrel by a fire is too warm.
 - **Kraut Barrel Info** (in its menu) shows the stage and when it will be ready, the place and its heat, what's in it, how far it has soured and the hours it has been too warm. Drag cabbages, turnips, apples or carrots onto the barrel in it to pack them; its buttons salt and compress, unpack, take kraut out (one button a kraut: One or All) and empty a spoiled barrel.
 
-**Ready.** The kraut stays in the barrel under its stone and keeps by place: about six months in an 8 C cellar, three in a cool room, one in a warm one. **Take Sauerkraut** and **Take Sauer Turnip** (All or One): one portion a head, as its kind, each with its own food and the apples and carrots shared out. Out of the barrel a portion keeps two weeks, less if the barrel has stood long. The last portion gives the plank and stone back (the cloth is used up).
+**Ready.** The kraut stays in the barrel under its stone and keeps by place: about six months in an 8 C cellar, three in a cool room, one in a warm one. **Take Sauerkraut** and **Take Sauer Turnip** (All or One): one portion a head, as its kind, each with its own food and the apples and carrots shared out. Out of the barrel a portion keeps two weeks, less if the barrel has stood long. The plank and stone stay on until you **Unseal** it, which gives them back (the cloth is used up); while they are on, the barrel stays where it is.
 
 | Salted and compressed on the 1st | Room | Basement | Open air |
 |---|---|---|---|

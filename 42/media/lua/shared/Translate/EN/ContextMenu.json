@@ -34,5 +34,12 @@
   "ContextMenu_TraditionalPreservationFruitVegetables_AddSeals": "Salt crust, %1 cap (seals it, %2 uses)",
   "ContextMenu_TraditionalPreservationFruitVegetables_EmptyCrock": "Empty the Crock",
   "ContextMenu_TraditionalPreservationFruitVegetables_PackFrom": "%1 (%2 portions)",
-  "ContextMenu_TraditionalPreservationFruitVegetables_AllJars": "All Jars (%1)"
+  "ContextMenu_TraditionalPreservationFruitVegetables_AllJars": "All Jars (%1)",
+  "ContextMenu_TraditionalPreservationFruitVegetables_AddStarter": "Add Starter (%1 L Kraut Brine)",
+  "ContextMenu_TraditionalPreservationFruitVegetables_DrawStarter": "Draw Starter (%1 L)",
+  "ContextMenu_TraditionalPreservationFruitVegetables_DrainBrine": "Drain Brine (%1 L)",
+  "ContextMenu_TraditionalPreservationFruitVegetables_PourBrine": "Pour In Brine",
+  "ContextMenu_TraditionalPreservationFruitVegetables_PourFrom": "%1 (%2 L)",
+  "ContextMenu_TraditionalPreservationFruitVegetables_PutBack": "Put Back %1",
+  "ContextMenu_TraditionalPreservationFruitVegetables_Unseal": "Unseal"
 }

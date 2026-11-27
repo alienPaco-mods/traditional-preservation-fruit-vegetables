@@ -34,15 +34,21 @@ function World.updateBarrel(station)
     return barrel
 end
 
--- The overlay a stage shows: the shreds at the rim (cabbage, turnip, or both mixed), then the cloth, board and stone.
+-- The overlay a barrel shows: with the plank and stone on, the cloth, board and stone (M.pressed: from Salt and
+-- Compress until Unseal); open, the shreds at the rim of what is in it, cabbage, turnip or both mixed (packing, or
+-- kraut left once unsealed; user, 2026-11-27); nothing when nothing is in it (empty, or brine only).
+local function shredsOf(cabbages, turnips)
+    if cabbages > 0 and turnips > 0 then return Tiles.OVERLAYS.mixed end
+    if cabbages + turnips == 0 then return nil end
+    return Tiles.OVERLAYS[turnips > 0 and "turnip" or "cabbage"]
+end
+
 local function overlayOf(barrel)
+    if M.pressed(barrel) then return Tiles.OVERLAYS.weighted end
     local stage = M.barrelStage(barrel)
-    if stage == "Packing" then
-        local cabbages, turnips = M.headCount(barrel, "cabbage"), M.headCount(barrel, "turnip")
-        if cabbages > 0 and turnips > 0 then return Tiles.OVERLAYS.mixed end
-        return Tiles.OVERLAYS[turnips > 0 and "turnip" or "cabbage"]
-    end
-    if stage ~= "Empty" then return Tiles.OVERLAYS.weighted end
+    if stage == "Packing" then return shredsOf(M.headCount(barrel, "cabbage"), M.headCount(barrel, "turnip")) end
+    if stage == "Ready" then return shredsOf(M.portionsLeft(barrel, "cabbage"), M.portionsLeft(barrel, "turnip")) end
+    if stage == "Spoiled" then return shredsOf(M.headCount(barrel, "cabbage"), M.headCount(barrel, "turnip")) end
 end
 
 local function refresh(station, sessionState)

@@ -28,7 +28,20 @@ local REFUSALS = {
     NoBoard = "IGUI_TraditionalPreservationFruitVegetables_NoBoard",
     NoStone = "IGUI_TraditionalPreservationFruitVegetables_NoStone",
     NoneCarried = "IGUI_TraditionalPreservationFruitVegetables_NoneCarried",
+    HasStarter = "IGUI_TraditionalPreservationFruitVegetables_HasStarter",
+    NotReady = "IGUI_TraditionalPreservationFruitVegetables_NotReady",
+    Drawn = "IGUI_TraditionalPreservationFruitVegetables_Drawn",
+    NoBrine = "IGUI_TraditionalPreservationFruitVegetables_NoBrine",
+    Mouldy = "IGUI_TraditionalPreservationFruitVegetables_Mouldy",
+    Covered = "IGUI_TraditionalPreservationFruitVegetables_Covered",
+    Stale = "IGUI_TraditionalPreservationFruitVegetables_StaleBack",
+    NoContainer = "IGUI_TraditionalPreservationFruitVegetables_NoContainer",
+    NoStarterBrine = "IGUI_TraditionalPreservationFruitVegetables_NoStarterBrine",
+    Pressed = "IGUI_TraditionalPreservationFruitVegetables_Pressed",
+    NotPressed = "IGUI_TraditionalPreservationFruitVegetables_NotPressed",
+    Fermenting = "IGUI_TraditionalPreservationFruitVegetables_UnsealFermenting",
 }
+local BRINE_ICON = "Item_GlassJar"
 
 local STATIONS = {}
 for _, name in ipairs(Tiles.STATIONS) do STATIONS[name] = true end
@@ -40,6 +53,10 @@ end
 
 local function refusalText(refusal, barrel)
     return say(REFUSALS[refusal], M.BARREL_MIN, M.saltNeeded(M.headCount(barrel)), M.HEADS_PER_EXTRA)
+end
+
+local function litresText(litres)
+    return string.format("%.1f", litres)
 end
 
 local function barrelNow(station)
@@ -129,7 +146,7 @@ local function addCompressMenu(menu, playerObj, station, barrel)
     end
 end
 
--- One row a kraut still in the barrel: All (what is left) and One.
+-- One row a kraut still in the barrel: All (what is left) and One; in red while the plank and stone are on.
 local function addTakeMenu(menu, playerObj, station, barrel)
     for _, kind in ipairs(M.KRAUT_KINDS) do
         local left = M.portionsLeft(barrel, kind)
@@ -137,6 +154,7 @@ local function addTakeMenu(menu, playerObj, station, barrel)
             local product = M.KRAUTS[kind].product
             local option = menu:addOption(say("ContextMenu_TraditionalPreservationFruitVegetables_Take", getItemNameFromFullType(product), left))
             option.iconTexture = getTexture(ICONS[product:match("%.(.+)$")])
+            if M.pressed(barrel) then return refuse(option, refusalText("Pressed", barrel)) end
             local sub = menu:getNew(menu)
             menu:addSubMenu(option, sub)
             if left > 1 then
@@ -149,6 +167,119 @@ local function addTakeMenu(menu, playerObj, station, barrel)
     end
 end
 
+-- The brine (user, 2026-11-27, art/kraut_brine_mock.png). Containers in reach holding at least litres of Kraut Brine, and
+-- ones with room for litres of fluid (empty, or holding only it).
+local function brineHolders(playerObj, litres)
+    return findItems(playerObj, function(item) return M.onlyFluid(item, M.KRAUT_BRINE) >= litres - 1e-6 end)
+end
+local function roomHolders(playerObj, fluid, litres)
+    return findItems(playerObj, function(item) return M.roomFor(item, fluid) >= litres - 1e-6 end)
+end
+TraditionalPreservationFruitVegetablesKrautUI.brineHolders = brineHolders
+
+-- Add Starter while packing: 1 L of Kraut Brine from a container in reach.
+local function addStarterMenu(menu, playerObj, station, barrel)
+    local option = menu:addOption(say("ContextMenu_TraditionalPreservationFruitVegetables_AddStarter", M.STARTER_L))
+    option.iconTexture = getTexture(BRINE_ICON)
+    local refusal = M.starterRefusal(barrel)
+    local holders = brineHolders(playerObj, M.STARTER_L)
+    if not refusal and #holders == 0 then refusal = "NoStarterBrine" end
+    if refusal then return refuse(option, refusalText(refusal, barrel)) end
+    option.target, option.onSelect, option.param1, option.param2, option.param3 = playerObj, queue, station, "starter", { holders[1] }
+    tooltipFor(option, say("IGUI_TraditionalPreservationFruitVegetables_StarterHelp", UI.percent(1 + M.STARTER_BONUS)))
+end
+
+-- Draw Starter off a ready barrel: 1 L into a container with room.
+local function addDrawMenu(menu, playerObj, station, barrel)
+    local option = menu:addOption(say("ContextMenu_TraditionalPreservationFruitVegetables_DrawStarter", M.STARTER_L))
+    option.iconTexture = getTexture(BRINE_ICON)
+    local refusal = M.drawRefusal(barrel)
+    local holders = roomHolders(playerObj, M.KRAUT_BRINE, M.STARTER_L)
+    if not refusal and #holders == 0 then refusal = "NoContainer" end
+    if refusal then return refuse(option, refusalText(refusal, barrel)) end
+    option.target, option.onSelect, option.param1, option.param2, option.param3 = playerObj, queue, station, "draw", { holders[1] }
+    tooltipFor(option, getText("IGUI_TraditionalPreservationFruitVegetables_DrawHelp"))
+end
+
+-- Drain Brine off a barrel of brine: into containers in reach one after another, until it is all out.
+local function addDrainMenu(menu, playerObj, station, barrel)
+    local fluid = barrel.brineSpoiled and M.ROTTEN_BRINE or M.KRAUT_BRINE
+    local option = menu:addOption(say("ContextMenu_TraditionalPreservationFruitVegetables_DrainBrine", litresText(barrel.brine)))
+    option.iconTexture = getTexture(BRINE_ICON)
+    if M.pressed(barrel) then return refuse(option, refusalText("Pressed", barrel)) end
+    local holders, room, take = roomHolders(playerObj, fluid, 0.01), 0, {}
+    for _, item in ipairs(holders) do
+        if room >= barrel.brine then break end
+        table.insert(take, item)
+        room = room + M.roomFor(item, fluid)
+    end
+    if #take == 0 then return refuse(option, refusalText("NoContainer", barrel)) end
+    option.target, option.onSelect, option.param1, option.param2, option.param3 = playerObj, queue, station, "drain", take
+    tooltipFor(option, getText("IGUI_TraditionalPreservationFruitVegetables_DrainHelp"))
+end
+
+-- Pour In Brine on an empty barrel or one of brine: a row per container of Kraut Brine in reach.
+local function addPourMenu(menu, playerObj, station, barrel)
+    local holders = brineHolders(playerObj, 0.01)
+    if #holders == 0 then return end
+    local option = menu:addOption(getText("ContextMenu_TraditionalPreservationFruitVegetables_PourBrine"))
+    option.iconTexture = getTexture(BRINE_ICON)
+    local refusal = M.pourRefusal(barrel)
+    if refusal then return refuse(option, refusalText(refusal, barrel)) end
+    local sub = menu:getNew(menu)
+    menu:addSubMenu(option, sub)
+    for _, item in ipairs(holders) do
+        local row = sub:addOption(say("ContextMenu_TraditionalPreservationFruitVegetables_PourFrom", item:getDisplayName(),
+            litresText(M.onlyFluid(item, M.KRAUT_BRINE))), playerObj, queue, station, "pour", { item })
+        row.itemForTexture = item
+    end
+    tooltipFor(option, getText("IGUI_TraditionalPreservationFruitVegetables_PourHelp"))
+end
+
+-- Fresh portions of a kraut in reach, oldest first.
+local function freshKraut(playerObj, product)
+    local found = findItems(playerObj, function(item) return item:getFullType() == product and M.isFreshKraut(item) end)
+    table.sort(found, function(a, b) return a:getAge() > b:getAge() end)
+    return found
+end
+
+-- Put Back, a row a kraut carried: All (as many as the brine covers) and One, or in red with the reason.
+local function addPutBackMenu(menu, playerObj, station, barrel)
+    local room = M.putBackRoom(barrel)
+    for _, kind in ipairs(M.KRAUT_KINDS) do
+        local product = M.KRAUTS[kind].product
+        local pieces = freshKraut(playerObj, product)
+        local any = #findItems(playerObj, function(item) return item:getFullType() == product end) > 0
+        if any then
+            local option = menu:addOption(say("ContextMenu_TraditionalPreservationFruitVegetables_PutBack", getItemNameFromFullType(product)))
+            option.iconTexture = getTexture(ICONS[product:match("%.(.+)$")])
+            local refusal = M.putBackRefusal(barrel, #pieces > 0)
+            if refusal then
+                refuse(option, refusalText(refusal, barrel))
+            else
+                local sub = menu:getNew(menu)
+                menu:addSubMenu(option, sub)
+                local all = math.min(#pieces, room)
+                if all > 1 then
+                    sub:addOption(say("ContextMenu_TraditionalPreservationFruitVegetables_All", all), playerObj, queue, station, "putback", firstOf(pieces, all))
+                end
+                sub:addOption(getText("ContextMenu_TraditionalPreservationFruitVegetables_One"), playerObj, queue, station, "putback", { pieces[1] })
+                tooltipFor(option, say("IGUI_TraditionalPreservationFruitVegetables_PutBackHelp", room, M.BRINE_PER_HEAD))
+            end
+        end
+    end
+end
+
+-- Unseal: the plank and stone off, once it is ready (or spoiled, or down to brine, or empty with them still on).
+local function addUnsealMenu(menu, playerObj, station, barrel)
+    if not M.pressed(barrel) then return end
+    local option = menu:addOption(getText("ContextMenu_TraditionalPreservationFruitVegetables_Unseal"), playerObj, queue, station, "unseal", nil)
+    option.iconTexture = getTexture("Item_FlatRock")
+    local refusal = M.unsealRefusal(barrel)
+    if refusal then return refuse(option, refusalText(refusal, barrel)) end
+    tooltipFor(option, getText("IGUI_TraditionalPreservationFruitVegetables_UnsealHelp"))
+end
+
 local function stageText(barrel)
     local stage = M.barrelStage(barrel)
     if stage == "Ready" and barrel.soft then return getText("IGUI_TraditionalPreservationFruitVegetables_StageSoft") end
@@ -157,6 +288,9 @@ end
 
 local function contentsText(barrel)
     if M.barrelStage(barrel) == "Empty" then return getText("IGUI_TraditionalPreservationFruitVegetables_Nothing") end
+    if M.barrelStage(barrel) == "Brine" then
+        return say("IGUI_TraditionalPreservationFruitVegetables_BrineOnly", litresText(barrel.brine))
+    end
     local apples = barrel.apples or M.extraCount(barrel, "apple")
     local carrots = barrel.carrots or M.extraCount(barrel, "carrot")
     return say("IGUI_TraditionalPreservationFruitVegetables_Contents", M.headCount(barrel, "cabbage"), M.headCount(barrel, "turnip"),
@@ -171,6 +305,8 @@ local function nextText(status)
     elseif status.stage == "Ready" then
         if not status.daysLeft then return getText("IGUI_TraditionalPreservationFruitVegetables_KeepsForever") end
         return say("IGUI_TraditionalPreservationFruitVegetables_KeepsFor", string.format("%.0f", status.daysLeft))
+    elseif status.stage == "Brine" and status.hoursLeft then
+        return say("IGUI_TraditionalPreservationFruitVegetables_BrineKeeps", UI.durationText(status.hoursLeft))
     end
     return getText("IGUI_TraditionalPreservationFruitVegetables_Help" .. status.stage)
 end
@@ -197,19 +333,30 @@ local function addBarrelMenu(context, playerObj, station)
 
     if stage == "Empty" or stage == "Packing" then
         addPackMenu(menu, playerObj, station, barrel)
+        addStarterMenu(menu, playerObj, station, barrel)
         if stage == "Packing" then
             addCompressMenu(menu, playerObj, station, barrel)
             local unpack = menu:addOption(getText("ContextMenu_TraditionalPreservationFruitVegetables_Unpack"), playerObj, queue, station, "unpack", nil)
             tooltipFor(unpack, getText("IGUI_TraditionalPreservationFruitVegetables_UnpackHelp"))
+        else
+            addPourMenu(menu, playerObj, station, barrel)
         end
     elseif stage == "Ready" then
         addTakeMenu(menu, playerObj, station, barrel)
+        addPutBackMenu(menu, playerObj, station, barrel)
+        addDrawMenu(menu, playerObj, station, barrel)
+    elseif stage == "Brine" then
+        addPutBackMenu(menu, playerObj, station, barrel)
+        addPourMenu(menu, playerObj, station, barrel)
+        addDrainMenu(menu, playerObj, station, barrel)
     elseif stage == "Spoiled" then
         menu:addOption(getText("ContextMenu_TraditionalPreservationFruitVegetables_Empty"), playerObj, queue, station, "empty", nil)
     end
+    addUnsealMenu(menu, playerObj, station, barrel)
 end
 
--- Kraut Barrel Info (art/kraut_info_mock.png, on the Salting Tub's window): a band with the barrel's state, the place,
+-- Kraut Barrel Info (art/kraut_info_mock.png, on the Salting Tub's window; the starter slot and brine tank
+-- art/kraut_brine_mock.png): a band with the barrel's state, the place,
 -- what it holds as cells with a line of history beside them (what is dragged onto them packs while it is packing),
 -- the buttons by stage, the ferment's bar while it sours, then notes. Kept up to date while open.
 local KrautUI = TraditionalPreservationFruitVegetablesKrautUI
@@ -238,9 +385,15 @@ function KrautUI.band(barrel, status)
         local heads = M.headCount(barrel)
         local text = heads >= M.BARREL_MIN and say(KEY .. "BandPackingText", heads, M.saltNeeded(heads))
             or say(KEY .. "BandPackingFewText", heads, M.BARREL_MIN)
+        if barrel.starter then text = text .. say(KEY .. "BandStarterIn", UI.percent(M.STARTER_BONUS)) end
         return getText(KEY .. "StagePacking"), text, InfoWindow.BAND_WAITING
     elseif stage == "Spoiled" then
         return getText(KEY .. "StageSpoiled"), getText(KEY .. "BandSpoiledText"), InfoWindow.BAND_AT_RISK
+    elseif stage == "Brine" then
+        if barrel.brineSpoiled then
+            return getText(KEY .. "StageBrine"), say(KEY .. "BandBrineMouldy", litresText(barrel.brine)), InfoWindow.BAND_AT_RISK
+        end
+        return getText(KEY .. "StageBrine"), say(KEY .. "BandBrineText", litresText(barrel.brine)), InfoWindow.BAND_WAITING
     elseif stage == "Ready" then
         local text = status.daysLeft and say(KEY .. "BandReadyText", string.format("%.0f", status.daysLeft))
             or getText(KEY .. "KeepsForever")
@@ -342,6 +495,34 @@ function KrautUI.judgeDrop(barrel, items)
     return judged
 end
 
+-- Kraut dragged onto a ready barrel or one of brine: fresh portions back under the brine, as many as it covers.
+function KrautUI.judgePutBack(barrel, items)
+    local judged = { take = {}, lines = {} }
+    local room, refusal = M.putBackRoom(barrel), nil
+    local portions = {}
+    for _, item in ipairs(items) do
+        if not M.KRAUT_OF_PRODUCT[item:getFullType()] then
+            refusal = refusal or "NotKraut"
+        elseif not M.isFreshKraut(item) then
+            refusal = refusal or "Stale"
+        else
+            table.insert(portions, item)
+        end
+    end
+    table.sort(portions, function(a, b) return a:getAge() > b:getAge() end)
+    for _, item in ipairs(portions) do
+        if #judged.take >= room then refusal = refusal or "Covered" break end
+        table.insert(judged.take, item)
+    end
+    if barrel.brineSpoiled then judged.take, refusal = {}, "Mouldy" end
+    if #judged.take > 0 then table.insert(judged.lines, say(KEY .. "DropPutBack", #judged.take, room)) end
+    if refusal then
+        judged.refused = refusal == "NotKraut" and getText(KEY .. "DropNotPortion") or refusalText(refusal, barrel)
+        if #judged.take == 0 then judged.lines = { judged.refused } end
+    end
+    return judged
+end
+
 -- The cells: the heads' share of a full barrel, cabbage and turnip split by share; what is dragged on packs while
 -- packing. Under them the stale heads (their kraut will be soft), then once sealed the soft portions left. now: the
 -- hour (the game's when nil).
@@ -351,7 +532,8 @@ function KrautUI.holding(barrel, drop, now)
     local heads = cabbages + turnips
     local holding = { kind = "cells", name = getText(KEY .. "InfoContents"), share = cellsShare(heads), colour = LOAD_COLOUR,
         parts = { { pattern = PATTERNS.cabbage, weight = cabbages }, { pattern = PATTERNS.turnip, weight = turnips } },
-        drop = (stage == "Empty" or stage == "Packing") and drop or nil }
+        drop = (stage == "Empty" or stage == "Packing" or stage == "Ready" or stage == "Brine") and drop or nil }
+    if stage == "Brine" then holding.amount, holding.state = getText(KEY .. "Nothing"), getText(KEY .. "HoldsBrineOnly") return holding end
     if stage == "Empty" or stage == "Packing" then
         holding.amount = say(KEY .. "HoldsHeadsOf", heads, M.BARREL_MAX)
     elseif stage == "Ready" then
@@ -385,9 +567,59 @@ function KrautUI.holding(barrel, drop, now)
     return holding
 end
 
+-- The brine tank right of the heads (art/kraut_brine_mock.png): up to BRINE_MAX, its line what it covers.
+local BRINE_COLOUR, MOULDY_COLOUR = { 0.84, 0.81, 0.59 }, { 0.33, 0.42, 0.18 }
+function KrautUI.brineHolding(barrel)
+    local stage = M.barrelStage(barrel)
+    local brine = M.brineOf(barrel)
+    local holding = { kind = "tank", name = getText(KEY .. "InfoBrine"), share = math.min(brine / M.BRINE_MAX, 1),
+        colour = barrel.brineSpoiled and MOULDY_COLOUR or BRINE_COLOUR,
+        amount = say(KEY .. "BrineAmount", litresText(brine), litresText(M.BRINE_MAX)) }
+    if stage == "Empty" or stage == "Packing" then
+        holding.state = getText(KEY .. "BrineAtCompress")
+    elseif stage == "Fermenting" then
+        holding.state = getText(KEY .. "BrineOverHeads")
+    elseif stage == "Ready" then
+        holding.state = say(KEY .. "BrineCovers", M.portionsLeft(barrel))
+    elseif stage == "Brine" then
+        holding.state = barrel.brineSpoiled and getText(KEY .. "BrineMouldy")
+            or say(KEY .. "BrineRoomFor", math.min(math.floor(brine / M.BRINE_PER_HEAD + 1e-6), M.BARREL_MAX))
+    end
+    return holding
+end
+
+-- The starter's slot left of the heads (DEVGUIDE, starters): Add Starter while it can take one, the jar bright once in,
+-- "used" once the batch has taken it. actions = { drop, click, menu } (the window's) while it takes one.
+function KrautUI.starterSlot(barrel, actions)
+    local stage = M.barrelStage(barrel)
+    local slot = { kind = "slot", arrow = "", icons = { BRINE_ICON } }
+    if barrel.starter then
+        slot.look, slot.name, slot.count = "in", getText(KEY .. "SlotStarter"), say(KEY .. "SlotLitres", M.STARTER_L)
+    elseif stage == "Empty" or stage == "Packing" then
+        slot.look, slot.name, slot.nameColour = "empty", getText(KEY .. "SlotAddStarter"), InfoWindow.NOTE_COLOUR
+        if actions then slot.drop, slot.click, slot.menu = actions.drop, actions.click, actions.menu end
+    else
+        slot.look, slot.name, slot.nameColour = "pending", getText(KEY .. "SlotUsed"), InfoWindow.NOTE_COLOUR
+    end
+    return slot
+end
+
+-- Kraut Brine dragged onto the slot: the first container holding a starter's worth.
+function KrautUI.judgeStarter(barrel, items)
+    local refusal = M.starterRefusal(barrel)
+    if refusal then return { take = {}, lines = { refusalText(refusal, barrel) } } end
+    for _, item in ipairs(items) do
+        if M.onlyFluid(item, M.KRAUT_BRINE) >= M.STARTER_L - 1e-6 then
+            return { take = { item }, lines = { say(KEY .. "DropStarter", M.STARTER_L) } }
+        end
+    end
+    return { take = {}, lines = { refusalText("NoStarterBrine", barrel) } }
+end
+
 -- The window's buttons (kraut_info_mock): while packing Salt and Compress (greyed with the reason, as the menu's) and
 -- Unpack (n); once ready one button a kraut left, opening One and All (n) (user, session 72); spoiled, Empty.
--- act(mode, pieces, kind) does it; kit is compressKit's.
+-- act(mode, pieces, kind) does it; kit is compressKit's while packing, else { drawRoom, drainRoom }: whether a
+-- container in reach has room for a starter or for the brine (false greys the button, as the menu's red row).
 function KrautUI.buttons(barrel, kit, act)
     local stage = M.barrelStage(barrel)
     local buttons = {}
@@ -411,13 +643,25 @@ function KrautUI.buttons(barrel, kit, act)
                 if left > 1 then
                     table.insert(rows, { title = say(MENU .. "All", left), icon = icon, enabled = true, onClick = function() act("take", all, kind) end })
                 end
+                local shut = M.pressed(barrel)
                 table.insert(buttons, { title = say(KEY .. "ButtonTake", getItemNameFromFullType(product), left), icon = icon,
-                    enabled = true, menu = rows })
+                    enabled = not shut, tooltip = shut and refusalText("Pressed", barrel) or nil, menu = not shut and rows or nil })
             end
         end
+        local refusal = M.drawRefusal(barrel) or (kit.drawRoom == false and "NoContainer") or nil
+        table.insert(buttons, { title = say(MENU .. "DrawStarter", M.STARTER_L), icon = BRINE_ICON, enabled = refusal == nil,
+            tooltip = refusal and refusalText(refusal, barrel) or getText(KEY .. "DrawHelp"), onClick = function() act("draw") end })
+    elseif stage == "Brine" then
+        local refusal = M.pressed(barrel) and "Pressed" or (kit.drainRoom == false and "NoContainer") or nil
+        table.insert(buttons, { title = say(MENU .. "DrainBrine", litresText(barrel.brine)), icon = BRINE_ICON, enabled = refusal == nil,
+            tooltip = refusal and refusalText(refusal, barrel) or getText(KEY .. "DrainHelp"), onClick = function() act("drain") end })
     elseif stage == "Spoiled" then
         table.insert(buttons, { title = getText(MENU .. "Empty"), icon = RETURNED_ICON, enabled = true,
             onClick = function() act("empty") end })
+    end
+    if M.pressed(barrel) and stage ~= "Fermenting" then
+        table.insert(buttons, { title = getText(MENU .. "Unseal"), icon = "Item_FlatRock", enabled = true,
+            tooltip = getText(KEY .. "UnsealHelp"), onClick = function() act("unseal") end })
     end
     return buttons
 end
@@ -436,22 +680,66 @@ end
 StationReport.add(KrautWindow, function(isoObject) return isBarrel(isoObject) and isoObject or nil end)
 
 local function barrelDrop(window)
-    local function judge(items) return KrautUI.judgeDrop(barrelNow(window.station), items) end
-    local function drop(take) queue(window.playerObj, window.station, "pack", take) end
+    local function judge(items)
+        local barrel = barrelNow(window.station)
+        local stage = M.barrelStage(barrel)
+        if stage == "Ready" or stage == "Brine" then return KrautUI.judgePutBack(barrel, items) end
+        return KrautUI.judgeDrop(barrel, items)
+    end
+    local function drop(take)
+        local stage = M.barrelStage(barrelNow(window.station))
+        queue(window.playerObj, window.station, (stage == "Ready" or stage == "Brine") and "putback" or "pack", take)
+    end
     return { judge = judge, drop = drop }
+end
+
+local function starterActions(window)
+    local function judge(items) return KrautUI.judgeStarter(barrelNow(window.station), items) end
+    local function drop(take) queue(window.playerObj, window.station, "starter", take) end
+    local function click()
+        local holders = brineHolders(window.playerObj, M.STARTER_L)
+        if holders[1] then queue(window.playerObj, window.station, "starter", { holders[1] }) end
+    end
+    return { drop = { judge = judge, drop = drop }, click = click }
 end
 
 function KrautWindow:refresh()
     local barrel = barrelNow(self.station)
-    self.barrelView = { barrel = barrel, status = statusOf(self.station, barrel),
-        kit = M.barrelStage(barrel) == "Packing" and compressKit(self.playerObj) or {} }
+    local stage = M.barrelStage(barrel)
+    local kit = {}
+    if stage == "Packing" then
+        kit = compressKit(self.playerObj)
+    elseif stage == "Ready" then
+        kit.drawRoom = roomHolders(self.playerObj, M.KRAUT_BRINE, M.STARTER_L)[1] ~= nil
+    elseif stage == "Brine" then
+        kit.drainRoom = roomHolders(self.playerObj, barrel.brineSpoiled and M.ROTTEN_BRINE or M.KRAUT_BRINE, 0.01)[1] ~= nil
+    end
+    self.barrelView = { barrel = barrel, status = statusOf(self.station, barrel), kit = kit }
     self.drop = self.drop or barrelDrop(self)
+    self.starter = self.starter or starterActions(self)
 end
 
 function KrautWindow:barrelButtons(y)
     local playerObj, station = self.playerObj, self.station
     local buttons = KrautUI.buttons(self.barrelView.barrel, self.barrelView.kit, function(mode, pieces, kind)
         if mode == "compress" then return onCompress(playerObj, station, compressKit(playerObj)) end
+        if mode == "draw" then
+            local holders = roomHolders(playerObj, M.KRAUT_BRINE, M.STARTER_L)
+            if holders[1] then queue(playerObj, station, "draw", { holders[1] }) end
+            return
+        end
+        if mode == "drain" then
+            local barrel = self.barrelView.barrel
+            local fluid = barrel.brineSpoiled and M.ROTTEN_BRINE or M.KRAUT_BRINE
+            local take, room = {}, 0
+            for _, item in ipairs(roomHolders(playerObj, fluid, 0.01)) do
+                if room >= barrel.brine then break end
+                table.insert(take, item)
+                room = room + M.roomFor(item, fluid)
+            end
+            if #take > 0 then queue(playerObj, station, "drain", take) end
+            return
+        end
         queue(playerObj, station, mode, pieces, false, kind)
     end)
     return self:buttonRow(y, buttons)
@@ -465,14 +753,16 @@ function KrautWindow:render()
     local y = self:band(word, text, look[1], look[2])
     y = self:stationBlock(y, STATION_ICON, status.place, status.temperature, KrautUI.rows(status))
     y = self:section(y, "IGUI_TraditionalPreservationCore_SectionHolds")
-    y = self:holds(y, { KrautUI.holding(barrel, self.drop) }, getText(KEY .. "Lore"))
+    y = self:holds(y, { KrautUI.starterSlot(barrel, self.starter), KrautUI.holding(barrel, self.drop), KrautUI.brineHolding(barrel) },
+        getText(KEY .. "Lore"))
     y = self:barrelButtons(y)
     local notes = {}
     if status.stage == "Fermenting" then
         local slow = status.temperature > M.HOT_C or not status.hoursLeft
         y = self:section(y, "IGUI_TraditionalPreservationCore_SectionWorking")
         y = self:bar(y, KEY .. "InfoFerment", status.progress, slow and SLOW_COLOUR or FERMENT_COLOUR,
-            say(KEY .. "BarText", UI.percent(status.progress), UI.percent(status.rate)))
+            barrel.speed and say(KEY .. "BarTextStarter", UI.percent(status.progress), UI.percent(status.rate), UI.percent(barrel.speed - 1))
+            or say(KEY .. "BarText", UI.percent(status.progress), UI.percent(status.rate)))
     end
     if status.stage == "Empty" or status.stage == "Packing" then table.insert(notes, getText(KEY .. "NoteDrag")) end
     table.insert(notes, getText(KEY .. "Note" .. status.stage))
@@ -481,7 +771,8 @@ function KrautWindow:render()
 end
 
 -- A barrel with anything in it stays where it is: packing, fermenting or kraut waiting, its time goes by its place
--- (user, 2026-11-19: no station is moved mid-process). Empty, it picks up as any moveable.
+-- (user, 2026-11-19: no station is moved mid-process), and so does one with its plank and stone on (Unseal first).
+-- Empty, it picks up as any moveable.
 local barrelTiles = {}
 for _, sprite in ipairs(Tiles.STATIONS) do barrelTiles[sprite] = true end
 UI.keepInPlace(function(isoObject)
@@ -489,7 +780,7 @@ UI.keepInPlace(function(isoObject)
     if not (sprite and barrelTiles[sprite:getName()]) or not isoObject:hasModData() then return nil end
     local movableData = isoObject:getModData().movableData
     local barrel = movableData and movableData[M.BARREL_KEY]
-    return (barrel ~= nil and M.barrelStage(barrel) ~= "Empty") or nil
+    return (barrel ~= nil and (M.barrelStage(barrel) ~= "Empty" or M.pressed(barrel))) or nil
 end)
 -- No barrel or storage is put down in front of a door (TP Core's Doors).
 UI.keepDoorsFree(Tiles.STATIONS)
