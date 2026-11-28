@@ -1,5 +1,16 @@
 # Changelog: Traditional Preservation (Fruits and Vegetables)
 
+## 0.0.26
+- **The Kraut Barrel is TP Core's Brine Barrel now** (user, 2026-11-28; ROADMAP section 9, step c): the station, its
+  stages, the press and Unseal, the starter, the brine tank, the action, the entity, the barrel's tiles and icons, its
+  World and its menu and window moved to Core 0.1.83 as a refactor. Nothing changes in play but the name (Brine Barrel,
+  Brine Barrel Info). This mod registers the kraut on it (`BrineBarrel.kind`: heads and extras, the ferment, hot and
+  keep curves on its ledger, the portions, stale heads soft, Kraut Brine, the look by head kind) and gives its words
+  and rows (`...KrautUI.lua`, split out of the main UI file). Its shredded cabbage and turnip overlays stay this mod's
+  tiles. Pre-release: a barrel from an older build is lost (new save key `tpBrineBarrel`, new tiles). Needs Core 0.1.83.
+- test_menu loads Core's barrel files; every test unchanged otherwise.
+
+- Kraut brine dragged onto the brine tank in the window pours in, as Pour In Brine (Core 0.1.83).
 ## 0.0.25
 - **Fix: Drain Brine no longer throws an error in the Kraut Barrel window** (seen in game, 2026-11-28). Draining
   clears the barrel's record in place while the window still holds the status it worked out before, so for a frame

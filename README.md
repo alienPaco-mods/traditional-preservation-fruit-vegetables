@@ -1,4 +1,4 @@
-# Traditional Preservation (Fruits and Vegetables) — Build 42 prototype (v0.0.25)
+# Traditional Preservation (Fruits and Vegetables) — Build 42 prototype (v0.0.26)
 
 Vegetables kept the old way, without electricity. Built: **the root cellar** (vanilla vegetables keep by place, and
 potatoes, garlic, onions, sweet potatoes and pumpkins cure), **three storages** (Onion and Garlic Pole, Vegetable Crate (Hay), Vegetable Crate (Sand)) and garlic and onion **braids**, **the clamp** (roots kept outdoors under straw and soil through the winter), and **the kraut barrel** (cabbage and turnip soured in salt).
@@ -147,10 +147,14 @@ keep 29 days against 67 under straw: they sweat.
 
 ## The kraut barrel
 
-A standing barrel (Build menu, Furniture: hammer and saw kept, 6 planks, 10 nails, 4 twine, Woodwork 3), between
-Fish & Meat's Salting Tub and Vinegar's cask. No crafting window: the batch is Lua state in the barrel's movableData
-(`tpfvBarrel`), worked from its right-click menu, and the **Kraut Barrel Info** window (TP Core's InfoWindow, from the menu) shows
-it, as Fish & Meat's Salting Tub: a state band, the place (with the speed and the hours too warm while it sours), the
+The kraut sours in TP Core's **Brine Barrel**, a standing barrel (Build menu, Furniture: hammer and saw kept, 6
+planks, 10 nails, 4 twine, Woodwork 3), between the Salting Tub and Vinegar's cask. The barrel, its stages, the press,
+the starter and the brine are Core's (`BrineBarrel`, `BrineBarrelWorld`, `BrineBarrelUI`, action `TPBrineBarrel`);
+this mod registers the kraut on it (`...Barrel.lua`: `BrineBarrel.kind`, the heads, the ferment and keeping on its
+ledger, the portions; `client/...KrautUI.lua`: its menu rows, its cells, band and drags, and every text, given to
+Core with `BrineBarrelUI.words`). No crafting window: the batch is Lua state in the barrel's movableData
+(`tpBrineBarrel`, Core's), worked from its right-click menu, and the **Brine Barrel Info** window (TP Core's InfoWindow, from the menu) shows
+it, as the Salting Tub: a state band, the place (with the speed and the hours too warm while it sours), the
 heads as cells in the cabbage and turnip patterns (`TPCell_Cabbage.png`, `TPCell_Turnip.png`), what is dragged onto
 them packs, and the buttons by stage (Salt and Compress, Unpack; a Take button a kraut opening One / All; Empty). A barrel with anything in it can't be picked up: build or put it
 down where it will sour and keep.
@@ -238,7 +242,8 @@ actions `TPPackTomatoPaste` and `TPSpoonTomatoPaste`; icons from `tools/build_fo
 
 ## Rebuilding the tileset
 
-`python3 tools/build_tileset.py` (needs Pillow) paints the station and writes `42/media/traditionalpreservationfruitvegetables.tiles`,
+`python3 tools/build_tileset.py` (needs Pillow) paints the storages, the clamp and the kraut's overlays on TP Core's
+barrel (its shape from Core's `tools/brine_barrel_tiles.py`) and writes `42/media/traditionalpreservationfruitvegetables.tiles`,
 `42/media/texturepacks/traditionalpreservationfruitvegetables.pack`, the icons and the generated `42/media/lua/shared/TraditionalPreservationFruitVegetables/Tiles.lua`
 (don't edit it by hand). `luajit tests/test_tiles.lua` checks the entity scripts against it.
 
@@ -249,13 +254,13 @@ In debug mode, `TPFV.help()` in the Lua console lists commands for testing this 
 ## Engineering notes
 
 - The shared core (Weather, Station, UI) is the required TP Core mod (`~/MODS/TraditionalPreservationCore`), loaded as `require "TraditionalPreservationCore/Weather"`. Edit it there.
-- `tiledef` 5174 was picked by `tp new` as the next free number. Tiles: 0-1 the barrel (S, E), overlays 2-3 cabbage,
-  4-5 turnip, 6-7 salted and compressed (cloth, board, stone), 8-9 cabbage and turnip mixed; 10 Onion and Garlic Pole, 11 Vegetable
+- `tiledef` 5174 was picked by `tp new` as the next free number. Tiles: overlays on TP Core's Brine Barrel 2-3 cabbage,
+  4-5 turnip, 8-9 cabbage and turnip mixed (0-1 and 6-7 are empty: the barrel and its cloth, board and stone are Core's); 10 Onion and Garlic Pole, 11 Vegetable
   Crate (Hay), 18 Vegetable Crate (Sand), their fill steps 12-14, 15-17 and 19-21; 22 the clamp under straw, 23 its
   soil (earthed up), 24 and 25 rainwater in its trenches under straw and earthed (only the trench left in sight).
   The clamp's tiles have their own depth texture, `common/media/depthmaps/DEPTH_<tileset>.png` (the builder computes
   it from the heap's shape; the game reads it only from there; ENGINE_NOTES "Depth").
 - Save keys: the barrel's ledger lives in global ModData under `TraditionalPreservationFruitVegetables` (totals
-  `ferment<Place>`, `hot<Place>`, `keep<Place>`), its batch in movableData `tpfvBarrel`; the cellar's are above. Never
+  `ferment<Place>`, `hot<Place>`, `keep<Place>`), its batch in movableData `tpBrineBarrel` (TP Core's); the cellar's are above. Never
   rename them once the mod is out.
 - Singleplayer only for now.

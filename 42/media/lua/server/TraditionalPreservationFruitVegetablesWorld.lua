@@ -1,6 +1,6 @@
--- Traditional Preservation (Fruits and Vegetables) B42: keeps track of every Kraut Barrel, storage and clamp, records the
--- weather (the barrel's ledger and the cellar's), brings each barrel's batch up to now at the place it was seen in
--- last and layers the sprite for its stage, and each storage's for how full it is. The batch sits in the barrel's movableData, so it goes with a barrel picked up.
+-- Traditional Preservation (Fruits and Vegetables) B42: keeps track of every storage and clamp, records the weather
+-- (the kraut's ledger and the cellar's) and layers each storage's sprite for how full it is. The kraut's Brine Barrel
+-- is TP Core's (BrineBarrelWorld).
 if isClient() then return end
 
 TraditionalPreservationFruitVegetablesWorld = TraditionalPreservationFruitVegetablesWorld or {}
@@ -8,81 +8,20 @@ local World = TraditionalPreservationFruitVegetablesWorld
 local M = TraditionalPreservationFruitVegetables
 local Station = require "TraditionalPreservationCore/Station"
 local Weather = require "TraditionalPreservationCore/Weather"
-local Fire = require "TraditionalPreservationCore/Fire"
 local Tiles = require "TraditionalPreservationFruitVegetables/Tiles"
-local log = require "TraditionalPreservationCore/Log"
 
-local function squareKey(station)
-    local square = station:getSquare()
-    return square and (square:getX() .. "," .. square:getY() .. "," .. square:getZ())
-end
-
--- Brings a barrel's batch up to now: the time since the last look counts at the place it was seen in then (by a
--- fire while the fuel it had then lasts; a barrel moved since, where it stands now). Then notes where it is and its
--- fire. Returns the barrel's record.
+-- The barrel is TP Core's Brine Barrel (BrineBarrelWorld: its tracking, its catch-up by place and fire, its looks);
+-- these pass on to it for this mod's console and callers.
 function World.updateBarrel(station)
-    local barrel = M.barrelOf(station)
-    local now = getGameTime():getWorldAgeHours()
-    local place, fire = Fire.placeOf(station)
-    local here = squareKey(station)
-    local before = M.barrelStage(barrel)
-    M.updateBarrel(barrel, M.getLedger(), barrel.at == here and barrel.place or place)
-    barrel.place, barrel.at = place, here
-    Fire.noteFire(barrel, station, fire, now)
-    local after = M.barrelStage(barrel)
-    if after ~= before then log("TPFV", "barrel %s -> %s, %s", before, after, place) end
-    return barrel
+    return TraditionalPreservationCoreBrineBarrel.updateBarrel(station)
 end
 
--- The overlay a barrel shows: with the plank and stone on, the cloth, board and stone (M.pressed: from Salt and
--- Compress until Unseal); open, the shreds at the rim of what is in it, cabbage, turnip or both mixed (packing, or
--- kraut left once unsealed; user, 2026-11-27); nothing when nothing is in it (empty, or brine only).
-local function shredsOf(cabbages, turnips)
-    if cabbages > 0 and turnips > 0 then return Tiles.OVERLAYS.mixed end
-    if cabbages + turnips == 0 then return nil end
-    return Tiles.OVERLAYS[turnips > 0 and "turnip" or "cabbage"]
-end
-
-local function overlayOf(barrel)
-    if M.pressed(barrel) then return Tiles.OVERLAYS.weighted end
-    local stage = M.barrelStage(barrel)
-    if stage == "Packing" then return shredsOf(M.headCount(barrel, "cabbage"), M.headCount(barrel, "turnip")) end
-    if stage == "Ready" then return shredsOf(M.portionsLeft(barrel, "cabbage"), M.portionsLeft(barrel, "turnip")) end
-    if stage == "Spoiled" then return shredsOf(M.headCount(barrel, "cabbage"), M.headCount(barrel, "turnip")) end
-end
-
-local function refresh(station, sessionState)
-    local overlay = overlayOf(World.updateBarrel(station))
-    local names = {}
-    if overlay then table.insert(names, Tiles.PREFIX .. (overlay + sessionState.faceIndex)) end
-    Station.showSprites(station, sessionState, tostring(overlay), names)
-end
-
-local function newSessionState(station)
-    local name = station:getSprite() and station:getSprite():getName()
-    for index, sprite in ipairs(Tiles.STATIONS) do
-        if sprite == name then return { faceIndex = index - 1 } end
-    end
-end
-
--- A barrel just built or put down isn't known to the map loader, so the tracker looks for new ones round each player.
-local tracker = Station.tracker({ sprites = Tiles.STATIONS, newSessionState = newSessionState, refresh = refresh, scan = true })
-
-World.track = tracker.track
-
--- Redraws a tracked barrel now, without waiting for the next tick, e.g. after packing.
 function World.refresh(station)
-    local sessionState = tracker.track(station)
-    if sessionState then refresh(station, sessionState) end
+    return TraditionalPreservationCoreBrineBarrel.refresh(station)
 end
 
--- Every tracked barrel that is loaded, for the dev console.
 function World.barrels()
-    local barrels = {}
-    for station in pairs(tracker.tracked) do
-        if Station.isLoaded(station) then table.insert(barrels, station) end
-    end
-    return barrels
+    return TraditionalPreservationCoreBrineBarrel.barrels()
 end
 
 -- The storages (Drying Pole, Vegetable Crates): each shows what it holds in Tiles.LEVELS steps by the
@@ -168,6 +107,5 @@ Weather.onReading(function(now, climate)
     M.PASTE_KEEPER.recordWeather(now, climate:getTemperature())
 end)
 
-tracker.start()
 storageTracker.start()
 clampTracker.start()

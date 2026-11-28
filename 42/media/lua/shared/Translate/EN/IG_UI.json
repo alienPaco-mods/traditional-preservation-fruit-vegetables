@@ -1,5 +1,4 @@
 {
-  "IGUI_CraftingWindow_KrautBarrel": "Kraut Barrel",
   "IGUI_TraditionalPreservationFruitVegetables_StageEmpty": "Empty",
   "IGUI_TraditionalPreservationFruitVegetables_StagePacking": "Packing",
   "IGUI_TraditionalPreservationFruitVegetables_StageFermenting": "Fermenting",
@@ -120,6 +119,7 @@
   "IGUI_TraditionalPreservationFruitVegetables_NotReady": "Only a ready barrel with kraut in it.",
   "IGUI_TraditionalPreservationFruitVegetables_Drawn": "1 L already drawn: the rest stays over the kraut.",
   "IGUI_TraditionalPreservationFruitVegetables_NoBrine": "Not enough brine left in it.",
+  "IGUI_TraditionalPreservationFruitVegetables_NotBrine": "Only kraut brine pours in here.",
   "IGUI_TraditionalPreservationFruitVegetables_Mouldy": "The brine has gone mouldy: drain it and pour in fresh.",
   "IGUI_TraditionalPreservationFruitVegetables_Covered": "The brine covers no more: 0.15 L a portion.",
   "IGUI_TraditionalPreservationFruitVegetables_StaleBack": "Only fresh kraut goes back: a stale portion would spoil the barrel.",
@@ -151,6 +151,7 @@
   "IGUI_TraditionalPreservationFruitVegetables_SlotAddStarter": "Add Starter",
   "IGUI_TraditionalPreservationFruitVegetables_SlotUsed": "used",
   "IGUI_TraditionalPreservationFruitVegetables_DropStarter": "Pour in %1 L as the starter",
+  "IGUI_TraditionalPreservationFruitVegetables_DropBrine": "Pour in %1 L of kraut brine",
   "IGUI_TraditionalPreservationFruitVegetables_BarTextStarter": "%1, %2 speed (starter +%3)",
   "IGUI_TraditionalPreservationFruitVegetables_HelpBrine": "Brine only: put kraut back under it, or drain it to move the barrel.",
   "IGUI_TraditionalPreservationFruitVegetables_NoteBrine": "Drag Sauerkraut or Sauer Turnip back onto the barrel: 0.15 L of brine a portion, and it keeps here again by its own age. Drained empty, the barrel can be picked up.",

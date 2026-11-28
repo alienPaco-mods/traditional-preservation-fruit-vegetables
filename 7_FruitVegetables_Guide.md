@@ -11,7 +11,7 @@
 3. The Root Cellar
 4. Curing
 5. The Cellarer's Almanac (Seasons & Places)
-6. The Kraut Barrel
+6. Kraut in the Brine Barrel
 7. Secrets & Hidden Features
 8. Tips
 9. Troubleshooting
@@ -40,7 +40,7 @@ At harvest there's the **kraut barrel**: cabbages and turnips shredded with salt
 | Leave potatoes a week in a mild room (10 to 20 C) | | **Cured** potatoes |
 | Leave garlic and onions two weeks anywhere dry (not a basement) | | **Cured** garlic and onions |
 | Put roots and cabbages in a crate in a **basement** | | Months of keeping instead of days |
-| Build a **Kraut Barrel** | Hammer and saw (kept), 6 planks, 10 nails, 4 twine. Carpentry 3 | The barrel |
+| Build a **Brine Barrel** | Hammer and saw (kept), 6 planks, 10 nails, 4 twine. Carpentry 3 | The barrel |
 | **Pack Cabbage** and **Pack Turnip** | 20 to 60 heads, any mix; apples and carrots if you like | A packed barrel |
 | **Salt and Compress** | A use of salt per 5 heads, a ripped sheet, a plank, a flat stone | It starts to sour |
 | Wait **about 4 weeks** at 18 C | | **Sauerkraut**, a portion a head |
@@ -182,9 +182,9 @@ Days fresh for a vegetable put away on the first of the month, with no power, fr
 
 ---
 
-## 6. The Kraut Barrel
+## 6. Kraut in the Brine Barrel
 
-A standing oak barrel, narrower at the top, bound with iron: Fish & Meat's Salting Tub's cousin. One barrel, one batch: you put up most of the crop at once, salt and compress it, and leave it.
+TP Core's Brine Barrel, a standing oak barrel, narrower at the top, bound with iron: the Salting Tub's cousin. The kraut is what this mod gives it to hold. One barrel, one batch: you put up most of the crop at once, salt and compress it, and leave it.
 
 **Building it.** Build menu, Furniture: a hammer and a saw (kept), 6 planks, 10 nails and 4 twine, Carpentry 3. It holds about 50 litres.
 
@@ -210,7 +210,7 @@ A standing oak barrel, narrower at the top, bound with iron: Fish & Meat's Salti
 | 24 C and up | 16 days |
 
 - **Too warm spoils it.** Two days above 27 C before it's ready and it comes out **soft**: it keeps only two thirds as long. Five days and it **spoils**: empty it to get the plank and stone back. A barrel by a fire is too warm.
-- **Kraut Barrel Info** (in its menu) shows the stage and when it will be ready, the place and its heat, what's in it, how far it has soured and the hours it has been too warm. Drag cabbages, turnips, apples or carrots onto the barrel in it to pack them; its buttons salt and compress, unpack, take kraut out (one button a kraut: One or All) and empty a spoiled barrel.
+- **Brine Barrel Info** (in its menu) shows the stage and when it will be ready, the place and its heat, what's in it, how far it has soured and the hours it has been too warm. Drag cabbages, turnips, apples or carrots onto the barrel in it to pack them; its buttons salt and compress, unpack, take kraut out (one button a kraut: One or All) and empty a spoiled barrel.
 
 **Ready.** The kraut stays in the barrel under its stone and keeps by place: about six months in an 8 C cellar, three in a cool room, one in a warm one. **Take Sauerkraut** and **Take Sauer Turnip** (All or One): one portion a head, as its kind, each with its own food and the apples and carrots shared out. Out of the barrel a portion keeps two weeks, less if the barrel has stood long. The plank and stone stay on until you **Unseal** it, which gives them back (the cloth is used up); while they are on, the barrel stays where it is.
 
@@ -255,7 +255,7 @@ A standing oak barrel, narrower at the top, bound with iron: Fish & Meat's Salti
 | Garlic in the basement goes off sooner than in a room | That's right: the basement is too damp for it. |
 | Nothing changes at all | Check the sandbox: **Vegetables keep by place** must be on. |
 | My potatoes went stale overnight | They froze. Anywhere above ground freezes in winter: keep them in the basement or by a fire. |
-| The barrel hasn't moved in weeks | At 0 C it stops, and near it it crawls. The Kraut Barrel window says so: move it somewhere warmer (the basement), or wait for spring. |
+| The barrel hasn't moved in weeks | At 0 C it stops, and near it it crawls. The Brine Barrel window says so: move it somewhere warmer (the basement), or wait for spring. |
 | Salt and Compress is red | Its hover says what's missing: 20 heads, the salt, a cloth, a plank or a flat stone. |
 | I can't add more to the barrel | Once it is salted and compressed it is sealed, as a real barrel is. |
 

@@ -9,11 +9,10 @@ return {
         },
     },
     FACE_COUNT = 2,
-    STATIONS = { "traditionalpreservationfruitvegetables_01_0", "traditionalpreservationfruitvegetables_01_1" },
+    STATIONS = {},
     OVERLAYS = {
         cabbage = 2,
         turnip = 4,
-        weighted = 6,
         mixed = 8,
     },
     STORAGES = {

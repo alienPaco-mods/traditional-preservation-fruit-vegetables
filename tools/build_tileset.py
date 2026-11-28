@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
-"""Builds the Kraut Barrel tileset (42/media/*.tiles and texturepacks/*.pack), its icons and the generated Tiles.lua.
+"""Builds the mod's tileset (42/media/*.tiles and texturepacks/*.pack), its icons and the generated Tiles.lua.
 
-The barrel is a standing kraut barrel (a kadka, about 50 L): straight oak staves narrowing to the top, three iron
-hoops, in the Salting Tub's wood and iron (Fish & Meat) so the two read as one cooper's work, the tub widening where
-the barrel narrows.
-Its stages are attached sprites layered on top by the World: shredded cabbage, turnip or both mixed at the rim while
-it is being packed, then the cloth, the lid board and the weighting stone once it is weighed down. The shapes are this mod's own;
-the stave and hoop pieces are TP Core's pzart (light_at, stave_edges, hoop_bands).
+The barrel is TP Core's Brine Barrel since 0.0.26 (Core's tools/brine_barrel_tiles.py draws it, with the cloth, lid
+board and weighting stone it shows once weighed down). What this mod adds to it are the attached sprites of the kraut
+in an open barrel, layered on top by Core's World: shredded cabbage, turnip or both mixed at the rim while it is being
+packed, or kraut left once it is unsealed, drawn to the barrel's shape (imported from Core's file). The shapes are this
+mod's own. Then the storages and the clamp.
 
 Usage: python3 tools/build_tileset.py [game folder]
 Needs Pillow, and the game's UI2.pack for the item icons (vanilla's Cabbage and Turnip, recoloured). Deterministic: a rerun with no change gives byte-identical files.
@@ -21,6 +20,8 @@ from PIL import Image, ImageChops, ImageDraw
 
 sys.path.insert(0, str(Path(os.environ.get("TPCORE", Path(__file__).resolve().parents[2] / "TraditionalPreservationCore")) / "tools"))
 import pzart  # noqa: E402
+import brine_barrel_tiles as barrel_art  # noqa: E402
+from brine_barrel_tiles import FOOT_X, TOP, INNER, SQUASH, OVERLAY_WEATHER, box, line  # noqa: E402
 
 MOD = "TraditionalPreservationFruitVegetables"
 NAME = "traditionalpreservationfruitvegetables"
@@ -29,12 +30,12 @@ COLUMNS, ROWS = 8, 8
 PAGE_SIZE = 512
 SS = 4
 
-# Tile index -> facing. S and E, as the entity script's faces. A round barrel looks the same both ways; the two
-# faces only differ in their grain.
-FACES = ["S", "E"]
-GROUP, CUSTOM = "Kraut", "Barrel"
-# Each overlay is FACE_COUNT tiles from its base, one per facing.
-OVERLAYS = {"cabbage": 2, "turnip": 4, "weighted": 6, "mixed": 8}
+# The facings of TP Core's Brine Barrel, which the kraut's overlays follow: S and E. A round barrel looks the same both
+# ways; the two faces only differ in their grain.
+FACES = barrel_art.FACES
+# Each overlay is FACE_COUNT tiles from its base, one per facing. Tiles 0, 1, 6 and 7 were the barrel and its weighted
+# overlay before they moved to TP Core; they are left empty.
+OVERLAYS = {"cabbage": 2, "turnip": 4, "mixed": 8}
 # The storages: one facing each, a container from the tile (as Fish & Meat's Stockfish Pallet), and what they hold
 # shown in LEVELS steps by weight from their first overlay.
 STORAGES = {
@@ -52,32 +53,10 @@ LEVELS = 3
 CLAMP = {"tile": 22, "earthed": 23, "wet": 24, "wetEarthed": 25, "group": "Root", "custom": "Clamp", "container": "clamp",
          "earthedContainer": "earthedclamp", "capacity": 75}
 
-FOOT_X, FOOT_Y = pzart.FOOT
-HEIGHT, BASE_RX, RIM_RX = 46, 29.0, 25.0
-SQUASH = 0.5
-TOP = FOOT_Y - HEIGHT
-INNER = RIM_RX - 3
-STAVES = 8
-HOOPS = [(0.08, 3.0), (0.5, 2.4), (0.88, 2.6)]  # height as a fraction of the barrel, half the band's width
-
-# The Salting Tub's colours: deep reddish wood, dark seams, iron with rust patches.
-STAVE = (130, 84, 50)
-INSIDE_WOOD = (110, 74, 46)
-SEAM = (38, 22, 14, 255)
-IRON = (70, 71, 75)
-IRON_LIT = (104, 105, 110)
-RUST = (84, 60, 44)
-RUST_CHANCE = 0.07
-SHADOW = (0, 0, 0, 110)
-FOOT_SHADE = 0.55
-WOOD_WEATHER = 0.2
-OVERLAY_WEATHER = 0.15
 CABBAGE = (196, 206, 150)
 MIXED_GREEN = (160, 180, 110)  # the cabbage in a mixed barrel, a shade deeper to stand out on the turnip
 TURNIP = (226, 214, 178)
-LINEN = (190, 184, 166)
-BOARD = (150, 112, 70)
-STONE = (128, 126, 120)
+WOOD_WEATHER = 0.2
 
 TILE_PROPS = {}
 for storage in STORAGES.values():
@@ -90,95 +69,6 @@ for storage in STORAGES.values():
 TILE_PROPS[CLAMP["tile"]] = [("BlocksPlacement", ""), ("container", CLAMP["container"]),
                              ("ContainerCapacity", str(CLAMP["capacity"])), ("CustomName", CLAMP["custom"]),
                              ("GroupName", CLAMP["group"]), ("solidtrans", "")]
-for index, facing in enumerate(FACES):
-    # The engine only links the facings of tiles with a GroupName, and that link lets a moved station rotate.
-    TILE_PROPS[index] = [("BlocksPlacement", ""), ("CustomName", CUSTOM), ("Facing", facing), ("GroupName", GROUP),
-                         ("IsMoveAble", ""), ("PickUpWeight", "100"), ("solidtrans", "")]
-
-
-def box(cx, cy, rx, ry):
-    return [(cx - rx) * SS, (cy - ry) * SS, (cx + rx) * SS, (cy + ry) * SS]
-
-
-def poly(draw, points, colour):
-    draw.polygon([(x * SS, y * SS) for x, y in points], fill=colour)
-
-
-def line(draw, start, end, colour, width):
-    draw.line([start[0] * SS, start[1] * SS, end[0] * SS, end[1] * SS], fill=colour, width=max(1, int(width * SS)))
-
-
-def barrel_point(level, angle, out=0.0):
-    """A point on the barrel's side, level being its height as a fraction of the barrel's; out pushes it outward."""
-    rx = BASE_RX + (RIM_RX - BASE_RX) * level + out
-    return (FOOT_X + rx * math.cos(angle), FOOT_Y - HEIGHT * level + rx * SQUASH * math.sin(angle))
-
-
-def paint_body(rng):
-    """The shadow, the staves darkening to the ground, then three iron hoops."""
-    layer = pzart.new_layer(SS)
-    draw = ImageDraw.Draw(layer)
-    draw.ellipse(box(FOOT_X + 1, FOOT_Y + 1, BASE_RX + 2, (BASE_RX + 2) * SQUASH), fill=SHADOW)
-    levels = [0.0, 1.0]
-    edges = pzart.stave_edges(rng, STAVES, 0.8, 1.2)
-    for first, second in zip(edges, edges[1:]):
-        tone = pzart.light_at((first + second) / 2) * rng.uniform(0.95, 1.05)
-        left = [barrel_point(level, first) for level in levels]
-        right = [barrel_point(level, second) for level in levels]
-        poly(draw, left + right[::-1], pzart.tint(STAVE, tone))
-        for _ in range(4):
-            across = first + (second - first) * rng.random()
-            start = rng.random()
-            end = min(1.0, start + rng.uniform(0.1, 0.3))
-            line(draw, barrel_point(start, across), barrel_point(end, across), pzart.tint(STAVE, tone * rng.uniform(0.88, 1.05)), 0.4)
-        draw.line([(x * SS, y * SS) for x, y in left], fill=SEAM, width=max(1, SS * 3 // 4))
-    layer = pzart.darken_down(layer, TOP, FOOT_Y, FOOT_SHADE, SS)
-    draw = ImageDraw.Draw(layer)
-    for level, half_height in HOOPS:
-        for first, second, colour, tone in pzart.hoop_bands(rng, RUST_CHANCE, IRON, RUST):
-            low, high = HEIGHT * level - half_height, HEIGHT * level + half_height
-            points = []
-            for z, angle in ((high, first), (high, second), (low, second), (low, first)):
-                x, y = barrel_point(level, angle, 0.7)
-                points.append((x, y + HEIGHT * level - z))
-            poly(draw, points, pzart.tint(colour, tone))
-            line(draw, points[0], points[1], pzart.tint(IRON_LIT, tone), 0.5)
-            line(draw, points[2], points[3], pzart.tint(IRON, tone * 0.45), 1)
-    return layer
-
-
-def paint_inside(rng):
-    """The rim, then the far wall's staves running down into the dark."""
-    layer = pzart.new_layer(SS)
-    draw = ImageDraw.Draw(layer)
-    draw.ellipse(box(FOOT_X, TOP, RIM_RX, RIM_RX * SQUASH), fill=pzart.tint(STAVE, 1.1))
-    inside = pzart.new_layer(SS)
-    idraw = ImageDraw.Draw(inside)
-    depth, floor_rx = 22.0, INNER * 0.9
-
-    def ring(cy, radius, angle):
-        return (FOOT_X + radius * math.cos(angle), cy + radius * SQUASH * math.sin(angle))
-
-    idraw.ellipse(box(FOOT_X, TOP, INNER, INNER * SQUASH), fill=pzart.tint(INSIDE_WOOD, 0.6))
-    edges = pzart.stave_edges(rng, STAVES, 0.85, 1.15, start=math.pi)
-    for first, second in zip(edges, edges[1:]):
-        tone = pzart.inside_light((first + second) / 2) * rng.uniform(0.95, 1.05)
-        poly(idraw, [ring(TOP, INNER, first), ring(TOP, INNER, second), ring(TOP + depth, floor_rx, second), ring(TOP + depth, floor_rx, first)],
-             pzart.tint(INSIDE_WOOD, tone))
-        line(idraw, ring(TOP, INNER, second), ring(TOP + depth, floor_rx, second), SEAM, 0.6)
-    idraw.ellipse(box(FOOT_X, TOP + depth, floor_rx, floor_rx * SQUASH), fill=pzart.tint(INSIDE_WOOD, 0.4))
-    mask = Image.new("L", layer.size, 0)
-    ImageDraw.Draw(mask).ellipse(box(FOOT_X, TOP, INNER, INNER * SQUASH), fill=255)
-    inside.putalpha(ImageChops.multiply(inside.getchannel("A"), mask))
-    layer.alpha_composite(inside)
-    return layer
-
-
-def paint_barrel(facing):
-    rng = random.Random(3 + FACES.index(facing))
-    layer = paint_body(rng)
-    layer.alpha_composite(paint_inside(rng))
-    return pzart.weather(pzart.shrink(layer), random.Random(11 + FACES.index(facing)), WOOD_WEATHER, streaks=True)
 
 
 def paint_shreds(colour, seed, other=None):
@@ -203,31 +93,6 @@ def paint_shreds(colour, seed, other=None):
             line(draw, (x, cy), (x + length * math.cos(turn), cy + length * SQUASH * math.sin(turn)), pzart.tint(MIXED_GREEN, tone), 1.1)
             continue
         line(draw, (x, cy), (x + length * math.cos(turn), cy + length * SQUASH * math.sin(turn)), pzart.tint(colour if other is None else other, tone), 0.7)
-    return pzart.weather(pzart.shrink(layer), random.Random(seed + 1), OVERLAY_WEATHER)
-
-
-def paint_weighted(seed):
-    """Weighed down: a linen cloth over the kraut, a round board on it and a flat stone on the board."""
-    rng = random.Random(seed)
-    layer = pzart.new_layer(SS)
-    draw = ImageDraw.Draw(layer)
-    y = TOP + 2
-    draw.ellipse(box(FOOT_X, y, INNER, INNER * SQUASH), fill=pzart.tint(LINEN, 0.92))
-    for _ in range(18):
-        angle = rng.uniform(0, 2 * math.pi)
-        reach = rng.uniform(0.6, 0.95) * INNER
-        x, cy = FOOT_X + reach * math.cos(angle), y + reach * SQUASH * math.sin(angle)
-        line(draw, (x, cy), (FOOT_X + reach * 0.8 * math.cos(angle), y + reach * 0.8 * SQUASH * math.sin(angle)), pzart.tint(LINEN, 0.75), 0.5)
-    board_rx = INNER * 0.78
-    draw.ellipse(box(FOOT_X, y - 1.5, board_rx, board_rx * SQUASH), fill=pzart.tint(BOARD, 0.7))
-    draw.ellipse(box(FOOT_X, y - 2.5, board_rx, board_rx * SQUASH), fill=pzart.tint(BOARD, 1.0))
-    for offset in (-5, 0, 5):
-        line(draw, (FOOT_X + offset - board_rx * 0.6, y - 2.5 + offset * SQUASH * 0.2), (FOOT_X + offset + board_rx * 0.6, y - 2.5 + offset * SQUASH * 0.2),
-             pzart.tint(BOARD, 0.7), 0.4)
-    stone_y = y - 5
-    draw.ellipse(box(FOOT_X + 1, stone_y + 2, 9, 4), fill=(0, 0, 0, 70))
-    draw.ellipse(box(FOOT_X, stone_y, 9, 5), fill=pzart.tint(STONE, 0.8))
-    draw.ellipse(box(FOOT_X - 1, stone_y - 1.2, 7.5, 3.8), fill=pzart.tint(STONE, 1.05))
     return pzart.weather(pzart.shrink(layer), random.Random(seed + 1), OVERLAY_WEATHER)
 
 
@@ -685,7 +550,8 @@ def lua_tiles():
         "PREFIX": prefix,
         "SHEETS": [{"prefix": prefix, "tiles": COLUMNS * ROWS}],
         "FACE_COUNT": len(FACES),
-        "STATIONS": [prefix + str(index) for index in range(len(FACES))],
+        # None: the barrel is TP Core's.
+        "STATIONS": [],
         "OVERLAYS": OVERLAYS,
         "STORAGES": {key: {"tile": prefix + str(storage["tile"]), "overlay": storage["overlay"], "container": storage["container"],
                            "capacity": storage["capacity"]} for key, storage in STORAGES.items()},
@@ -704,11 +570,10 @@ def main():
     read_veg_icons(game)
     pzart.write_lua_tiles(media, MOD, lua_tiles(), "tools/build_tileset.py")
     (media / "texturepacks").mkdir(parents=True, exist_ok=True)
-    tiles = {index: paint_barrel(facing) for index, facing in enumerate(FACES)}
+    tiles = {}
     for face in range(len(FACES)):
         tiles[OVERLAYS["cabbage"] + face] = paint_shreds(CABBAGE, 21 + face)
         tiles[OVERLAYS["turnip"] + face] = paint_shreds(TURNIP, 31 + face)
-        tiles[OVERLAYS["weighted"] + face] = paint_weighted(41 + face)
         tiles[OVERLAYS["mixed"] + face] = paint_shreds(CABBAGE, 51 + face, TURNIP)
     tiles[STORAGES["pole"]["tile"]] = paint_pole()
     tiles[STORAGES["hayCrate"]["tile"]] = paint_crate("hay")
@@ -725,9 +590,9 @@ def main():
     pzart.write_pack(media / "texturepacks" / f"{NAME}.pack", tiles, NAME, TILESET, PAGE_SIZE)
     pzart.write_tiles(media / f"{NAME}.tiles", [(TILESET, COLUMNS, ROWS)], TILE_PROPS)
     write_depth(media.parent.parent / "common" / "media" / "depthmaps" / f"DEPTH_{TILESET}.png", tiles)
-    icon = tiles[0].copy()
-    icon.alpha_composite(tiles[OVERLAYS["weighted"]])
-    pzart.write_build_icon(icon, media / "textures" / "Item_KrautBarrel.png")
+    # The mod list shows TP Core's barrel weighed down, as before it moved.
+    icon, weighted = barrel_art.barrel_tiles(0)
+    icon.alpha_composite(weighted)
     for name, key in (("DryingPole", "pole"), ("HayCrate", "hayCrate"), ("SandCrate", "sandCrate")):
         storage = STORAGES[key]
         full = tiles[storage["tile"]].copy()

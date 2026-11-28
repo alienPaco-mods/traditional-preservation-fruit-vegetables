@@ -1,4 +1,4 @@
--- Checks the Kraut Barrel's right-click menu and its hand jobs (TPKrautBarrel) with stand-ins for the engine: pack,
+-- Checks the kraut's Brine Barrel (TP Core's) right-click menu and its hand jobs (TPBrineBarrel) with stand-ins for the engine: pack,
 -- salt and compress, take kraut out. Run from the mod folder: luajit tests/test_menu.lua
 local H = dofile((os.getenv("TPCORE") or "../TraditionalPreservationCore") .. "/tests/harness.lua")
 local check, near = H.check, H.near
@@ -93,20 +93,21 @@ end
 
 require "TraditionalPreservationFruitVegetables"
 local M = TraditionalPreservationFruitVegetables
-require "TimedActions/TPKrautBarrel"
+require "TimedActions/TPBrineBarrel"
 require "TimedActions/TPBraid"
 CharacterActionAnims = { Craft = "Craft" }
 function isClient() return false end
 MapObjects = { OnLoadWithSprite = function() end }
+dofile((os.getenv("TPCORE") or "../TraditionalPreservationCore") .. "/42/media/lua/server/TraditionalPreservationCore/BrineBarrelWorld.lua")
 dofile("42/media/lua/server/TraditionalPreservationFruitVegetablesWorld.lua")
 dofile("42/media/lua/client/TraditionalPreservationFruitVegetablesUI.lua")
 local handlers = H.handlers.OnFillWorldObjectContextMenu
 local onFillMenu = handlers[#handlers]
 
-local Tiles = require "TraditionalPreservationFruitVegetables/Tiles"
+local CoreTiles = require "TraditionalPreservationCore/Tiles"
 local modData = {}
 local barrelObject = {
-    getSprite = function() return { getName = function() return Tiles.STATIONS[1] end } end,
+    getSprite = function() return { getName = function() return CoreTiles.BARREL_SPRITES[1] end } end,
     getModData = function() return modData end,
     hasModData = function() return true end,
     getSquare = function() return square end,

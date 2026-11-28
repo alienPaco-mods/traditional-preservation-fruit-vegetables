@@ -1,4 +1,6 @@
--- Traditional Preservation (Fruits and Vegetables) B42: the kraut barrel. One batch at a time, of cabbages, turnips or
+-- Traditional Preservation (Fruits and Vegetables) B42: kraut in TP Core's Brine Barrel (BrineBarrel.lua; the barrel
+-- was this mod's Kraut Barrel until 0.0.26: the station, its stages, the press, the starter and the brine tank are
+-- Core's now, and this file registers the kraut on it). One batch at a time, of cabbages, turnips or
 -- any mix of the two (one ferment, as a real barrel). Heads are packed in (Pack), with apples and carrots if wanted, up
 -- to one of each per five heads; until it is salted and compressed everything can come back out (Unpack). Salt and
 -- Compress needs at least BARREL_MIN heads, a use of salt per five heads, a cloth, a board and a flat stone: it seals
@@ -19,8 +21,8 @@
 -- after which the barrel is empty and can be moved. Pour In Brine on an empty barrel, then fresh Sauerkraut or Sauer
 -- Turnip put back, BRINE_PER_HEAD of brine a portion, each keeping its own age: the barrel keeps them by place again,
 -- each on its own clock (barrel.pieces). A starter of STARTER_L of good Kraut Brine, put in while packing, is used at
--- Salt and Compress and sours the batch STARTER_BONUS faster (back-slopping). Required by
--- TraditionalPreservationFruitVegetables.lua.
+-- Salt and Compress and sours the batch STARTER_BONUS faster (back-slopping). The M.* names of Core's machinery
+-- below are kept for this mod's callers and pass on to Core's. Required by TraditionalPreservationFruitVegetables.lua.
 TraditionalPreservationFruitVegetables = TraditionalPreservationFruitVegetables or {}
 local M = TraditionalPreservationFruitVegetables
 local Weather = require "TraditionalPreservationCore/Weather"
@@ -28,8 +30,9 @@ local Fire = require "TraditionalPreservationCore/Fire"
 local Station = require "TraditionalPreservationCore/Station"
 local FluidAgeing = require "TraditionalPreservationCore/FluidAgeing"
 local Frost = require "TraditionalPreservationCore/Frost"
+local BrineBarrel = require "TraditionalPreservationCore/BrineBarrel"
 
-M.BARREL_KEY = "tpfvBarrel"   -- the barrel's record in its movableData; never rename once the mod is out
+M.BARREL_KEY = BrineBarrel.KEY   -- the barrel's record in its movableData (Core's)
 M.BARREL_MIN, M.BARREL_MAX = 20, 60   -- 20 (user, 2026-11-18: the long seal makes bigger barrels pay anyway)
 M.HEADS_PER_SALT = 5
 M.HEADS_PER_EXTRA = 5         -- one apple and one carrot at most per five heads
@@ -69,9 +72,9 @@ for kind, kraut in pairs(M.KRAUTS) do M.KRAUT_OF_PRODUCT[kraut.product] = kind e
 M.KRAUT_FROST = Frost.point(M.KRAUT_FREEZE_C)
 M.EXTRA_OF_TYPE = {}
 for extra, fullType in pairs(M.EXTRAS) do M.EXTRA_OF_TYPE[fullType] = extra end
-M.CLOTHS = { ["Base.RippedSheets"] = true, ["Base.BurlapPiece"] = true, ["Base.CheeseCloth"] = true }
-M.BOARD = "Base.Plank"      -- back with the stone once the barrel is empty
-M.STONE = "Base.FlatStone"
+M.CLOTHS = BrineBarrel.CLOTHS
+M.BOARD = BrineBarrel.BOARD   -- back with the stone once the barrel is unsealed
+M.STONE = BrineBarrel.STONE
 
 -- Rates. The ferment: days at 4, 8, 13, 18, 21 and 24 C are 120, 60, 40, 28, 21 and 16; slower still towards 0 C,
 -- where it stops (user, 2026-11-18: winter kraut sours slowly in the cold); warmer than 24 C as 24 C. A share of
@@ -126,10 +129,8 @@ function M.fermentDays(celsius)
     return rate > 0 and M.FERMENT_HOURS / rate / 24 or nil
 end
 
--- Empty, Packing, Fermenting, Ready or Spoiled.
-function M.barrelStage(barrel)
-    return barrel.stage or "Empty"
-end
+-- Empty, Packing, Fermenting, Ready, Spoiled or Brine.
+M.barrelStage = BrineBarrel.stage
 
 -- Heads in a packing barrel, of one kind or (kind nil) all; a compressed one's portions are counted by M.portionsLeft.
 function M.headCount(barrel, kind)
@@ -184,16 +185,7 @@ end
 
 -- Why it can't be salted and compressed ("Sealed", "TooFew", "NoSalt", "NoCloth", "NoBoard", "NoStone"), or nil. have: what
 -- the player has in reach { salt = uses, cloth, board, stone = true/false }.
-function M.compressRefusal(barrel, have)
-    local stage = M.barrelStage(barrel)
-    if stage ~= "Packing" and stage ~= "Empty" then return "Sealed" end
-    local heads = M.headCount(barrel)
-    if heads < M.BARREL_MIN then return "TooFew" end
-    if (have.salt or 0) < M.saltNeeded(heads) then return "NoSalt" end
-    if not have.cloth then return "NoCloth" end
-    if not have.board then return "NoBoard" end
-    if not have.stone then return "NoStone" end
-end
+M.compressRefusal = BrineBarrel.sealRefusal
 
 -- A packed piece as kept: its age, the hour it went in, its food and (a head) the age it goes stale at. food:
 -- { hunger, calories, carbs, proteins, lipids }. Until the barrel is salted and compressed a piece ages as it would
@@ -241,20 +233,10 @@ function M.softLeft(barrel, kind)
 end
 
 local limitPieces
+local clear = BrineBarrel.clear
 
--- Empties the barrel's record, keeping where it stands (the World's place and square) and whether its plank and stone
--- are on it.
-local function clear(barrel)
-    local place, at, press = barrel.place, barrel.at, M.pressed(barrel)
-    for key in pairs(barrel) do barrel[key] = nil end
-    -- false kept as false: no record reads as a barrel sealed before Unseal, pressed once it holds kraut again.
-    barrel.place, barrel.at, barrel.press = place, at, press
-end
-
--- Everything packed comes back out at its age now: { { fullType, age } ... }, and a starter as { brine = litres }, the
--- barrel empty again. Only before it is salted and compressed.
-function M.unpack(barrel, now)
-    if M.barrelStage(barrel) ~= "Packing" and not barrel.starter then return {} end
+-- Everything packed, at its age now, as Core's Unpack gives it back: the heads, then the apples and carrots.
+local function unpacked(barrel, now)
     local back = {}
     for _, head in ipairs(barrel.heads or {}) do
         table.insert(back, { fullType = M.KRAUTS[head.kind].head, age = M.packedAge(head, now) })
@@ -264,10 +246,12 @@ function M.unpack(barrel, now)
             table.insert(back, { fullType = M.EXTRAS[extra], age = M.packedAge(piece, now) })
         end
     end
-    if barrel.starter then table.insert(back, { brine = M.STARTER_L }) end
-    clear(barrel)
     return back
 end
+
+-- Everything packed comes back out at its age now: { { fullType, age } ... }, and a starter as { brine = litres }, the
+-- barrel empty again. Only before it is salted and compressed.
+M.unpack = BrineBarrel.unpack
 
 local FOOD_FIELDS = { "hunger", "calories", "carbs", "proteins", "lipids" }
 
@@ -290,9 +274,9 @@ function M.portionOf(barrel, kind)
     return portion
 end
 
--- Seals a packed barrel and starts the ferment: what was packed becomes its portions, the heads stale now its soft ones,
--- the brine made, a starter used (the batch faster by it).
-function M.compress(barrel, ledger, now)
+-- The kraut's side of sealing a packed barrel (Core's BrineBarrel.seal lays the press on and uses the starter): what
+-- was packed becomes its portions, the heads stale now its soft ones, the brine made, a starter in the batch faster.
+local function seal(barrel, ledger, now)
     barrel.portion, barrel.portions, barrel.headCounts, barrel.softHeads = {}, {}, {}, nil
     for _, kind in ipairs(M.KRAUT_KINDS) do
         local count = M.headCount(barrel, kind)
@@ -310,20 +294,19 @@ function M.compress(barrel, ledger, now)
     barrel.apples = M.extraCount(barrel, "apple")
     barrel.carrots = M.extraCount(barrel, "carrot")
     barrel.heads, barrel.extras = nil, nil
-    barrel.stage = "Fermenting"
     barrel.workHours, barrel.hotHours, barrel.soft = 0, 0, nil
     barrel.brine = M.portionsLeft(barrel) * M.BRINE_PER_HEAD
-    barrel.press = true
     barrel.speed = barrel.starter and 1 + M.STARTER_BONUS or nil
-    barrel.starterUsed, barrel.starter = barrel.starter, nil
     barrel.marks = Weather.mark({}, ledger, "ferment")
     barrel.hotMarks = Weather.mark({}, ledger, "hot")
 end
 
--- Brings a barrel up to now at place: the ferment and the hours too warm while it ferments, then its keeping once ready.
-function M.updateBarrel(barrel, ledger, place)
+-- Seals a packed barrel and starts the ferment (Core's seal, the kraut's fields above).
+M.compress = BrineBarrel.seal
+
+-- The kraut's clock at place: the ferment and the hours too warm while it ferments, then its keeping once ready.
+local function update(barrel, ledger, place)
     local stage = M.barrelStage(barrel)
-    M.brineOf(barrel, true)
     if stage == "Fermenting" then
         barrel.workHours = barrel.workHours
             + Fire.catchUp(barrel, barrel.marks, ledger, "ferment", place, M.fermentRate) * (barrel.speed or 1)
@@ -345,14 +328,12 @@ function M.updateBarrel(barrel, ledger, place)
             barrel.keepDays = barrel.keepDays + days * M.keepFactor(barrel)
         end
         if barrel.keepDays >= M.KEEP_DAYS then barrel.stage = "Spoiled" end
-    elseif stage == "Brine" then
-        local fluidAge = barrel[FluidAgeing.KEY]
-        if fluidAge and FluidAgeing.stage(fluidAge, M.BRINE_KIND) ~= "Spoiled" then
-            FluidAgeing.advance(fluidAge, M.BRINE_KIND, ledger, getGameTime():getWorldAgeHours(), place)
-            if FluidAgeing.stage(fluidAge, M.BRINE_KIND) == "Spoiled" then barrel.brineSpoiled = true end
-        end
     end
 end
+
+-- Brings a barrel up to now at place: the kraut's clock (above), then its brine on its own once only that is left
+-- (Core's).
+M.updateBarrel = BrineBarrel.update
 
 -- How much faster than by KEEP_DAYS a ready barrel's keeping runs: SOFT_KEEP when soft; with kraut put back, its
 -- nearest piece to spoiling's.
@@ -431,141 +412,29 @@ function M.takePortion(barrel, kind)
     return taken
 end
 
--- Empties a spoiled barrel (its plank and stone stay on it until it is unsealed). Returns true if it was spoiled.
-function M.emptySpoiled(barrel)
-    if M.barrelStage(barrel) ~= "Spoiled" then return false end
-    clear(barrel)
-    return true
-end
+-- Core's: empty a spoiled barrel, the press and Unseal, the brine (a barrel sealed before it kept brine has its
+-- batch's, BRINE_PER_HEAD a head it was sealed with), the starter, draw, drain, pour, and the room to put back.
+M.emptySpoiled = BrineBarrel.emptySpoiled
+M.pressed = BrineBarrel.pressed
+M.unsealRefusal = BrineBarrel.unsealRefusal
+M.unseal = BrineBarrel.unseal
+M.brineOf = BrineBarrel.brineOf
+M.holdBrine = BrineBarrel.holdBrine
+M.starterRefusal = BrineBarrel.starterRefusal
+M.addStarter = BrineBarrel.addStarter
+M.drawRefusal = BrineBarrel.drawRefusal
+M.drawStarter = BrineBarrel.drawStarter
+M.drainBrine = BrineBarrel.drainBrine
+M.pourRefusal = BrineBarrel.pourRefusal
+M.pourBrine = BrineBarrel.pourBrine
+M.putBackRoom = BrineBarrel.putBackRoom
+M.putBackRefusal = BrineBarrel.putBackRefusal
 
--- The press (user, 2026-11-27): Salt and Compress lays the plank and stone on; they stay until Unseal lifts them off,
--- once the batch is ready (lifting them mid-ferment lets the kraut float out of its brine). Nothing else gives them
--- back. Pressed, the barrel is shut: nothing comes out (kraut, a starter, the brine) or goes in, and it stays where it
--- is. A barrel sealed before this has them on.
-function M.pressed(barrel)
-    if barrel.press ~= nil then return barrel.press end
-    local stage = M.barrelStage(barrel)
-    return stage == "Fermenting" or stage == "Ready" or stage == "Spoiled"
-end
-
--- Why it can't be unsealed ("NotPressed", "Fermenting"), or nil.
-function M.unsealRefusal(barrel)
-    if not M.pressed(barrel) then return "NotPressed" end
-    if M.barrelStage(barrel) == "Fermenting" then return "Fermenting" end
-end
-
--- Lifts the plank and stone off. Returns true if they came off.
-function M.unseal(barrel)
-    if M.unsealRefusal(barrel) then return false end
-    barrel.press = false
-    return true
-end
-
--- Brine
-
--- Litres of brine in the barrel. A barrel sealed before it kept brine has its batch's (BRINE_PER_HEAD a head it was
--- sealed with); save writes that down.
-function M.brineOf(barrel, save)
-    if barrel.brine then return barrel.brine end
-    local stage = M.barrelStage(barrel)
-    if stage ~= "Fermenting" and stage ~= "Ready" then return 0 end
+-- The litres a barrel sealed before it kept brine had: BRINE_PER_HEAD a head it was sealed with.
+local function sealedBrine(barrel)
     local heads = 0
     for _, n in pairs(barrel.headCounts or {}) do heads = heads + n end
-    local brine = heads * M.BRINE_PER_HEAD
-    if save then barrel.brine = brine end
-    return brine
-end
-
--- The barrel holding only brine (stage Brine): litres of it, aging from now as Kraut Brine (fluidAge, or a fresh one).
-function M.holdBrine(barrel, litres, fluidAge)
-    barrel.stage, barrel.brine = "Brine", litres
-    barrel[FluidAgeing.KEY] = fluidAge and FluidAgeing.copy(fluidAge)
-        or FluidAgeing.newFluidAge(M.BRINE_KIND, M.getLedger(), getGameTime():getWorldAgeHours(), barrel.place or Weather.DEFAULT_PLACE)
-    barrel.brineSpoiled = FluidAgeing.stage(barrel[FluidAgeing.KEY], M.BRINE_KIND) == "Spoiled" or nil
-end
-
--- Why a starter can't go in ("Sealed", "HasStarter"), or nil: only while it is empty or packing.
-function M.starterRefusal(barrel)
-    local stage = M.barrelStage(barrel)
-    if stage ~= "Empty" and stage ~= "Packing" then return "Sealed" end
-    if M.pressed(barrel) then return "Pressed" end
-    if barrel.starter then return "HasStarter" end
-end
-
--- A starter of STARTER_L of Kraut Brine goes in.
-function M.addStarter(barrel)
-    if M.starterRefusal(barrel) then return false end
-    barrel.stage = "Packing"
-    barrel.starter = true
-    return true
-end
-
--- Why a starter can't be drawn ("NotReady", "Drawn", "NoBrine"), or nil: a ready barrel with kraut in it, once.
-function M.drawRefusal(barrel)
-    if M.barrelStage(barrel) ~= "Ready" then return "NotReady" end
-    if M.pressed(barrel) then return "Pressed" end
-    if barrel.starterDrawn then return "Drawn" end
-    if M.brineOf(barrel) < M.STARTER_L then return "NoBrine" end
-end
-
--- Draws STARTER_L of brine off a ready barrel. Returns the litres, or 0.
-function M.drawStarter(barrel)
-    if M.drawRefusal(barrel) then return 0 end
-    barrel.brine = M.brineOf(barrel) - M.STARTER_L
-    barrel.starterDrawn = true
-    return M.STARTER_L
-end
-
--- Drains up to litres (all when nil) of a barrel holding only brine: returns the litres, their fluid (good or
--- mouldy) and their fluidAge. Emptied, the barrel is empty again.
-function M.drainBrine(barrel, litres)
-    if M.barrelStage(barrel) ~= "Brine" or M.pressed(barrel) then return 0 end
-    local took = math.min(litres or barrel.brine, barrel.brine)
-    local fluid = barrel.brineSpoiled and M.ROTTEN_BRINE or M.KRAUT_BRINE
-    local fluidAge = barrel[FluidAgeing.KEY] and FluidAgeing.copy(barrel[FluidAgeing.KEY])
-    barrel.brine = barrel.brine - took
-    if barrel.brine <= 1e-6 then clear(barrel) end
-    return took, fluid, fluidAge
-end
-
--- Why brine can't be poured in ("Sealed", "Mouldy", "Full"), or nil: an empty barrel or one of brine.
-function M.pourRefusal(barrel)
-    local stage = M.barrelStage(barrel)
-    if stage ~= "Empty" and stage ~= "Brine" then return "Sealed" end
-    if barrel.brineSpoiled then return "Mouldy" end
-    if M.brineOf(barrel) >= M.BRINE_MAX - 1e-6 then return "Full" end
-end
-
--- Pours up to litres of good Kraut Brine of fluidAge in. Returns the litres taken.
-function M.pourBrine(barrel, litres, fluidAge)
-    if M.pourRefusal(barrel) then return 0 end
-    local had = M.brineOf(barrel)
-    local took = math.min(litres, M.BRINE_MAX - had)
-    if M.barrelStage(barrel) == "Empty" then
-        M.holdBrine(barrel, took, fluidAge)
-    else
-        barrel.brine = had + took
-        if fluidAge then FluidAgeing.receive(barrel, fluidAge, true, barrel.place) end
-    end
-    return took
-end
-
--- Portions that can be put back: what the brine covers, BARREL_MAX at most, less what is in (0 where none go).
-function M.putBackRoom(barrel)
-    local stage = M.barrelStage(barrel)
-    if (stage ~= "Brine" and stage ~= "Ready") or barrel.brineSpoiled then return 0 end
-    local covered = math.min(math.floor(M.brineOf(barrel) / M.BRINE_PER_HEAD + 1e-6), M.BARREL_MAX)
-    return math.max(covered - M.portionsLeft(barrel), 0)
-end
-
--- Why a portion can't be put back ("NoBrine", "Mouldy", "Covered", "Stale"), or nil. fresh: it hasn't gone stale.
-function M.putBackRefusal(barrel, fresh)
-    local stage = M.barrelStage(barrel)
-    if stage ~= "Brine" and stage ~= "Ready" then return "NoBrine" end
-    if M.pressed(barrel) then return "Pressed" end
-    if barrel.brineSpoiled then return "Mouldy" end
-    if M.putBackRoom(barrel) <= 0 then return "Covered" end
-    if not fresh then return "Stale" end
+    return heads * M.BRINE_PER_HEAD
 end
 
 -- The nearest piece to spoiling sets the barrel's keepDays and keepFactor (keep / cap: a soft piece may go twice as
@@ -618,45 +487,14 @@ end
 
 -- Engine side
 
-function M.barrelOf(station)
-    local modData = Station.movableData(station)
-    modData[M.BARREL_KEY] = modData[M.BARREL_KEY] or {}
-    return modData[M.BARREL_KEY]
-end
+M.barrelOf = BrineBarrel.of
+M.onlyFluid = BrineBarrel.onlyFluid
+M.roomFor = BrineBarrel.roomFor
+M.takeFluid = BrineBarrel.takeFluid
 
--- Litres of fluid in a container holding only that fluid (0 for anything else, or none).
-function M.onlyFluid(item, fluid)
-    local container = item and item.getFluidContainer and item:getFluidContainer()
-    if not container or container:isEmpty() then return 0 end
-    local name, litres = require("TraditionalPreservationCore/ItemFluid").oneFluid(container)
-    return name == fluid and litres or 0
-end
-
--- Room for fluid in a container: empty, or holding only that fluid (0 otherwise).
-function M.roomFor(item, fluid)
-    local container = item and item.getFluidContainer and item:getFluidContainer()
-    if not container then return 0 end
-    if not container:isEmpty() and M.onlyFluid(item, fluid) <= 0 then return 0 end
-    return math.max(container:getCapacity() - container:getAmount(), 0)
-end
-
--- Pours litres of fluid of fluidAge (a fresh one when nil) into a container, its age going with it (TP Core's
--- FluidAgeing: the age is the fluid's, and travels on with it when it is poured on).
+-- Pours litres of fluid of fluidAge (fresh Kraut Brine when nil) into a container, its age going with it.
 function M.fillWith(item, fluid, litres, fluidAge)
-    if litres <= 0 then return end
-    local container = item:getFluidContainer()
-    local hadSome = not container:isEmpty()
-    container:addFluid(fluid, litres)
-    local now = getGameTime():getWorldAgeHours()
-    local place = FluidAgeing.placeOfItem(item)
-    fluidAge = fluidAge or FluidAgeing.newFluidAge(M.BRINE_KIND, M.getLedger(), now, place or Weather.DEFAULT_PLACE)
-    FluidAgeing.receive(item:getModData(), fluidAge, hadSome, place)
-end
-
--- Takes litres out of a container of one fluid.
-function M.takeFluid(item, fluid, litres)
-    local container = item:getFluidContainer()
-    container:adjustSpecificFluidAmount(Fluid.Get(fluid), math.max(container:getAmount() - litres, 0))
+    BrineBarrel.fillWith(item, fluid, litres, fluidAge, M.KRAUT_KIND)
 end
 
 -- A food's own values, as the barrel keeps them.
@@ -716,3 +554,79 @@ function M.keepKraut(item, now, place)
     if holder then FluidAgeing.noteFire(record, fire, holder, now) end
     return record
 end
+
+-- The kraut on TP Core's Brine Barrel. What it packs: heads (cabbage, turnip) and the apples and carrots they allow.
+local function packRefusal(barrel, item)
+    local kind = M.KRAUT_OF_HEAD[item:getFullType()]
+    if kind then return M.packRefusal(barrel) end
+    return M.extraRefusal(barrel, M.EXTRA_OF_TYPE[item:getFullType()])
+end
+
+local function packed(barrel)
+    return M.headCount(barrel) + M.extraCount(barrel, "apple") + M.extraCount(barrel, "carrot")
+end
+
+-- The overlay an open barrel shows: the shreds at the rim of what is in it, cabbage, turnip or both mixed (packing,
+-- or kraut left once unsealed; user, 2026-11-27); nothing when nothing is in it (empty, or brine only). Core draws the
+-- cloth, board and stone while the press is on.
+local Tiles = require "TraditionalPreservationFruitVegetables/Tiles"
+local function shredsOf(cabbages, turnips)
+    if cabbages > 0 and turnips > 0 then return Tiles.OVERLAYS.mixed end
+    if cabbages + turnips == 0 then return nil end
+    return Tiles.OVERLAYS[turnips > 0 and "turnip" or "cabbage"]
+end
+
+local function look(barrel, face)
+    local stage = M.barrelStage(barrel)
+    local overlay
+    if stage == "Packing" or stage == "Spoiled" then
+        overlay = shredsOf(M.headCount(barrel, "cabbage"), M.headCount(barrel, "turnip"))
+    elseif stage == "Ready" then
+        overlay = shredsOf(M.portionsLeft(barrel, "cabbage"), M.portionsLeft(barrel, "turnip"))
+    end
+    return overlay and Tiles.PREFIX .. (overlay + face) or nil
+end
+
+M.KRAUT_KIND = BrineBarrel.kind({
+    id = "kraut",
+    getLedger = function() return M.getLedger() end,
+    capacity = M.BARREL_MAX,
+    least = M.BARREL_MIN,
+    perSalt = M.HEADS_PER_SALT,
+    brine = { fluid = M.KRAUT_BRINE, rotten = M.ROTTEN_BRINE, ageing = M.BRINE_KIND, perPiece = M.BRINE_PER_HEAD,
+        max = M.BRINE_MAX, starter = M.STARTER_L },
+    takes = function(item) return M.KRAUT_OF_HEAD[item:getFullType()] ~= nil or M.EXTRA_OF_TYPE[item:getFullType()] ~= nil end,
+    starterBonus = function() return M.STARTER_BONUS end,
+    packRefusal = packRefusal,
+    pack = function(barrel, item, now)
+        local kind = M.KRAUT_OF_HEAD[item:getFullType()]
+        if kind then
+            M.pack(barrel, kind, item:getAge(), M.foodOf(item), now, item:getOffAge())
+        else
+            M.packExtra(barrel, M.EXTRA_OF_TYPE[item:getFullType()], item:getAge(), M.foodOf(item), now)
+        end
+    end,
+    count = function(barrel) return M.headCount(barrel) end,
+    packed = packed,
+    unpacked = unpacked,
+    -- Packing's xp comes at the seal, not as each piece goes in: Unpack gives them back, so packing again would pay again.
+    sealXp = function(barrel) return M.COMPRESS_XP + M.PACK_XP * packed(barrel) end,
+    seal = seal,
+    update = update,
+    status = function(barrel, ledger, place) return M.barrelStatus(barrel, ledger, place) end,
+    portionsLeft = function(barrel, which) return M.portionsLeft(barrel, which) end,
+    take = function(barrel, which) return M.takePortion(barrel, which) end,
+    output = function(taken)
+        local item = instanceItem(M.KRAUTS[taken.kind].product)
+        M.applyPortion(item, taken)
+        return item
+    end,
+    isPortion = function(item) return M.KRAUT_OF_PRODUCT[item:getFullType()] end,
+    isFresh = function(item) return M.isFreshKraut(item) end,
+    putBack = function(barrel, item, ledger)
+        local kind = M.KRAUT_OF_PRODUCT[item:getFullType()]
+        return kind ~= nil and M.putBack(barrel, kind, M.foodOf(item), item:getAge(), item:getModData()[M.KRAUT_SOFT_KEY] == true, ledger)
+    end,
+    sealedBrine = sealedBrine,
+    look = look,
+})

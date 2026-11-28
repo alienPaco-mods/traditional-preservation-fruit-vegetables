@@ -268,7 +268,7 @@ end
 -- One kit per kind of test, the whole group, sorted when listed.
 local KITS = {
     barrel = {
-        about = "a hammer, a saw, 6 planks, 10 nails and 4 twine to build the Kraut Barrel (Woodwork 3); 30 cabbages, "
+        about = "a hammer, a saw, 6 planks, 10 nails and 4 twine to build the Brine Barrel (Woodwork 3); 30 cabbages, "
             .. "6 apples, 6 carrots, 30 turnips, 2 salt shakers, a ripped sheet, a plank and a flat stone to fill, salt and compress it; "
             .. "a jar of kraut brine for its starter, 4 empty jars and a bucket to draw and drain brine into",
         give = function(inventory)
