@@ -280,6 +280,11 @@ word, text, look = KrautUI.band(sealed, { stage = "Fermenting", temperature = 0,
 check("stalled in the cold: amber", text == "stopped: too cold to sour" and look == InfoWindow.BAND_WAITING)
 word, text, look = KrautUI.band({ soft = true }, { stage = "Ready", daysLeft = 170.4 })
 check("ready but soft: amber, how long it keeps", word == "Soft" and text == "keeps about 170 d here" and look == InfoWindow.BAND_WAITING)
+-- Drain Brine clears the record in place while the window still holds the status it worked out before (the crash
+-- seen in game, session 83): the band reads the litres from that status.
+word, text = KrautUI.band({}, { stage = "Brine", brine = 4.5 })
+check("brine just drained: the band still reads its status, no error", word == getText("IGUI_TraditionalPreservationFruitVegetables_StageBrine")
+    and text:find("4.5", 1, true) ~= nil)
 check("Speed and Too warm rows only while it ferments", #KrautUI.rows({ stage = "Fermenting", rate = 0.65, hotHours = 0 }) == 2
     and #KrautUI.rows({ stage = "Ready" }) == 0)
 

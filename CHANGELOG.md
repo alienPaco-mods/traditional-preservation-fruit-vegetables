@@ -1,5 +1,13 @@
 # Changelog: Traditional Preservation (Fruits and Vegetables)
 
+## 0.0.25
+- **Fix: Drain Brine no longer throws an error in the Kraut Barrel window** (seen in game, 2026-11-28). Draining
+  clears the barrel's record in place while the window still holds the status it worked out before, so for a frame
+  its band read the brine litres from the emptied record (`litresText` on nil). The band now reads them from that
+  same status. The drain itself was never affected. test_menu.
+- **Kraut Brine has its own colour** (user, 2026-11-28): DarkSeaGreen, a cloudy pale grey-green, in containers and the
+  barrel's brine tank, so it no longer looks like Salt's Brine (Khaki). Its mouldy brine stays DarkOliveGreen.
+
 ## 0.0.24
 - **Kraut brine** (user, 2026-11-27, art/kraut_brine_mock.png): a barrel makes 0.15 L of brine a head at Salt and
   Compress (a barrel sealed before this has its batch's). **Draw Starter** takes 1 L at most off a ready barrel with

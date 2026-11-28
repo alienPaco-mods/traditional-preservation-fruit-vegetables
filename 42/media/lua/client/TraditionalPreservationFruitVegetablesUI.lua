@@ -390,10 +390,12 @@ function KrautUI.band(barrel, status)
     elseif stage == "Spoiled" then
         return getText(KEY .. "StageSpoiled"), getText(KEY .. "BandSpoiledText"), InfoWindow.BAND_AT_RISK
     elseif stage == "Brine" then
+        -- The status's litres, worked out with its stage: Drain Brine clears the record in place, and the window keeps
+        -- its status until the next refresh.
         if barrel.brineSpoiled then
-            return getText(KEY .. "StageBrine"), say(KEY .. "BandBrineMouldy", litresText(barrel.brine)), InfoWindow.BAND_AT_RISK
+            return getText(KEY .. "StageBrine"), say(KEY .. "BandBrineMouldy", litresText(status.brine)), InfoWindow.BAND_AT_RISK
         end
-        return getText(KEY .. "StageBrine"), say(KEY .. "BandBrineText", litresText(barrel.brine)), InfoWindow.BAND_WAITING
+        return getText(KEY .. "StageBrine"), say(KEY .. "BandBrineText", litresText(status.brine)), InfoWindow.BAND_WAITING
     elseif stage == "Ready" then
         local text = status.daysLeft and say(KEY .. "BandReadyText", string.format("%.0f", status.daysLeft))
             or getText(KEY .. "KeepsForever")
@@ -568,7 +570,7 @@ function KrautUI.holding(barrel, drop, now)
 end
 
 -- The brine tank right of the heads (art/kraut_brine_mock.png): up to BRINE_MAX, its line what it covers.
-local BRINE_COLOUR, MOULDY_COLOUR = { 0.84, 0.81, 0.59 }, { 0.33, 0.42, 0.18 }
+local BRINE_COLOUR, MOULDY_COLOUR = { 0.561, 0.737, 0.545 }, { 0.33, 0.42, 0.18 }   -- the fluids' DarkSeaGreen and DarkOliveGreen
 function KrautUI.brineHolding(barrel)
     local stage = M.barrelStage(barrel)
     local brine = M.brineOf(barrel)
